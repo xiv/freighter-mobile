@@ -2,6 +2,7 @@ import ClipboardIcon from "assets/icons/clipboard.svg";
 import { BaseLayout } from "components/layout/BaseLayout";
 import { Button } from "components/sds/Button";
 import { Input } from "components/sds/Input";
+import { Text } from "components/sds/Typography";
 import { PALETTE, THEME } from "config/theme";
 import { fs, px, pxValue } from "helpers/dimensions";
 import React, { useState } from "react";
@@ -37,6 +38,22 @@ export const HomeScreen = () => {
           value={passwordValue}
           onChangeText={setPasswordValue}
         />
+
+        <Text
+          md
+          secondary
+          weight="medium"
+          style={{
+            textAlign: "center",
+          }}
+        >
+          By proceeding, you agree to
+          {"\n"}
+          Freighter&apos;s{" "}
+          <Text md weight="medium" url="https://stellar.org/terms-of-service">
+            terms of use
+          </Text>
+        </Text>
 
         <View style={{ height: 40 }} />
 
