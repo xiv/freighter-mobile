@@ -2,6 +2,8 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CustomNavigationHeader from "components/CustomNavigationHeader";
 import { ChoosePasswordScreen } from "components/screens/ChoosePasswordScreen";
+import { ConfirmPasswordScreen } from "components/screens/ConfirmPasswordScreen";
+import { RecoveryPhraseAlertScreen } from "components/screens/RecoveryPhraseAlertScreen";
 import { WelcomeScreen } from "components/screens/WelcomeScreen";
 import { AUTH_STACK_ROUTES, AuthStackParamList } from "config/routes";
 import { THEME } from "config/theme";
@@ -34,11 +36,11 @@ export const AuthNavigator = () => (
     />
     <AuthStack.Screen
       name={AUTH_STACK_ROUTES.CONFIRM_PASSWORD_SCREEN}
-      component={BlankScreen}
+      component={ConfirmPasswordScreen}
     />
     <AuthStack.Screen
       name={AUTH_STACK_ROUTES.RECOVERY_PHRASE_ALERT_SCREEN}
-      component={BlankScreen}
+      component={RecoveryPhraseAlertScreen}
     />
     <AuthStack.Screen
       name={AUTH_STACK_ROUTES.RECOVERY_PHRASE_SCREEN}
