@@ -26,11 +26,21 @@ export type HashKey = {
   salt: string;
 };
 
+/**
+ * Represents a native Stellar token (XLM)
+ */
 export type NativeToken = {
   type: AssetType.native;
   code: "XLM";
 };
 
+/**
+ * Represents an asset issuer with their identifying information
+ * @property {string} key - The public key of the issuer
+ * @property {string} [name] - Optional display name of the issuer
+ * @property {string} [url] - Optional website URL of the issuer
+ * @property {string} [hostName] - Optional hostname for the issuer's domain
+ */
 export type Issuer = {
   key: string;
   name?: string;
@@ -38,6 +48,11 @@ export type Issuer = {
   hostName?: string;
 };
 
+/**
+ * Represents a non-native Stellar asset with its properties
+ * @property {string} code - The asset code (e.g., "USDC")
+ * @property {Issuer} issuer - The asset issuer information
+ */
 export type AssetToken = {
   code: string;
   issuer: Issuer;
@@ -50,10 +65,19 @@ export type AssetToken = {
   spread?: BigNumber;
 };
 
+/**
+ * Base balance type with total amount
+ * @property {BigNumber} total - The total balance amount
+ */
 export type BaseBalance = {
   total: BigNumber;
 };
 
+/**
+ * Native XLM balance with available and minimum balance calculations
+ * @property {BigNumber} available - Total minus selling liabilities and minimum balance
+ * @property {BigNumber} minimumBalance - Required minimum XLM balance
+ */
 export type NativeBalance = BaseBalance & {
   token: NativeToken;
   // this should be total - sellingLiabilities - minimumBalance
@@ -97,6 +121,10 @@ export type LiquidityPoolBalance = BaseBalance & {
   reserves: Horizon.HorizonApi.Reserve[];
 };
 
+/**
+ * Union type representing all possible balance types in the system
+ * Includes native XLM, classic assets, Soroban tokens, and liquidity pools
+ */
 export type Balance =
   | NativeBalance
   | ClassicBalance
@@ -111,6 +139,14 @@ export type Balance =
  */
 export type TokenIdentifier = string;
 
+/**
+ * Maps token identifiers to their respective balances
+ * @example
+ * {
+ *   "XLM": { type: "native", total: "100", ... },
+ *   "USDC:GA5Z...": { type: "classic", total: "50", ... }
+ * }
+ */
 export type BalanceMap = {
   [tokenIdentifier: TokenIdentifier]: Balance;
 };
@@ -142,8 +178,6 @@ export interface TokenPricesMap {
  * @property {string} [fiatCode] - Currency code for fiat value display (e.g., "USD")
  * @property {BigNumber} [fiatTotal] - Total value of the balance in fiat currency
  * @property {string} [displayName] - Human-readable name for display purposes
- * @property {string} [firstChar] - First character or abbreviation for avatar/icon fallback
- * @property {string} [imageUrl] - URL to the token's icon or image
  */
 export type PricedBalance = Balance &
   TokenPrice & {
@@ -151,8 +185,6 @@ export type PricedBalance = Balance &
     fiatCode?: string;
     fiatTotal?: BigNumber;
     displayName?: string;
-    firstChar?: string;
-    imageUrl?: string;
   };
 
 /**

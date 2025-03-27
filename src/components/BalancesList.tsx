@@ -1,4 +1,4 @@
-import { useFocusEffect } from "@react-navigation/native";
+import { AssetIcon } from "components/AssetIcon";
 import { Text } from "components/sds/Typography";
 import { NETWORKS } from "config/constants";
 import { PricedBalance } from "config/types";
@@ -9,7 +9,7 @@ import {
   formatFiatAmount,
   formatPercentageAmount,
 } from "helpers/formatAmount";
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, RefreshControl } from "react-native";
 import styled from "styled-components/native";
 
@@ -59,15 +59,6 @@ const PriceChangeText = styled(Text)<PriceChangeTextProps>`
     props.isPositive ? "green" : "red"};
 `;
 
-const IconPlaceholder = styled.View`
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background-color: green;
-  justify-content: center;
-  align-items: center;
-`;
-
 const EmptyState = styled.View`
   padding: 32px 16px;
   align-items: center;
@@ -77,27 +68,36 @@ const EmptyState = styled.View`
 /**
  * Extended PricedBalance type with an id field for use in FlatList
  */
-type BalanceItem = PricedBalance & { id: string };
+type BalanceItem = PricedBalance & {
+  id: string;
+};
+
+/**
+ * BalancesList Component Props
+ */
+interface BalancesListProps {
+  publicKey: string;
+  network: NETWORKS;
+}
 
 /**
  * BalancesList Component
  *
- * A self-contained component that displays a user's token balances in a scrollable list.
+ * A component that displays a user's token balances in a scrollable list.
  * Features include:
  * - Displays regular tokens and liquidity pool tokens
  * - Shows token balances with corresponding fiat values
  * - Displays 24h price changes with color indicators
  * - Supports pull-to-refresh to update balances and prices
  * - Shows loading, error, and empty states
- * - Auto-refreshes when the screen comes into focus
  *
+ * @param {BalancesListProps} props - Component props
  * @returns {JSX.Element} A FlatList of balance items or an empty state message
  */
-export const BalancesList: React.FC = () => {
-  // TODO: Hardcoded values for testing, we'll get this from the wallet context
-  const publicKey = "GAZAJVMMEWVIQRP6RXQYTVAITE7SC2CBHALQTVW2N4DYBYPWZUH5VJGG"; // with LP
-  const network = NETWORKS.TESTNET;
-
+export const BalancesList: React.FC<BalancesListProps> = ({
+  publicKey,
+  network,
+}) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Reference to track refresh timeout
@@ -127,19 +127,6 @@ export const BalancesList: React.FC = () => {
   );
 
   /**
-   * Fetches account balances for the current publicKey and network
-   * The store will handle fetching prices and calculating fiat values
-   *
-   * @returns {Promise<void>} Promise that resolves when balances are fetched
-   */
-  const fetchBalances = useCallback(async () => {
-    await fetchAccountBalances({
-      publicKey,
-      network,
-    });
-  }, [fetchAccountBalances, publicKey, network]);
-
-  /**
    * Handles manual refresh via pull-to-refresh gesture
    * Ensures the refresh spinner is visible for at least 1 second for a better UX
    */
@@ -147,7 +134,10 @@ export const BalancesList: React.FC = () => {
     setIsRefreshing(true);
     const refreshStartTime = Date.now();
 
-    fetchBalances().finally(() => {
+    fetchAccountBalances({
+      publicKey,
+      network,
+    }).finally(() => {
       const elapsedTime = Date.now() - refreshStartTime;
       const remainingTime = Math.max(0, 1000 - elapsedTime);
 
@@ -157,17 +147,7 @@ export const BalancesList: React.FC = () => {
         refreshTimeoutRef.current = null;
       }, remainingTime);
     });
-  }, [fetchBalances]);
-
-  /**
-   * Fetch balances when component comes into focus
-   * Does not show a spinner, as this is background refreshing
-   */
-  useFocusEffect(
-    useCallback(() => {
-      fetchBalances();
-    }, [fetchBalances]),
-  );
+  }, [fetchAccountBalances, publicKey, network]);
 
   // Display error state if there's an error loading balances
   if (balancesError) {
@@ -210,9 +190,7 @@ export const BalancesList: React.FC = () => {
   const renderItem = ({ item }: { item: BalanceItem }) => (
     <BalanceRow>
       <LeftSection>
-        <IconPlaceholder>
-          <Text md>{item.firstChar}</Text>
-        </IconPlaceholder>
+        <AssetIcon token={item} />
         <AssetTextContainer>
           <Text md>{item.displayName}</Text>
           <AmountText sm>
