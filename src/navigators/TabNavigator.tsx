@@ -3,9 +3,12 @@ import { DiscoveryScreen } from "components/screens/DiscoveryScreen";
 import { HistoryScreen } from "components/screens/HistoryScreen";
 import { HomeScreen } from "components/screens/HomeScreen";
 import Icon from "components/sds/Icon";
+import { TEST_PUBLIC_KEY, TEST_NETWORK_DETAILS } from "config/constants";
 import { MAIN_TAB_ROUTES, MainTabStackParamList } from "config/routes";
 import { THEME } from "config/theme";
 import { px, pxValue } from "helpers/dimensions";
+import { useFetchAssetIcons } from "hooks/useFetchAssetIcons";
+import { useFetchPricedBalances } from "hooks/useFetchPricedBalances";
 import React from "react";
 import styled from "styled-components/native";
 
@@ -44,6 +47,15 @@ interface TabIconProps {
 
 const TabIcon = ({ route, focused, color }: TabIconProps) => {
   const IconComponent = TAB_ICONS[route.name];
+  const publicKey = TEST_PUBLIC_KEY;
+  const networkDetails = TEST_NETWORK_DETAILS;
+
+  // Fetch balances when component mounts or when publicKey/network changes
+  useFetchPricedBalances({ publicKey, network: networkDetails.network });
+
+  // Fetch icons whenever balances are updated
+  useFetchAssetIcons(networkDetails.networkUrl);
+
   return (
     <TabIconWrapper focused={focused}>
       <IconComponent size={TAB_ICON_SIZE} color={color} />

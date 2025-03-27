@@ -77,5 +77,10 @@
       "failedToGetActiveKeyPair": "Falha ao obter par de chaves ativo"
     },
     "account": "Conta {{number}}"
+  },
+  "balancesList": {
+    "title": "Tokens",
+    "error": "Erro ao carregar saldos",
+    "empty": "Nenhum saldo encontrado"
   }
 }

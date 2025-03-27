@@ -1,68 +1,67 @@
 import { AssetIcon } from "components/AssetIcon";
 import { Text } from "components/sds/Typography";
 import { NETWORKS } from "config/constants";
+import { THEME } from "config/theme";
 import { PricedBalance } from "config/types";
 import { useBalancesStore } from "ducks/balances";
 import { usePricesStore } from "ducks/prices";
+import { isLiquidityPool } from "helpers/balances";
+import { px } from "helpers/dimensions";
 import {
   formatAssetAmount,
   formatFiatAmount,
   formatPercentageAmount,
 } from "helpers/formatAmount";
+import useAppTranslation from "hooks/useAppTranslation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, RefreshControl } from "react-native";
 import styled from "styled-components/native";
 
+const ListWrapper = styled.View`
+  flex: 1;
+`;
+
+const ListTitle = styled.View`
+  margin-bottom: ${px(24)};
+`;
+
+const Spinner = styled.ActivityIndicator`
+  margin-top: ${px(24)};
+  width: 100%;
+  align-items: center;
+`;
+
 const BalanceRow = styled.View`
   flex-direction: row;
+  width: 100%;
+  height: ${px(44)};
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border-bottom-width: 1px;
-  border-bottom-color: blue;
+  margin-bottom: ${px(24)};
 `;
 
 const LeftSection = styled.View`
   flex-direction: row;
   align-items: center;
+  flex: 1;
+  margin-right: ${px(16)};
 `;
 
 const AssetTextContainer = styled.View`
   flex-direction: column;
-  margin-left: 12px;
+  margin-left: ${px(16)};
+  flex: 1;
 `;
 
-const AmountText = styled(Text)`
-  color: gray;
-  margin-top: 2px;
-`;
-
-const RightSection = styled.View`
-  flex-direction: column;
-  align-items: flex-end;
-`;
-
-/**
- * Interface for PriceChangeText styling props
- * @property {boolean} isPositive - Whether the price change is positive (green) or negative (red)
- * @property {React.ReactNode} [children] - Child elements
- * @property {boolean} [sm] - Whether to use small text size
- */
-interface PriceChangeTextProps {
-  isPositive: boolean;
-  children?: React.ReactNode;
-  sm?: boolean;
+interface RightSectionProps {
+  isLP: boolean;
 }
 
-const PriceChangeText = styled(Text)<PriceChangeTextProps>`
-  color: ${(props: PriceChangeTextProps) =>
-    props.isPositive ? "green" : "red"};
-`;
-
-const EmptyState = styled.View`
-  padding: 32px 16px;
-  align-items: center;
-  justify-content: center;
+const RightSection = styled.View<RightSectionProps>`
+  flex-direction: column;
+  align-items: flex-end;
+  /* For liquidity pool balances we only need 20px for the "--" string */
+  width: ${({ isLP }: RightSectionProps) => px(isLP ? 20 : 115)};
 `;
 
 /**
@@ -98,6 +97,7 @@ export const BalancesList: React.FC<BalancesListProps> = ({
   publicKey,
   network,
 }) => {
+  const { t } = useAppTranslation();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Reference to track refresh timeout
@@ -134,10 +134,16 @@ export const BalancesList: React.FC<BalancesListProps> = ({
     setIsRefreshing(true);
     const refreshStartTime = Date.now();
 
-    fetchAccountBalances({
-      publicKey,
-      network,
-    }).finally(() => {
+    Promise.all([
+      fetchAccountBalances({
+        publicKey,
+        network,
+      }),
+      // Add a minimum delay to prevent flickering
+      new Promise((resolve) => {
+        setTimeout(resolve, 500);
+      }),
+    ]).finally(() => {
       const elapsedTime = Date.now() - refreshStartTime;
       const remainingTime = Math.max(0, 1000 - elapsedTime);
 
@@ -152,20 +158,33 @@ export const BalancesList: React.FC<BalancesListProps> = ({
   // Display error state if there's an error loading balances
   if (balancesError) {
     return (
-      <EmptyState>
-        <Text md>Error loading balances</Text>
-      </EmptyState>
+      <ListWrapper>
+        <ListTitle>
+          <Text medium>{t("balancesList.title")}</Text>
+        </ListTitle>
+        <Text md>{t("balancesList.error")}</Text>
+      </ListWrapper>
     );
   }
 
   // If no balances or empty object, show empty state
   if (!balances || Object.keys(balances).length === 0) {
     return (
-      <EmptyState>
-        <Text md>
-          {isBalancesLoading ? "Loading balances..." : "No balances found"}
-        </Text>
-      </EmptyState>
+      <ListWrapper>
+        <ListTitle>
+          <Text medium>{t("balancesList.title")}</Text>
+        </ListTitle>
+
+        {isBalancesLoading ? (
+          <Spinner
+            testID="balances-list-spinner"
+            size="large"
+            color={THEME.colors.secondary}
+          />
+        ) : (
+          <Text md>{t("balancesList.empty")}</Text>
+        )}
+      </ListWrapper>
     );
   }
 
@@ -192,38 +211,60 @@ export const BalancesList: React.FC<BalancesListProps> = ({
       <LeftSection>
         <AssetIcon token={item} />
         <AssetTextContainer>
-          <Text md>{item.displayName}</Text>
-          <AmountText sm>
+          <Text medium numberOfLines={1}>
+            {item.displayName}
+          </Text>
+          <Text sm medium secondary numberOfLines={1}>
             {formatAssetAmount(item.total, item.tokenCode)}
-          </AmountText>
+          </Text>
         </AssetTextContainer>
       </LeftSection>
-      <RightSection>
-        <Text md>
-          {item.fiatTotal ? formatFiatAmount(item.fiatTotal) : "—"}
-        </Text>
-        <PriceChangeText sm isPositive={!item.percentagePriceChange24h?.lt(0)}>
-          {item.percentagePriceChange24h
-            ? formatPercentageAmount(item.percentagePriceChange24h)
-            : "—"}
-        </PriceChangeText>
+      <RightSection isLP={isLiquidityPool(item)}>
+        {item.fiatTotal ? (
+          <>
+            <Text medium numberOfLines={1}>
+              {formatFiatAmount(item.fiatTotal)}
+            </Text>
+            <Text
+              sm
+              medium
+              color={
+                item.percentagePriceChange24h?.gt(0)
+                  ? THEME.colors.status.success
+                  : THEME.colors.text.secondary
+              }
+            >
+              {formatPercentageAmount(item.percentagePriceChange24h)}
+            </Text>
+          </>
+        ) : (
+          <Text sm medium secondary>
+            --
+          </Text>
+        )}
       </RightSection>
     </BalanceRow>
   );
 
   return (
-    <FlatList
-      testID="balances-list"
-      data={balanceItems}
-      renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-      refreshControl={
-        <RefreshControl
-          refreshing={isRefreshing || isPricesLoading}
-          onRefresh={handleRefresh}
-          tintColor="blue"
-        />
-      }
-    />
+    <ListWrapper>
+      <ListTitle>
+        <Text medium>{t("balancesList.title")}</Text>
+      </ListTitle>
+      <FlatList
+        testID="balances-list"
+        showsVerticalScrollIndicator={false}
+        data={balanceItems}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing || isPricesLoading}
+            onRefresh={handleRefresh}
+            tintColor={THEME.colors.secondary}
+          />
+        }
+      />
+    </ListWrapper>
   );
 };

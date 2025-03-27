@@ -77,5 +77,10 @@
       "failedToGetActiveKeyPair": "Failed to get active key pair"
     },
     "account": "Account {{number}}"
+  },
+  "balancesList": {
+    "title": "Tokens",
+    "error": "Error loading balances",
+    "empty": "No balances found"
   }
 }

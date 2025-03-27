@@ -1,42 +1,31 @@
 import { BalancesList } from "components/BalancesList";
 import { BaseLayout } from "components/layout/BaseLayout";
-import { Text } from "components/sds/Typography";
-import { TESTNET_NETWORK_DETAILS } from "config/constants";
-import { useFetchAssetIcons } from "hooks/useFetchAssetIcons";
-import { useFetchPricedBalances } from "hooks/useFetchPricedBalances";
+import { TEST_NETWORK_DETAILS, TEST_PUBLIC_KEY } from "config/constants";
+import { THEME } from "config/theme";
+import { px } from "helpers/dimensions";
 import React from "react";
+import { Dimensions } from "react-native";
 import styled from "styled-components/native";
 
-const Container = styled.View`
-  flex: 1;
-  padding: 16px;
-`;
+const { width } = Dimensions.get("window");
 
-const Header = styled.View`
-  margin-bottom: 20px;
+const Spacing = styled.View`
+  height: ${px(300)};
+  width: ${width}px;
+  margin-left: ${px(-24)};
+  margin-bottom: ${px(24)};
+  border-bottom-width: ${px(1)};
+  border-bottom-color: ${THEME.colors.border.default};
 `;
 
 export const HomeScreen = () => {
-  // TODO: Get this from wallet context
-  // const publicKey = "GDVCNUP2GJFDCKTIMWFKJHWC7U5ULLCODKWX2YNMRJ5UEW3WJYBZ67QY";
-  // const networkDetails = PUBLIC_NETWORK_DETAILS;
-  const publicKey = "GAZAJVMMEWVIQRP6RXQYTVAITE7SC2CBHALQTVW2N4DYBYPWZUH5VJGG";
-  const networkDetails = TESTNET_NETWORK_DETAILS;
-
-  // Fetch balances when component mounts or when publicKey/network changes
-  useFetchPricedBalances({ publicKey, network: networkDetails.network });
-
-  // Fetch icons whenever balances are updated
-  useFetchAssetIcons(networkDetails.networkUrl);
+  const publicKey = TEST_PUBLIC_KEY;
+  const networkDetails = TEST_NETWORK_DETAILS;
 
   return (
     <BaseLayout>
-      <Container>
-        <Header>
-          <Text md>Tokens</Text>
-        </Header>
-        <BalancesList publicKey={publicKey} network={networkDetails.network} />
-      </Container>
+      <Spacing />
+      <BalancesList publicKey={publicKey} network={networkDetails.network} />
     </BaseLayout>
   );
 };

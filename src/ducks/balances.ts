@@ -1,7 +1,11 @@
 import { NETWORKS } from "config/constants";
 import { BalanceMap, PricedBalanceMap, TokenPricesMap } from "config/types";
 import { usePricesStore } from "ducks/prices";
-import { getLPShareCode, isLiquidityPool } from "helpers/balances";
+import {
+  getLPShareCode,
+  isLiquidityPool,
+  sortBalances,
+} from "helpers/balances";
 import { fetchBalances } from "services/backend";
 import { create } from "zustand";
 
@@ -58,7 +62,8 @@ const getExistingPricedBalances = (
     } else {
       // Handle regular asset balances
       tokenCode = balance.token.code;
-      displayName = tokenCode; // TODO: We can fetch it from TOML or Soroban Token props
+      displayName =
+        balance.token.type === "native" ? "Stellar Lumens" : tokenCode;
     }
 
     // Create the priced balance object and keep existing price data if available
@@ -100,9 +105,9 @@ const getUpdatedPricedBalances = (
         ...updatedPricedBalances[id],
         ...priceData,
         fiatCode: "USD",
-        fiatTotal: updatedPricedBalances[id].total.multipliedBy(
-          priceData.currentPrice || 0,
-        ),
+        fiatTotal:
+          priceData.currentPrice &&
+          updatedPricedBalances[id].total.multipliedBy(priceData.currentPrice),
       };
     }
   });
@@ -144,7 +149,7 @@ export const useBalancesStore = create<BalancesState>((set, get) => ({
       // Set the balances and pricedBalances in the store right away so we can display the balances immediately
       set({
         balances,
-        pricedBalances: existingPricedBalances,
+        pricedBalances: sortBalances(existingPricedBalances),
         isLoading: false,
       });
 
@@ -171,7 +176,7 @@ export const useBalancesStore = create<BalancesState>((set, get) => ({
         prices,
       );
 
-      set({ pricedBalances: updatedPricedBalances });
+      set({ pricedBalances: sortBalances(updatedPricedBalances) });
     } catch (error) {
       set({
         error:
