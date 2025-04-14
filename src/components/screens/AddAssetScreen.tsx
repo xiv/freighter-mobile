@@ -16,8 +16,9 @@ import {
 import { PALETTE, THEME } from "config/theme";
 import { PricedBalance } from "config/types";
 import { useAuthenticationStore } from "ducks/auth";
-import { px, pxValue } from "helpers/dimensions";
+import { px } from "helpers/dimensions";
 import useAppTranslation from "hooks/useAppTranslation";
+import { useAssetActions } from "hooks/useAssetActions";
 import { useClipboard } from "hooks/useClipboard";
 import useGetActiveAccount from "hooks/useGetActiveAccount";
 import React, { useEffect, useRef, useState } from "react";
@@ -47,10 +48,11 @@ const icons = Platform.select({
 });
 
 const AddAssetScreen: React.FC<AddAssetScreenProps> = ({ navigation }) => {
+  const { copyAssetAddress } = useAssetActions();
+  const { getClipboardText } = useClipboard();
   const { account } = useGetActiveAccount();
   const { network } = useAuthenticationStore();
   const { t } = useAppTranslation();
-  const { getClipboardText, copyToClipboard } = useClipboard();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const [search, setSearch] = useState("");
@@ -59,81 +61,60 @@ const AddAssetScreen: React.FC<AddAssetScreenProps> = ({ navigation }) => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon.X size={pxValue(24)} color={THEME.colors.base.secondary} />
+          <Icon.X size={24} color={THEME.colors.base.secondary} />
         </TouchableOpacity>
       ),
       headerRight: () => (
         <TouchableOpacity
           onPress={() => bottomSheetModalRef.current?.present()}
         >
-          <Icon.HelpCircle
-            size={pxValue(24)}
-            color={THEME.colors.base.secondary}
-          />
+          <Icon.HelpCircle size={24} color={THEME.colors.base.secondary} />
         </TouchableOpacity>
       ),
     });
   }, [navigation, t]);
 
-  const copyTokenAddress = (balance: PricedBalance) => {
-    if (!balance.id) return;
-
-    const splittedId = balance.id.split(":");
-
-    // If the ID is a liquidity pool or any asset aside from the native token, we need to copy the issuer
-    // Otherwise, we can just copy the ID (native token)
-    copyToClipboard(splittedId.length === 2 ? splittedId[1] : balance.id, {
-      notificationMessage: t("addAssetScreen.tokenAddressCopied"),
-    });
+  const handleCopyTokenAddress = (balance: PricedBalance) => {
+    copyAssetAddress(balance, "addAssetScreen.tokenAddressCopied");
   };
 
-  const actionsOnPress = {
-    [t("manageAssetsScreen.actions.copyAddress")]: (balance: PricedBalance) =>
-      copyTokenAddress(balance),
-    [t("manageAssetsScreen.actions.hideAsset")]: () =>
-      logger.debug("ManageAssetsScreen", "hideAsset Not implemented"),
-    [t("manageAssetsScreen.actions.removeAsset")]: () =>
-      logger.debug("ManageAssetsScreen", "removeAsset Not implemented"),
+  const defaultRightContent = (balance: PricedBalance) => {
+    const menuActions = [
+      {
+        title: t("manageAssetsScreen.actions.copyAddress"),
+        systemIcon: icons!.copyAddress,
+        onPress: () => handleCopyTokenAddress(balance),
+        disabled: true,
+      },
+      {
+        title: t("manageAssetsScreen.actions.hideAsset"),
+        systemIcon: icons!.hideAsset,
+        onPress: () =>
+          logger.debug("ManageAssetsScreen", "hideAsset Not implemented"),
+        disabled: true,
+      },
+      {
+        title: t("manageAssetsScreen.actions.removeAsset"),
+        systemIcon: icons!.removeAsset,
+        onPress: () =>
+          logger.debug("ManageAssetsScreen", "removeAsset Not implemented"),
+        destructive: true,
+      },
+    ];
+
+    return (
+      <ContextMenuButton
+        contextMenuProps={{
+          actions: menuActions,
+        }}
+      >
+        <Icon.DotsHorizontal
+          size={24}
+          color={THEME.colors.foreground.primary}
+        />
+      </ContextMenuButton>
+    );
   };
-
-  const actions = [
-    {
-      inlineChildren: true,
-      disabled: true,
-      actions: [
-        {
-          title: t("manageAssetsScreen.actions.copyAddress"),
-          systemIcon: icons!.copyAddress,
-        },
-        {
-          title: t("manageAssetsScreen.actions.hideAsset"),
-          systemIcon: icons!.hideAsset,
-        },
-      ],
-      title: "",
-    },
-    {
-      title: t("manageAssetsScreen.actions.removeAsset"),
-      systemIcon: icons!.removeAsset,
-      destructive: true,
-    },
-  ];
-
-  const defaultRightContent = (balance: PricedBalance) => (
-    <ContextMenuButton
-      contextMenuProps={{
-        onPress: (e) => {
-          actionsOnPress[e.nativeEvent.name](balance);
-        },
-        actions,
-      }}
-    >
-      <Icon.DotsHorizontal
-        size={pxValue(24)}
-        color={THEME.colors.foreground.primary}
-      />
-    </ContextMenuButton>
-  );
 
   // TODO: Use that component when integrating the add asset feature
   // const addAssetRightContent = (balance: PricedBalance) => (
@@ -143,7 +124,7 @@ const AddAssetScreen: React.FC<AddAssetScreenProps> = ({ navigation }) => {
   //     lg
   //     testID="add-asset-button"
   //     icon={
-  //       <Icon.PlusCircle size={pxValue(16)} color={PALETTE.dark.gray["09"]} />
+  //       <Icon.PlusCircle size={16} color={PALETTE.dark.gray["09"]} />
   //     }
   //     iconPosition={IconPosition.RIGHT}
   //     onPress={() => {
@@ -176,10 +157,7 @@ const AddAssetScreen: React.FC<AddAssetScreenProps> = ({ navigation }) => {
         onChangeText={setSearch}
         fieldSize="md"
         leftElement={
-          <Icon.SearchMd
-            size={pxValue(16)}
-            color={THEME.colors.foreground.primary}
-          />
+          <Icon.SearchMd size={16} color={THEME.colors.foreground.primary} />
         }
       />
       <Spacer />
