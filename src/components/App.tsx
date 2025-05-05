@@ -28,25 +28,25 @@ export const App = (): React.JSX.Element => {
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>
-        <I18nextProvider i18n={i18n}>
-          <NavigationContainer ref={navigationRef}>
-            <AuthCheckProvider>
-              <NetworkProvider>
-                <StatusBar
-                  backgroundColor={THEME.colors.background.default}
-                  barStyle="light-content"
-                />
-                <ToastProvider>
-                  <BottomSheetModalProvider>
+        <ToastProvider>
+          <BottomSheetModalProvider>
+            <I18nextProvider i18n={i18n}>
+              <NavigationContainer ref={navigationRef}>
+                <AuthCheckProvider>
+                  <NetworkProvider>
+                    <StatusBar
+                      backgroundColor={THEME.colors.background.default}
+                      barStyle="light-content"
+                    />
                     <WalletKitProvider>
                       <RootNavigator />
                     </WalletKitProvider>
-                  </BottomSheetModalProvider>
-                </ToastProvider>
-              </NetworkProvider>
-            </AuthCheckProvider>
-          </NavigationContainer>
-        </I18nextProvider>
+                  </NetworkProvider>
+                </AuthCheckProvider>
+              </NavigationContainer>
+            </I18nextProvider>
+          </BottomSheetModalProvider>
+        </ToastProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

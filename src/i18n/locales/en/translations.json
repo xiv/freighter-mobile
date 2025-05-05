@@ -311,5 +311,12 @@
     "rate": "Rate",
     "fee": "Fee",
     "viewOnExpert": "View on stellar.expert"
+  },
+  "dappRequestBottomSheetContent": {
+    "transactionRequest": "Transaction Request",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "xdrItem": "XDR",
+    "itemCopied": "{{itemName}} copied to clipboard!"
   }
 }
