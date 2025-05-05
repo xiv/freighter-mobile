@@ -26,8 +26,21 @@
     "actions": {
       "settings": "Configurações",
       "manageAssets": "Gerenciar ativos",
-      "myQRCode": "Meu código QR"
+      "myQRCode": "Meu QR code"
+    },
+    "manageAccount": {
+      "title": "Carteiras",
+      "addWallet": "Adicionar uma carteira",
+      "renameWallet": "Renomear carteira",
+      "copyAddress": "Copiar endereço",
+      "myQRCode": "Meu QR code"
     }
+  },
+  "renameAccountModal": {
+    "currentName": "Nome atual",
+    "skip": "Pular",
+    "saveName": "Salvar nome",
+    "nameInputPlaceholder": "Digite um nome para sua carteira"
   },
   "settings": {
     "title": "Configurações",
@@ -122,7 +135,8 @@
       "failedToSignIn": "Falha ao entrar",
       "failedToImportWallet": "Falha ao importar carteira",
       "failedToLoadAccount": "Falha ao carregar conta",
-      "invalidPassword": "Senha inválida. Por favor, tente novamente."
+      "invalidPassword": "Senha inválida. Por favor, tente novamente.",
+      "failedToCreateAccount": "Falha ao criar conta. Por favor, tente novamente."
     },
     "account": "Conta {{number}}"
   },
@@ -214,6 +228,28 @@
       "fee": "Taxa",
       "xdr": "XDR",
       "xdrPlaceholder": "Ainda não disponível"
+    }
+  },
+  "addAnotherWalletScreen": {
+    "title": "Adicionar outra carteira",
+    "actions": {
+      "createNewWallet": "Criar uma nova carteira",
+      "createNewWalletDescription": "Criar uma carteira na sua frase de recuperação",
+      "importStellarSecretKey": "Importar uma chave secreta Stellar",
+      "importStellarSecretKeyDescription": "Adicionar uma carteira usando uma frase de recuperação"
+    },
+    "helperBottomSheet": {
+      "title": "Adicionar outra carteira",
+      "description": "Você precisa de pelo menos 1 XLM para ter uma conta na Stellar. Compre Stellar Lumens (XLM) facilmente usando um de nossos on-ramps ou transfira XLM de outra carteira para esta carteira."
+    }
+  },
+  "verifyPasswordScreen": {
+    "title": "Verificar Senha",
+    "genericError": "Algo deu errado. Por favor, tente novamente.",
+    "verifyPasswordTemplateTitle": "Digite sua senha",
+    "verifyPasswordTemplateDescription": "Digite sua senha para verificar sua conta.",
+    "actions": {
+      "createNewWallet": "Criar nova carteira"
     }
   },
   "logout": "Sair",
