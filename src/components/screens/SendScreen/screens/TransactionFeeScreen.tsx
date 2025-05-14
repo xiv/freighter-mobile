@@ -4,10 +4,7 @@ import { Button } from "components/sds/Button";
 import { Input } from "components/sds/Input";
 import { NetworkCongestionIndicator } from "components/sds/NetworkCongestionIndicator";
 import { Text } from "components/sds/Typography";
-import {
-  NATIVE_TOKEN_CODE,
-  MIN_TRANSACTION_FEE,
-} from "config/constants";
+import { NATIVE_TOKEN_CODE, MIN_TRANSACTION_FEE } from "config/constants";
 import { SEND_PAYMENT_ROUTES, SendPaymentStackParamList } from "config/routes";
 import { NetworkCongestion } from "config/types";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
