@@ -17,11 +17,10 @@ import {
   ROOT_NAVIGATOR_ROUTES,
   RootStackParamList,
 } from "config/routes";
-import { THEME } from "config/theme";
 import { Account } from "config/types";
 import { useAuthenticationStore } from "ducks/auth";
 import { useBalancesStore } from "ducks/balances";
-import { px } from "helpers/dimensions";
+import { pxValue } from "helpers/dimensions";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useClipboard } from "hooks/useClipboard";
 import useColors from "hooks/useColors";
@@ -29,7 +28,6 @@ import useGetActiveAccount from "hooks/useGetActiveAccount";
 import { useTotalBalance } from "hooks/useTotalBalance";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions, Platform, TouchableOpacity, View } from "react-native";
-import styled from "styled-components/native";
 
 const { width } = Dimensions.get("window");
 
@@ -40,53 +38,6 @@ type HomeScreenProps = BottomTabScreenProps<
   MainTabStackParamList & RootStackParamList,
   typeof MAIN_TAB_ROUTES.TAB_HOME
 >;
-
-/**
- * Header container for the home screen menu
- */
-const HeaderContainer = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${DEFAULT_PADDING}px;
-`;
-
-const TopSection = styled.View`
-  padding-top: ${px(22)};
-  width: 100%;
-  align-items: center;
-`;
-
-/**
- * Container for account total and name
- */
-const AccountTotal = styled.View`
-  flex-direction: column;
-  gap: ${px(12)};
-  align-items: center;
-`;
-
-/**
- * Row containing action buttons
- */
-const ButtonsRow = styled.View`
-  flex-direction: row;
-  gap: ${px(24)};
-  align-items: center;
-  justify-content: center;
-  margin-vertical: ${px(32)};
-`;
-
-/**
- * Divider line between sections
- */
-const BorderLine = styled.View`
-  width: ${width}px;
-  margin-left: ${px(-24)};
-  border-bottom-width: ${px(1)};
-  border-bottom-color: ${THEME.colors.border.default};
-  margin-bottom: ${px(24)};
-`;
 
 /**
  * Home screen component displaying account information and balances
@@ -230,7 +181,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           />
         }
       />
-      <HeaderContainer>
+      <View
+        className="flex-row justify-between items-center"
+        style={{ marginBottom: DEFAULT_PADDING }}
+      >
         <ContextMenuButton
           contextMenuProps={{
             actions,
@@ -238,10 +192,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         >
           <Icon.DotsHorizontal size={24} color={themeColors.base[1]} />
         </ContextMenuButton>
-      </HeaderContainer>
+      </View>
 
-      <TopSection>
-        <AccountTotal>
+      <View
+        className="w-full items-center"
+        style={{
+          paddingTop: pxValue(22),
+        }}
+      >
+        <View
+          className="items-center"
+          style={{
+            gap: pxValue(12),
+          }}
+        >
           <TouchableOpacity
             onPress={() => manageAccountBottomSheetModalRef.current?.present()}
           >
@@ -257,9 +221,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Display lg medium>
             {formattedBalance}
           </Display>
-        </AccountTotal>
+        </View>
 
-        <ButtonsRow>
+        <View
+          className="flex-row items-center justify-center"
+          style={{
+            gap: pxValue(24),
+            marginVertical: pxValue(32),
+          }}
+        >
           <IconButton Icon={Icon.Plus} title={t("home.buy")} />
           <IconButton
             Icon={Icon.ArrowUp}
@@ -275,10 +245,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             title={t("home.copy")}
             onPress={() => handleCopyAddress(account?.publicKey)}
           />
-        </ButtonsRow>
-      </TopSection>
+        </View>
+      </View>
 
-      <BorderLine />
+      <View
+        className="border-b ml-[-24px] mb-6 border-b-border-primary"
+        style={{
+          width,
+        }}
+      />
 
       <BalancesList publicKey={account?.publicKey ?? ""} network={network} />
     </BaseLayout>
