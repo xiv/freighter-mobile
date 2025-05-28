@@ -134,7 +134,9 @@
     "title": "Importar Carteira",
     "textAreaPlaceholder": "Digite a frase de recuperação",
     "textAreaNote": "Frases geralmente têm 12 ou 24 palavras",
-    "defaultActionButtonText": "Importar carteira"
+    "defaultActionButtonText": "Importar carteira",
+    "importSecretKey": "Importar uma chave secreta Stellar",
+    "importSecretKeyDescription": "Adicionar uma carteira usando uma chave secreta"
   },
   "lockScreen": {
     "title": "Bem-vindo de volta",
@@ -471,5 +473,14 @@
       "title": "Transferir de outra conta",
       "description": "Receber fundos de outra carteira"
     }
+  },
+  "importSecretKeyScreen": {
+    "title": "Importar Chave Secreta",
+    "secretKeyPlaceholder": "Digite sua chave secreta",
+    "passwordPlaceholder": "Digite sua senha",
+    "passwordNote": "Digite sua senha para confirmar",
+    "responsibilityNote": "Eu entendo que sou responsável por manter minha chave secreta segura e que a Stellar Development Foundation não pode recuperá-la para mim.",
+    "importButton": "Importar",
+    "invalidSecretKey": "Chave secreta inválida"
   }
 }

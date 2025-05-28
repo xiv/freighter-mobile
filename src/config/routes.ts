@@ -49,6 +49,7 @@ export const SETTINGS_ROUTES = {
 export const MANAGE_WALLETS_ROUTES = {
   ADD_ANOTHER_WALLET_SCREEN: "AddAnotherWalletScreen",
   VERIFY_PASSWORD_SCREEN: "VerifyPasswordScreen",
+  IMPORT_SECRET_KEY_SCREEN: "ImportSecretKeyScreen",
 } as const;
 
 export const SEND_PAYMENT_ROUTES = {
@@ -127,6 +128,7 @@ export type SettingsStackParamList = {
 export type ManageWalletsStackParamList = {
   [MANAGE_WALLETS_ROUTES.ADD_ANOTHER_WALLET_SCREEN]: undefined;
   [MANAGE_WALLETS_ROUTES.VERIFY_PASSWORD_SCREEN]: undefined;
+  [MANAGE_WALLETS_ROUTES.IMPORT_SECRET_KEY_SCREEN]: undefined;
 };
 
 export type SendPaymentStackParamList = {
