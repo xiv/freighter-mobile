@@ -310,3 +310,8 @@ export type CustomTokenStorage = {
     [network: string]: CustomToken[];
   };
 };
+
+export type PricedBalanceWithIdAndAssetType = PricedBalance & {
+  id: string;
+  assetType: AssetTypeWithCustomToken;
+};

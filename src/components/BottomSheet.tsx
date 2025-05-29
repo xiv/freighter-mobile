@@ -44,6 +44,7 @@ type BottomSheetProps = {
   bottomSheetViewProps?: Partial<BottomSheetViewProps>;
   shouldCloseOnPressBackdrop?: boolean;
   snapPoints?: string[];
+  enableDynamicSizing?: boolean;
 };
 
 const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -57,6 +58,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   bottomSheetViewProps,
   shouldCloseOnPressBackdrop = true,
   snapPoints,
+  enableDynamicSizing = true,
 }) => {
   const { themeColors } = useColors();
   const IconData = icon ? Icons[icon] : null;
@@ -88,7 +90,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     <BottomSheetModal
       ref={modalRef}
       enablePanDownToClose
-      enableDynamicSizing
+      enableDynamicSizing={enableDynamicSizing}
       snapPoints={snapPoints}
       enableOverDrag={false}
       backdropComponent={renderBackdrop}

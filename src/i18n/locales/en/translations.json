@@ -444,5 +444,39 @@
       "destinationAccountStatus": "Failed to check destination account status",
       "unexpectedSearchError": "An unexpected error occurred during search"
     }
+  },
+  "swapFromScreen": {
+    "title": "Swap from",
+    "inputPlaceholder": "Search token name or address"
+  },
+  "swapAmountScreen": {
+    "title": "Swap",
+    "menu": {
+      "fee": "Fee: {{fee}} XLM",
+      "timeout": "Timeout: {{timeout}}(s)",
+      "slippage": "Slippage"
+    },
+    "review": "Review",
+    "receive": "Receive",
+    "chooseAsset": "Choose asset",
+    "setMax": "Set Max",
+    "selectAnAssetButton": "Select an asset",
+    "swapToBottomSheet": {
+      "title": "Swap to",
+      "popularTokens": "Popular tokens",
+      "actions": {
+        "copyAddress": "Copy address",
+        "viewOnStellarExpert": "View on stellar.expert"
+      }
+    }
+  },
+  "swapFeeScreen": {
+    "title": "Transaction Fee"
+  },
+  "swapTimeoutScreen": {
+    "title": "Transaction Timeout"
+  },
+  "swapSlippageScreen": {
+    "title": "Allowed Slippage"
   }
 }

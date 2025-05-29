@@ -10,6 +10,7 @@ import {
   RootStackParamList,
   SettingsStackParamList,
   SendPaymentStackParamList,
+  SwapStackParamList,
 } from "config/routes";
 import { AUTH_STATUS } from "config/types";
 import { useAuthenticationStore } from "ducks/auth";
@@ -18,6 +19,7 @@ import { ManageAssetsStackNavigator } from "navigators/ManageAssetsNavigator";
 import { ManageWalletsStackNavigator } from "navigators/ManageWalletsNavigator";
 import { SendPaymentStackNavigator } from "navigators/SendPaymentNavigator";
 import { SettingsStackNavigator } from "navigators/SettingsNavigator";
+import { SwapStackNavigator } from "navigators/SwapNavigator";
 import { TabNavigator } from "navigators/TabNavigator";
 import React, { useEffect, useMemo, useState } from "react";
 import RNBootSplash from "react-native-bootsplash";
@@ -27,7 +29,8 @@ const RootStack = createNativeStackNavigator<
     ManageAssetsStackParamList &
     SettingsStackParamList &
     ManageWalletsStackParamList &
-    SendPaymentStackParamList
+    SendPaymentStackParamList &
+    SwapStackParamList
 >();
 
 export const RootNavigator = () => {
@@ -89,6 +92,10 @@ export const RootNavigator = () => {
           <RootStack.Screen
             name={ROOT_NAVIGATOR_ROUTES.SEND_PAYMENT_STACK}
             component={SendPaymentStackNavigator}
+          />
+          <RootStack.Screen
+            name={ROOT_NAVIGATOR_ROUTES.SWAP_STACK}
+            component={SwapStackNavigator}
           />
         </RootStack.Group>
       ) : authStatus === AUTH_STATUS.HASH_KEY_EXPIRED ? (

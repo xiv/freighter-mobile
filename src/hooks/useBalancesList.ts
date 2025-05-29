@@ -1,13 +1,15 @@
 import { NETWORKS } from "config/constants";
-import { AssetTypeWithCustomToken, PricedBalance } from "config/types";
+import {
+  AssetTypeWithCustomToken,
+  PricedBalance,
+  PricedBalanceWithIdAndAssetType,
+} from "config/types";
 import { useBalancesStore } from "ducks/balances";
 import { getAssetType } from "helpers/balances";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface UseBalancesListResult {
-  balanceItems: Array<
-    PricedBalance & { id: string; assetType: AssetTypeWithCustomToken }
-  >;
+  balanceItems: PricedBalanceWithIdAndAssetType[];
   isLoading: boolean;
   error: string | null;
   noBalances: boolean;

@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CustomNavigationHeader from "components/CustomNavigationHeader";
-import AddAnotherWalletScreen from "components/screens/AddAnotherWallet";
+import AddAnotherWalletScreen from "components/screens/AddAnotherWalletScreen";
 import VerifyPasswordScreen from "components/screens/VerifyPasswordScreen";
 import {
   MANAGE_WALLETS_ROUTES,

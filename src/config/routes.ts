@@ -1,10 +1,12 @@
 import { NETWORKS } from "config/constants";
+import { PricedBalanceWithIdAndAssetType } from "config/types";
 
 export const ROOT_NAVIGATOR_ROUTES = {
   AUTH_STACK: "AuthStack",
   MAIN_TAB_STACK: "MainTabStack",
   SETTINGS_STACK: "SettingsStack",
   SEND_PAYMENT_STACK: "SendPaymentStack",
+  SWAP_STACK: "SwapStack",
   MANAGE_ASSETS_STACK: "ManageAssetsStack",
   MANAGE_WALLETS_STACK: "ManageWalletsStack",
   // This screen can be called on both stacks.
@@ -56,6 +58,14 @@ export const SEND_PAYMENT_ROUTES = {
   TRANSACTION_FEE_SCREEN: "TransactionFeeScreen",
 } as const;
 
+export const SWAP_ROUTES = {
+  SWAP_FROM_SCREEN: "SwapFromScreen",
+  SWAP_AMOUNT_SCREEN: "SwapAmountScreen",
+  SWAP_FEE_SCREEN: "SwapFeeScreen",
+  SWAP_TIMEOUT_SCREEN: "SwapTimeoutScreen",
+  SWAP_SLIPPAGE_SCREEN: "SwapSlippageScreen",
+} as const;
+
 export type RootStackParamList = {
   [ROOT_NAVIGATOR_ROUTES.AUTH_STACK]: undefined;
   [ROOT_NAVIGATOR_ROUTES.MAIN_TAB_STACK]: undefined;
@@ -64,6 +74,7 @@ export type RootStackParamList = {
   [ROOT_NAVIGATOR_ROUTES.LOCK_SCREEN]: undefined;
   [ROOT_NAVIGATOR_ROUTES.SETTINGS_STACK]: undefined;
   [ROOT_NAVIGATOR_ROUTES.SEND_PAYMENT_STACK]: undefined;
+  [ROOT_NAVIGATOR_ROUTES.SWAP_STACK]: undefined;
 };
 
 export type AuthStackParamList = {
@@ -124,4 +135,14 @@ export type SendPaymentStackParamList = {
   [SEND_PAYMENT_ROUTES.TRANSACTION_MEMO_SCREEN]: undefined;
   [SEND_PAYMENT_ROUTES.TRANSACTION_TIMEOUT_SCREEN]: undefined;
   [SEND_PAYMENT_ROUTES.TRANSACTION_FEE_SCREEN]: undefined;
+};
+
+export type SwapStackParamList = {
+  [SWAP_ROUTES.SWAP_FROM_SCREEN]: undefined;
+  [SWAP_ROUTES.SWAP_AMOUNT_SCREEN]: {
+    fromToken: PricedBalanceWithIdAndAssetType;
+  };
+  [SWAP_ROUTES.SWAP_FEE_SCREEN]: undefined;
+  [SWAP_ROUTES.SWAP_TIMEOUT_SCREEN]: undefined;
+  [SWAP_ROUTES.SWAP_SLIPPAGE_SCREEN]: undefined;
 };

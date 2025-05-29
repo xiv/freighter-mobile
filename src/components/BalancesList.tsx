@@ -5,11 +5,13 @@ import { Notification } from "components/sds/Notification";
 import { Text } from "components/sds/Typography";
 import { CREATE_ACCOUNT_URL, NETWORKS } from "config/constants";
 import { THEME } from "config/theme";
+import { PricedBalanceWithIdAndAssetType } from "config/types";
 import { px } from "helpers/dimensions";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
 import React from "react";
 import { FlatList, Linking, RefreshControl } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import styled from "styled-components/native";
 
 const ListWrapper = styled.View`
@@ -42,7 +44,10 @@ interface BalancesListProps {
   publicKey: string;
   network: NETWORKS;
   showTitleIcon?: boolean;
-  onTokenPress?: (tokenId: string) => void;
+  onTokenPress?: (token: PricedBalanceWithIdAndAssetType) => void;
+  searchText?: string;
+  rightContent?: React.ReactNode;
+  shouldUseScrollView?: boolean;
 }
 
 /**
@@ -64,6 +69,9 @@ export const BalancesList: React.FC<BalancesListProps> = ({
   network,
   showTitleIcon = false,
   onTokenPress,
+  searchText,
+  rightContent,
+  shouldUseScrollView = false,
 }) => {
   const { t } = useAppTranslation();
   const {
@@ -78,6 +86,14 @@ export const BalancesList: React.FC<BalancesListProps> = ({
 
   const isTestNetwork = [NETWORKS.TESTNET, NETWORKS.FUTURENET].includes(
     network,
+  );
+
+  const filteredBalanceItems = balanceItems.filter(
+    (item) =>
+      item.id.toLowerCase().includes(searchText?.toLowerCase() ?? "") ||
+      item?.displayName
+        ?.toLowerCase()
+        ?.includes(searchText?.toLowerCase() ?? ""),
   );
 
   // Display error state if there's an error loading balances
@@ -160,25 +176,43 @@ export const BalancesList: React.FC<BalancesListProps> = ({
         )}
         <Text medium>{t("balancesList.title")}</Text>
       </ListTitle>
-      <FlatList
-        testID="balances-list"
-        showsVerticalScrollIndicator={false}
-        data={balanceItems}
-        renderItem={({ item }) => (
-          <BalanceRow
-            balance={item}
-            onPress={onTokenPress ? () => onTokenPress(item.id) : undefined}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing || isLoading}
-            onRefresh={handleRefresh}
-            tintColor={THEME.colors.secondary}
-          />
-        }
-      />
+      {shouldUseScrollView ? (
+        <ScrollView
+          testID="balances-list-scroll-view"
+          showsVerticalScrollIndicator={false}
+          alwaysBounceVertical={false}
+        >
+          {filteredBalanceItems.map((item) => (
+            <BalanceRow
+              balance={item}
+              onPress={onTokenPress ? () => onTokenPress(item) : undefined}
+              rightContent={rightContent}
+              key={item.id}
+            />
+          ))}
+        </ScrollView>
+      ) : (
+        <FlatList
+          testID="balances-list"
+          showsVerticalScrollIndicator={false}
+          data={searchText ? filteredBalanceItems : balanceItems}
+          renderItem={({ item }) => (
+            <BalanceRow
+              balance={item}
+              onPress={onTokenPress ? () => onTokenPress(item) : undefined}
+              rightContent={rightContent}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing || isLoading}
+              onRefresh={handleRefresh}
+              tintColor={THEME.colors.secondary}
+            />
+          }
+        />
+      )}
     </ListWrapper>
   );
 };
