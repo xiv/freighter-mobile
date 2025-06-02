@@ -52,7 +52,8 @@
     "version": "Versão {{version}}",
     "help": "Ajuda",
     "feedback": "Compartilhar Feedback",
-    "about": "Sobre"
+    "about": "Sobre",
+    "security": "Segurança"
   },
   "shareFeedbackScreen": {
     "title": "Compartilhar Feedback",
@@ -490,6 +491,26 @@
     "responsibilityNote": "Estou ciente de que o Freighter não pode recuperar a chave secreta importada e armazená-la é minha responsabilidade.",
     "importButton": "Importar Carteira",
     "invalidSecretKey": "Chave secreta inválida"
+  },
+  "securityScreen": {
+    "title": "Segurança",
+    "showRecoveryPhrase": "Mostrar frase de recuperação"
+  },
+  "showRecoveryPhraseScreen": {
+    "title": "Mostrar Frase de Recuperação",
+    "keepSafe": "Mantenha sua frase de recuperação em um local seguro.",
+    "accessWarning": "Qualquer pessoa que tenha acesso a esta frase tem acesso à sua conta e aos fundos nela, então salve-a em um local seguro.",
+    "yourRecoveryPhrase": "Sua frase de recuperação dá acesso total às suas carteiras e fundos",
+    "dontShareWithAnyone": "Não compartilhe esta frase com ninguém",
+    "neverAskForYourPhrase": "A Stellar Development Foundation nunca pedirá sua frase",
+    "password": "Senha",
+    "passwordInputPlaceholder": "Digite sua senha",
+    "showPhrase": "Mostrar frase de recuperação"
+  },
+  "yourRecoveryPhrase": {
+    "title": "Sua Frase de Recuperação",
+    "securityNote": "Essas palavras são as chaves da sua carteira—guarde-as com segurança para manter seus fundos protegidos.",
+    "copyButton": "Copiar para a área de transferência"
   },
   "tokenDetailsScreen": {
     "sorobanToken": "Token Soroban",
