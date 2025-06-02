@@ -1,8 +1,11 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-unstable-nested-components */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import CustomNavigationHeader from "components/CustomNavigationHeader";
+import AccountQRCodeScreen from "components/screens/AccountQRCodeScreen";
 import { LoadingScreen } from "components/screens/LoadingScreen";
 import { LockScreen } from "components/screens/LockScreen";
+import TokenDetailsScreen from "components/screens/TokenDetailsScreen";
 import {
   ManageAssetsStackParamList,
   ManageWalletsStackParamList,
@@ -11,10 +14,13 @@ import {
   SettingsStackParamList,
   SendPaymentStackParamList,
   SwapStackParamList,
+  BuyXLMStackParamList,
 } from "config/routes";
 import { AUTH_STATUS } from "config/types";
 import { useAuthenticationStore } from "ducks/auth";
+import useAppTranslation from "hooks/useAppTranslation";
 import { AuthNavigator } from "navigators/AuthNavigator";
+import { BuyXLMStackNavigator } from "navigators/BuyXLMNavigator";
 import { ManageAssetsStackNavigator } from "navigators/ManageAssetsNavigator";
 import { ManageWalletsStackNavigator } from "navigators/ManageWalletsNavigator";
 import { SendPaymentStackNavigator } from "navigators/SendPaymentNavigator";
@@ -30,12 +36,14 @@ const RootStack = createNativeStackNavigator<
     SettingsStackParamList &
     ManageWalletsStackParamList &
     SendPaymentStackParamList &
-    SwapStackParamList
+    SwapStackParamList &
+    BuyXLMStackParamList
 >();
 
 export const RootNavigator = () => {
   const { authStatus, getAuthStatus } = useAuthenticationStore();
   const [initializing, setInitializing] = useState(true);
+  const { t } = useAppTranslation();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -92,6 +100,27 @@ export const RootNavigator = () => {
           <RootStack.Screen
             name={ROOT_NAVIGATOR_ROUTES.SEND_PAYMENT_STACK}
             component={SendPaymentStackNavigator}
+          />
+          <RootStack.Screen
+            name={ROOT_NAVIGATOR_ROUTES.ACCOUNT_QR_CODE_SCREEN}
+            component={AccountQRCodeScreen}
+            options={{
+              headerTitle: t("accountQRCodeScreen.title"),
+              headerShown: true,
+              header: (props) => <CustomNavigationHeader {...props} />,
+            }}
+          />
+          <RootStack.Screen
+            name={ROOT_NAVIGATOR_ROUTES.BUY_XLM_STACK}
+            component={BuyXLMStackNavigator}
+          />
+          <RootStack.Screen
+            name={ROOT_NAVIGATOR_ROUTES.TOKEN_DETAILS_SCREEN}
+            component={TokenDetailsScreen}
+            options={{
+              headerShown: true,
+              header: (props) => <CustomNavigationHeader {...props} />,
+            }}
           />
           <RootStack.Screen
             name={ROOT_NAVIGATOR_ROUTES.SWAP_STACK}

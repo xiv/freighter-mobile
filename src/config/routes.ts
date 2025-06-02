@@ -1,3 +1,4 @@
+import { NavigatorScreenParams } from "@react-navigation/native";
 import { NETWORKS } from "config/constants";
 import { PricedBalanceWithIdAndAssetType } from "config/types";
 
@@ -11,6 +12,9 @@ export const ROOT_NAVIGATOR_ROUTES = {
   MANAGE_WALLETS_STACK: "ManageWalletsStack",
   // This screen can be called on both stacks.
   LOCK_SCREEN: "LockScreen",
+  ACCOUNT_QR_CODE_SCREEN: "AccountQRCodeScreen",
+  BUY_XLM_STACK: "BuyXLMStack",
+  TOKEN_DETAILS_SCREEN: "TokenDetailsScreen",
 } as const;
 
 export const AUTH_STACK_ROUTES = {
@@ -43,12 +47,17 @@ export const SETTINGS_ROUTES = {
   NETWORK_SETTINGS_SCREEN: "NetworkSettingsScreen",
   SHARE_FEEDBACK_SCREEN: "ShareFeedbackScreen",
   ABOUT_SCREEN: "AboutScreen",
+  SECURITY_SCREEN: "SecurityScreen",
+  SHOW_RECOVERY_PHRASE_SCREEN: "ShowRecoveryPhraseScreen",
+  YOUR_RECOVERY_PHRASE_SCREEN: "YourRecoveryPhraseScreen",
 } as const;
 
 export const MANAGE_WALLETS_ROUTES = {
   ADD_ANOTHER_WALLET_SCREEN: "AddAnotherWalletScreen",
   VERIFY_PASSWORD_SCREEN: "VerifyPasswordScreen",
+  IMPORT_SECRET_KEY_SCREEN: "ImportSecretKeyScreen",
 } as const;
+
 export const SEND_PAYMENT_ROUTES = {
   SEND_SEARCH_CONTACTS_SCREEN: "SendSearchContactsScreen",
   TRANSACTION_TOKEN_SCREEN: "TransactionTokenScreen",
@@ -66,6 +75,10 @@ export const SWAP_ROUTES = {
   SWAP_SLIPPAGE_SCREEN: "SwapSlippageScreen",
 } as const;
 
+export const BUY_XLM_ROUTES = {
+  BUY_XLM_SCREEN: "BuyXLMScreen",
+} as const;
+
 export type RootStackParamList = {
   [ROOT_NAVIGATOR_ROUTES.AUTH_STACK]: undefined;
   [ROOT_NAVIGATOR_ROUTES.MAIN_TAB_STACK]: undefined;
@@ -75,6 +88,14 @@ export type RootStackParamList = {
   [ROOT_NAVIGATOR_ROUTES.SETTINGS_STACK]: undefined;
   [ROOT_NAVIGATOR_ROUTES.SEND_PAYMENT_STACK]: undefined;
   [ROOT_NAVIGATOR_ROUTES.SWAP_STACK]: undefined;
+  [ROOT_NAVIGATOR_ROUTES.ACCOUNT_QR_CODE_SCREEN]: {
+    showNavigationAsCloseButton?: boolean;
+  };
+  [ROOT_NAVIGATOR_ROUTES.BUY_XLM_STACK]: NavigatorScreenParams<BuyXLMStackParamList>;
+  [ROOT_NAVIGATOR_ROUTES.TOKEN_DETAILS_SCREEN]: {
+    tokenId: string;
+    tokenSymbol: string;
+  };
 };
 
 export type AuthStackParamList = {
@@ -121,11 +142,17 @@ export type SettingsStackParamList = {
   };
   [SETTINGS_ROUTES.SHARE_FEEDBACK_SCREEN]: undefined;
   [SETTINGS_ROUTES.ABOUT_SCREEN]: undefined;
+  [SETTINGS_ROUTES.SECURITY_SCREEN]: undefined;
+  [SETTINGS_ROUTES.SHOW_RECOVERY_PHRASE_SCREEN]: undefined;
+  [SETTINGS_ROUTES.YOUR_RECOVERY_PHRASE_SCREEN]: {
+    recoveryPhrase: string;
+  };
 };
 
 export type ManageWalletsStackParamList = {
   [MANAGE_WALLETS_ROUTES.ADD_ANOTHER_WALLET_SCREEN]: undefined;
   [MANAGE_WALLETS_ROUTES.VERIFY_PASSWORD_SCREEN]: undefined;
+  [MANAGE_WALLETS_ROUTES.IMPORT_SECRET_KEY_SCREEN]: undefined;
 };
 
 export type SendPaymentStackParamList = {
@@ -145,4 +172,13 @@ export type SwapStackParamList = {
   [SWAP_ROUTES.SWAP_FEE_SCREEN]: undefined;
   [SWAP_ROUTES.SWAP_TIMEOUT_SCREEN]: undefined;
   [SWAP_ROUTES.SWAP_SLIPPAGE_SCREEN]: undefined;
+};
+
+export type BuyXLMStackParamList = {
+  [BUY_XLM_ROUTES.BUY_XLM_SCREEN]: {
+    isUnfunded: boolean;
+  };
+  [ROOT_NAVIGATOR_ROUTES.ACCOUNT_QR_CODE_SCREEN]: {
+    showNavigationAsCloseButton?: boolean;
+  };
 };

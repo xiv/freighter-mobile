@@ -52,7 +52,8 @@
     "version": "Versão {{version}}",
     "help": "Ajuda",
     "feedback": "Compartilhar Feedback",
-    "about": "Sobre"
+    "about": "Sobre",
+    "security": "Segurança"
   },
   "shareFeedbackScreen": {
     "title": "Compartilhar Feedback",
@@ -74,7 +75,12 @@
   "changeNetworkScreen": {
     "title": "Mudar Rede",
     "currentNetwork": "Rede atual",
-    "networkSettings": "Configurações de Rede"
+    "networkSettings": "Configurações de Rede",
+    "unfundedAccount": {
+      "message": "Para começar a usar esta conta, financie-a com pelo menos 1 XLM.",
+      "learnMore": "Saiba mais",
+      "fundAccountButton": "Adicionar XLM"
+    }
   },
   "networkSettingsScreen": {
     "title": "Configurações de Rede",
@@ -129,7 +135,9 @@
     "title": "Importar Carteira",
     "textAreaPlaceholder": "Digite a frase de recuperação",
     "textAreaNote": "Frases geralmente têm 12 ou 24 palavras",
-    "defaultActionButtonText": "Importar carteira"
+    "defaultActionButtonText": "Importar carteira",
+    "importSecretKey": "Importar uma chave secreta Stellar",
+    "importSecretKeyDescription": "Adicionar uma carteira usando uma chave secreta"
   },
   "lockScreen": {
     "title": "Bem-vindo de volta",
@@ -197,6 +205,13 @@
       "mintedTo": "Emitido para"
     }
   },
+  "tokenDetailsScreen": {
+    "sorobanToken": "Token Soroban",
+    "priceChange": "{{percentage}}%",
+    "balance": "Saldo",
+    "value": "Valor",
+    "listHeader": "Sua atividade de {{tokenName}}"
+  },
   "recoveryPhraseWarning": {
     "yourRecoveryPhrase": "Sua frase de recuperação dá acesso total às suas carteiras e fundos.",
     "ifYouForgetYourPassword": "Se você esquecer sua senha, use a frase de recuperação para acessar sua carteira",
@@ -230,7 +245,8 @@
     "empty": "Nenhum saldo encontrado",
     "unfundedAccount": {
       "message": "Para começar a usar esta conta, financie-a com pelo menos 1 XLM.",
-      "learnMore": "Saiba mais"
+      "learnMore": "Saiba mais",
+      "fundAccountButton": "Adicionar XLM"
     }
   },
   "friendbotButton": {
@@ -326,8 +342,8 @@
     "actions": {
       "createNewWallet": "Criar uma nova carteira",
       "createNewWalletDescription": "Criar uma carteira na sua frase de recuperação",
-      "importStellarSecretKey": "Importar uma chave secreta Stellar",
-      "importStellarSecretKeyDescription": "Adicionar uma carteira usando uma frase de recuperação"
+      "importSecretKey": "Importar uma chave secreta Stellar",
+      "importSecretKeyDescription": "Adicionar uma carteira usando uma chave secreta"
     },
     "helperBottomSheet": {
       "title": "Adicionar outra carteira",
@@ -481,5 +497,60 @@
   },
   "swapSlippageScreen": {
     "title": "Allowed Slippage"
+  },
+  "accountQRCodeScreen": {
+    "title": "Receber XLM",
+    "copyButton": "Copiar endereço",
+    "helperText": "Digitalize o código QR ou \n copie seu endereço",
+    "bottomSheet": {
+      "title": "Receber XLM",
+      "description": "Peça ao remetente para digitalizar o código QR em seu aplicativo Freighter para recuperar seu endereço de carteira com segurança."
+    }
+  },
+  "buyXLMScreen": {
+    "title": "Comprar XLM",
+    "bottomSheet": {
+      "description": "Você precisa de pelo menos 1 XLM para ter uma conta na Stellar. Compre Stellar Lumens (XLM) facilmente usando um de nossos on-ramps ou transfira XLM de outra carteira para esta carteira. \n\nCompre facilmente com Coinbase ou MoonPay, ou envie XLM de outra carteira."
+    },
+    "actions": {
+      "title": "Transferir de outra conta",
+      "description": "Receber fundos de outra carteira"
+    }
+  },
+  "importSecretKeyScreen": {
+    "title": "Importar carteira",
+    "secretKeyPlaceholder": "Sua chave secreta",
+    "passwordPlaceholder": "Senha",
+    "passwordNote": "Digite sua senha",
+    "responsibilityNote": "Estou ciente de que o Freighter não pode recuperar a chave secreta importada e armazená-la é minha responsabilidade.",
+    "importButton": "Importar Carteira",
+    "invalidSecretKey": "Chave secreta inválida"
+  },
+  "securityScreen": {
+    "title": "Segurança",
+    "showRecoveryPhrase": "Mostrar frase de recuperação"
+  },
+  "showRecoveryPhraseScreen": {
+    "title": "Mostrar Frase de Recuperação",
+    "keepSafe": "Mantenha sua frase de recuperação em um local seguro.",
+    "accessWarning": "Qualquer pessoa que tenha acesso a esta frase tem acesso à sua conta e aos fundos nela, então salve-a em um local seguro.",
+    "yourRecoveryPhrase": "Sua frase de recuperação dá acesso total às suas carteiras e fundos",
+    "dontShareWithAnyone": "Não compartilhe esta frase com ninguém",
+    "neverAskForYourPhrase": "A Stellar Development Foundation nunca pedirá sua frase",
+    "password": "Senha",
+    "passwordInputPlaceholder": "Digite sua senha",
+    "showPhrase": "Mostrar frase de recuperação"
+  },
+  "yourRecoveryPhrase": {
+    "title": "Sua Frase de Recuperação",
+    "securityNote": "Essas palavras são as chaves da sua carteira—guarde-as com segurança para manter seus fundos protegidos.",
+    "copyButton": "Copiar para a área de transferência"
+  },
+  "tokenDetailsScreen": {
+    "sorobanToken": "Token Soroban",
+    "priceChange": "{{percentage}}%",
+    "balance": "Saldo",
+    "value": "Valor",
+    "listHeader": "Sua atividade de {{tokenName}}"
   }
 }

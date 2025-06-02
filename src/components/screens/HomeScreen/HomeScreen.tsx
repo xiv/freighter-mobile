@@ -10,17 +10,23 @@ import RenameAccountModal from "components/screens/HomeScreen/RenameAccountModal
 import Avatar from "components/sds/Avatar";
 import Icon from "components/sds/Icon";
 import { Display, Text } from "components/sds/Typography";
-import { DEFAULT_PADDING } from "config/constants";
+import { DEFAULT_PADDING, NATIVE_TOKEN_CODE } from "config/constants";
 import {
   MainTabStackParamList,
   MAIN_TAB_ROUTES,
   ROOT_NAVIGATOR_ROUTES,
   RootStackParamList,
+  BUY_XLM_ROUTES,
 } from "config/routes";
-import { Account } from "config/types";
+import {
+  Account,
+  AssetTypeWithCustomToken,
+  PricedBalanceWithIdAndAssetType,
+} from "config/types";
 import { useAuthenticationStore } from "ducks/auth";
 import { useBalancesStore } from "ducks/balances";
 import { pxValue } from "helpers/dimensions";
+import { isContractId } from "helpers/soroban";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useClipboard } from "hooks/useClipboard";
 import useColors from "hooks/useColors";
@@ -106,8 +112,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         ios: "qrcode",
         android: "outline_circle",
       }),
-      onPress: () => {}, // TODO: Implement QR code functionality
-      disabled: true,
+      onPress: () =>
+        navigation.navigate(ROOT_NAVIGATOR_ROUTES.ACCOUNT_QR_CODE_SCREEN, {
+          showNavigationAsCloseButton: true,
+        }),
     },
   ];
 
@@ -147,6 +155,29 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     setAccountToRename(selectedAccount);
 
     setRenameAccountModalVisible(true);
+  };
+
+  const handleTokenPress = ({
+    id,
+    assetType,
+  }: PricedBalanceWithIdAndAssetType) => {
+    let tokenSymbol: string;
+
+    if (assetType === AssetTypeWithCustomToken.NATIVE) {
+      tokenSymbol = NATIVE_TOKEN_CODE;
+    } else if (isContractId(id)) {
+      // For Soroban contracts, pass the contract ID as symbol initially
+      // The TokenDetailsScreen will handle fetching the actual symbol
+      tokenSymbol = id;
+    } else {
+      // Classic asset format: CODE:ISSUER
+      [tokenSymbol] = id.split(":");
+    }
+
+    navigation.navigate(ROOT_NAVIGATOR_ROUTES.TOKEN_DETAILS_SCREEN, {
+      tokenId: id,
+      tokenSymbol,
+    });
   };
 
   return (
@@ -223,14 +254,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </Display>
         </View>
 
-        <View
-          className="flex-row items-center justify-center"
-          style={{
-            gap: pxValue(24),
-            marginVertical: pxValue(32),
-          }}
-        >
-          <IconButton Icon={Icon.Plus} title={t("home.buy")} />
+        <View className="flex-row items-center justify-center gap-[24px] my-[32px]">
+          <IconButton
+            Icon={Icon.Plus}
+            title={t("home.buy")}
+            onPress={() =>
+              navigation.navigate(ROOT_NAVIGATOR_ROUTES.BUY_XLM_STACK, {
+                screen: BUY_XLM_ROUTES.BUY_XLM_SCREEN,
+                params: { isUnfunded: hasZeroBalance },
+              })
+            }
+          />
           <IconButton
             Icon={Icon.ArrowUp}
             title={t("home.send")}
@@ -262,7 +296,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         }}
       />
 
-      <BalancesList publicKey={account?.publicKey ?? ""} network={network} />
+      <BalancesList
+        publicKey={account?.publicKey ?? ""}
+        network={network}
+        onTokenPress={handleTokenPress}
+      />
     </BaseLayout>
   );
 };
