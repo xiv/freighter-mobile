@@ -55,6 +55,7 @@ interface BalancesListProps {
   searchText?: string;
   rightContent?: React.ReactNode;
   shouldUseScrollView?: boolean;
+  disableFundAccount?: boolean;
 }
 
 /**
@@ -79,9 +80,17 @@ export const BalancesList: React.FC<BalancesListProps> = ({
   searchText,
   rightContent,
   shouldUseScrollView = false,
+  disableFundAccount = false,
 }) => {
   const { t } = useAppTranslation();
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  // Only call useNavigation if fund account functionality is not disabled
+  let navigation: NavigationProp<RootStackParamList> | undefined;
+  if (!disableFundAccount) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  }
+
   const {
     balanceItems,
     isLoading,
@@ -169,7 +178,7 @@ export const BalancesList: React.FC<BalancesListProps> = ({
           />
         </NotificationWrapper>
 
-        {!isTestNetwork && (
+        {!isTestNetwork && navigation && (
           <Button
             isFullWidth
             tertiary

@@ -128,6 +128,7 @@ const AssetListBottomSheet: React.FC<AssetListBottomSheetProps> = ({
           onTokenPress={handleTokenPress}
           searchText={searchText}
           shouldUseScrollView
+          disableFundAccount
           rightContent={
             <TouchableOpacity onPress={() => {}}>
               <Icon.PlusCircle size={24} color={themeColors.base[1]} />

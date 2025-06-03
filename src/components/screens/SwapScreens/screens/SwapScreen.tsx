@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { BalancesList } from "components/BalancesList";
 import { BaseLayout } from "components/layout/BaseLayout";
@@ -10,8 +11,8 @@ import useAppTranslation from "hooks/useAppTranslation";
 import { useClipboard } from "hooks/useClipboard";
 import useColors from "hooks/useColors";
 import useGetActiveAccount from "hooks/useGetActiveAccount";
-import React, { useState } from "react";
-import { View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 
 type SwapFromScreenProps = NativeStackScreenProps<
   SwapStackParamList,
@@ -32,6 +33,16 @@ const SwapFromScreen: React.FC<SwapFromScreenProps> = ({ navigation }) => {
       fromToken: token,
     });
   };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon.X size={24} color={themeColors.base[1]} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, themeColors]);
 
   const handlePasteFromClipboard = () => {
     getClipboardText().then(setSearchText);
