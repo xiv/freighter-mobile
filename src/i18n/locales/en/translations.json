@@ -616,6 +616,7 @@
     "addXLM": "Add XLM",
     "doThisLater": "Do this later"
   },
+  "tokenIconAlt": "{{code}} token icon",
   "recoverySkipModal": {
     "title": "Are you sure you want to skip?",
     "description1": "Your recovery phrase gives you access to your account and is the only way to access it.",

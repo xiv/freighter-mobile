@@ -624,6 +624,7 @@
     "addXLM": "Adicionar XLM",
     "doThisLater": "Fazer isso depois"
   },
+  "tokenIconAlt": "ícone do token {{code}}",
   "recoverySkipModal": {
     "title": "Tem certeza que deseja pular?",
     "description1": "Sua frase de recuperação dá acesso à sua conta e é a única forma de acessá-la.",
