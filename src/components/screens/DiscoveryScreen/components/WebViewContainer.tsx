@@ -202,7 +202,7 @@ const WebViewContainer: React.FC<WebViewContainerProps> = React.memo(
                                 request,
                               );
 
-                              // Handle WalletConnect URIs
+                              // TODO: Handle WalletConnect URIs
                               if (request.url.startsWith("wc:")) {
                                 logger.debug(
                                   "WalletConnect URI detected:",
