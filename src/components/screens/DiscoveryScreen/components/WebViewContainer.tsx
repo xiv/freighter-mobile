@@ -54,12 +54,12 @@ const WebViewContainer: React.FC<WebViewContainerProps> = React.memo(
       const timer = setTimeout(() => {
         Animated.timing(fadeLoadingAnim, {
           toValue: 0,
-          duration: BROWSER_CONSTANTS.TAB_SWITCH_ANIMATION_DURATION,
+          duration: BROWSER_CONSTANTS.TAB_SWITCH_SPINNER_DURATION,
           useNativeDriver: true,
         }).start(() => {
           setIsLoading(false);
         });
-      }, BROWSER_CONSTANTS.TAB_SWITCH_ANIMATION_DELAY);
+      }, BROWSER_CONSTANTS.TAB_SWITCH_SPINNER_DELAY);
 
       return () => clearTimeout(timer);
     }, [activeTabId, fadeLoadingAnim]);
