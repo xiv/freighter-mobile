@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Networks } from "@stellar/stellar-sdk";
 import BigNumber from "bignumber.js";
+import { t } from "i18next";
 
 export const DEFAULT_PADDING = 24;
 export const DEFAULT_ICON_SIZE = 24;
@@ -199,3 +200,45 @@ export enum SENSITIVE_STORAGE_KEYS {
   TEMPORARY_STORE = "temporaryStore",
   HASH_KEY = "hashKey",
 }
+
+// Browser constants
+export const BROWSER_CONSTANTS = {
+  HOMEPAGE_URL: "freighter://discovery-homepage",
+  GOOGLE_SEARCH_BASE_URL: "https://www.google.com/search?q=",
+  DEFAULT_TAB_TITLE: t("discovery.defaultTabTitle"),
+  SCREENSHOT_STORAGE_KEY: "browser_screenshots",
+  MAX_RECENT_TABS: 20,
+  MAX_SCREENSHOTS_STORED: 50,
+  SCREENSHOT_FORMAT: "jpg",
+  SCREENSHOT_QUALITY: 0.4,
+  SCREENSHOT_ON_LOAD_DELAY: 500, // Take screenshot after site finishes loading
+  SCREENSHOT_SCROLL_DELAY: 1000, // Take screenshot after 1s of no-scrolling
+  SCREENSHOT_FINAL_DELAY: 2000, // Take screenshot after site animations complete
+  TAB_SWITCH_ANIMATION_DELAY: 500,
+  TAB_SWITCH_ANIMATION_DURATION: 300,
+  TAB_ANIMATION_DURATION_OPEN: 300,
+  TAB_ANIMATION_DURATION_CLOSE: 300,
+  TAB_PREVIEW_FAVICON_SIZE: 32,
+  TAB_PREVIEW_CLOSE_ICON_SIZE: 12,
+  TAB_PREVIEW_TILE_SIZE: "w-[48%] h-64",
+  // dApps work differently depending on the user agent, let's use the below for consistent behavior
+  IOS_USER_AGENT:
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Mobile/15E148 Safari/604.1",
+  ANDROID_USER_AGENT:
+    "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36",
+} as const;
+
+// Trending sites for DiscoveryHomepage
+export type TrendingSite = {
+  name: string;
+  url: string;
+};
+
+export const TRENDING_SITES: TrendingSite[] = [
+  { name: "StellarX", url: "https://www.stellarx.com/" },
+  { name: "StellarTerm", url: "https://stellarterm.com/" },
+  { name: "Blend", url: "https://www.blend.capital/" },
+  { name: "Aquarius", url: "https://aqua.network/" },
+  { name: "FxDAO", url: "https://app.fxdao.io/" },
+  { name: "Phoenix", url: "https://app.phoenix-hub.io/" },
+];
