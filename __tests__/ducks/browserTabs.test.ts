@@ -2,7 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BROWSER_CONSTANTS } from "config/constants";
 import { useBrowserTabsStore } from "ducks/browserTabs";
 import { generateTabId, isHomepageUrl } from "helpers/browser";
-import { findTabScreenshot, pruneScreenshots } from "helpers/screenshots";
+import {
+  findTabScreenshot,
+  pruneScreenshots,
+  removeTabScreenshot,
+} from "helpers/screenshots";
 
 // Mock dependencies
 jest.mock("@react-native-async-storage/async-storage");
@@ -21,6 +25,9 @@ const mockFindTabScreenshot = findTabScreenshot as jest.MockedFunction<
 >;
 const mockPruneScreenshots = pruneScreenshots as jest.MockedFunction<
   typeof pruneScreenshots
+>;
+const mockRemoveTabScreenshot = removeTabScreenshot as jest.MockedFunction<
+  typeof removeTabScreenshot
 >;
 
 describe("browserTabs", () => {
@@ -62,7 +69,7 @@ describe("browserTabs", () => {
     it("should close a tab", () => {
       const store = useBrowserTabsStore.getState();
       store.closeTab("tab-123");
-      expect(mockPruneScreenshots).toHaveBeenCalled();
+      expect(mockRemoveTabScreenshot).toHaveBeenCalledWith("tab-123");
     });
   });
 

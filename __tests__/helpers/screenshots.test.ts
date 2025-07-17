@@ -9,6 +9,7 @@ import {
   pruneScreenshots,
   clearAllScreenshots,
   captureTabScreenshot,
+  removeTabScreenshot,
   ScreenshotData,
 } from "helpers/screenshots";
 import ViewShot from "react-native-view-shot";
@@ -43,24 +44,25 @@ describe("screenshots helpers", () => {
   });
 
   describe("getStoredScreenshots", () => {
-    it("should return empty array when no screenshots stored", async () => {
+    it("should return empty Map when no screenshots stored", async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
 
       const result = await getStoredScreenshots();
 
-      expect(result).toEqual([]);
+      expect(result).toEqual(new Map());
       expect(mockAsyncStorage.getItem).toHaveBeenCalledWith(
         BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
       );
     });
 
-    it("should return parsed screenshots from storage", async () => {
-      const storedData = JSON.stringify([mockScreenshotData]);
+    it("should return parsed screenshots Map from storage", async () => {
+      const storedData = JSON.stringify({ "tab-123": mockScreenshotData });
       mockAsyncStorage.getItem.mockResolvedValue(storedData);
 
       const result = await getStoredScreenshots();
+      const expectedMap = new Map([["tab-123", mockScreenshotData]]);
 
-      expect(result).toEqual([mockScreenshotData]);
+      expect(result).toEqual(expectedMap);
     });
 
     it("should handle storage errors gracefully", async () => {
@@ -69,7 +71,7 @@ describe("screenshots helpers", () => {
 
       const result = await getStoredScreenshots();
 
-      expect(result).toEqual([]);
+      expect(result).toEqual(new Map());
       expect(mockLogger.error).toHaveBeenCalledWith(
         "screenshots",
         "Failed to get stored screenshots:",
@@ -82,7 +84,7 @@ describe("screenshots helpers", () => {
 
       const result = await getStoredScreenshots();
 
-      expect(result).toEqual([]);
+      expect(result).toEqual(new Map());
       expect(mockLogger.error).toHaveBeenCalledWith(
         "screenshots",
         "Failed to get stored screenshots:",
@@ -92,38 +94,28 @@ describe("screenshots helpers", () => {
   });
 
   describe("findTabScreenshot", () => {
-    it("should return null for homepage URLs", async () => {
-      const result = await findTabScreenshot(
-        "tab-123",
-        BROWSER_CONSTANTS.HOMEPAGE_URL,
+    it("should return null when no screenshots found", async () => {
+      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({}));
+
+      const result = await findTabScreenshot("tab-123");
+
+      expect(result).toBeNull();
+    });
+
+    it("should return the screenshot for matching tab", async () => {
+      const screenshotsMap = {
+        "tab-123": { ...mockScreenshotData, timestamp: 2000 },
+        "other-tab": {
+          ...mockScreenshotData,
+          tabId: "other-tab",
+          timestamp: 3000,
+        },
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(
+        JSON.stringify(screenshotsMap),
       );
 
-      expect(result).toBeNull();
-    });
-
-    it("should return null for empty URLs", async () => {
-      const result = await findTabScreenshot("tab-123", "");
-
-      expect(result).toBeNull();
-    });
-
-    it("should return null when no screenshots found", async () => {
-      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify([]));
-
-      const result = await findTabScreenshot("tab-123", "https://example.com");
-
-      expect(result).toBeNull();
-    });
-
-    it("should return the most recent screenshot for matching tab and URL", async () => {
-      const screenshots = [
-        { ...mockScreenshotData, timestamp: 1000 },
-        { ...mockScreenshotData, timestamp: 2000 },
-        { ...mockScreenshotData, tabId: "other-tab", timestamp: 3000 },
-      ];
-      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(screenshots));
-
-      const result = await findTabScreenshot("tab-123", "https://example.com");
+      const result = await findTabScreenshot("tab-123");
 
       expect(result).toEqual({ ...mockScreenshotData, timestamp: 2000 });
     });
@@ -132,7 +124,7 @@ describe("screenshots helpers", () => {
       const error = new Error("Storage error");
       mockAsyncStorage.getItem.mockRejectedValue(error);
 
-      const result = await findTabScreenshot("tab-123", "https://example.com");
+      const result = await findTabScreenshot("tab-123");
 
       expect(result).toBeNull();
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -144,13 +136,17 @@ describe("screenshots helpers", () => {
   });
 
   describe("saveScreenshot", () => {
-    it("should save new screenshot and remove old ones for same tab/URL", async () => {
-      const existingScreenshots = [
-        { ...mockScreenshotData, timestamp: 1000 },
-        { ...mockScreenshotData, tabId: "other-tab", timestamp: 2000 },
-      ];
+    it("should save new screenshot and replace old ones for same tab", async () => {
+      const existingScreenshotsMap = {
+        "tab-123": { ...mockScreenshotData, timestamp: 1000 },
+        "other-tab": {
+          ...mockScreenshotData,
+          tabId: "other-tab",
+          timestamp: 2000,
+        },
+      };
       mockAsyncStorage.getItem.mockResolvedValue(
-        JSON.stringify(existingScreenshots),
+        JSON.stringify(existingScreenshotsMap),
       );
 
       const newScreenshot = { ...mockScreenshotData, timestamp: 3000 };
@@ -158,31 +154,27 @@ describe("screenshots helpers", () => {
 
       // The actual implementation sorts by timestamp, so the order might be different
       const savedData = JSON.parse(mockAsyncStorage.setItem.mock.calls[0][1]);
-      expect(savedData).toHaveLength(2);
-      expect(
-        savedData.find((s: ScreenshotData) => s.tabId === "other-tab"),
-      ).toBeDefined();
-      expect(
-        savedData.find(
-          (s: ScreenshotData) => s.tabId === "tab-123" && s.timestamp === 3000,
-        ),
-      ).toBeDefined();
+      expect(Object.keys(savedData)).toHaveLength(2);
+      expect(savedData["other-tab"]).toBeDefined();
+      expect(savedData["tab-123"].timestamp).toBe(3000);
     });
 
     it("should limit stored screenshots to MAX_SCREENSHOTS_STORED", async () => {
-      const manyScreenshots = Array.from({ length: 20 }, (_, i) => ({
-        ...mockScreenshotData,
-        timestamp: i,
-      }));
+      const manyScreenshotsMap = Object.fromEntries(
+        Array.from({ length: 20 }, (_, i) => [
+          `tab-${i}`,
+          { ...mockScreenshotData, tabId: `tab-${i}`, timestamp: i },
+        ]),
+      );
       mockAsyncStorage.getItem.mockResolvedValue(
-        JSON.stringify(manyScreenshots),
+        JSON.stringify(manyScreenshotsMap),
       );
 
       const newScreenshot = { ...mockScreenshotData, timestamp: 1000 };
       await saveScreenshot(newScreenshot);
 
       const savedData = JSON.parse(mockAsyncStorage.setItem.mock.calls[0][1]);
-      expect(savedData.length).toBeLessThanOrEqual(
+      expect(Object.keys(savedData).length).toBeLessThanOrEqual(
         BROWSER_CONSTANTS.MAX_SCREENSHOTS_STORED,
       );
     });
@@ -202,36 +194,39 @@ describe("screenshots helpers", () => {
 
   describe("pruneScreenshots", () => {
     it("should keep only screenshots for active tabs", async () => {
-      const screenshots = [
-        { ...mockScreenshotData, tabId: "tab-1" },
-        { ...mockScreenshotData, tabId: "tab-2" },
-        { ...mockScreenshotData, tabId: "tab-3" },
-      ];
-      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(screenshots));
+      const screenshotsMap = {
+        "tab-1": { ...mockScreenshotData, tabId: "tab-1" },
+        "tab-2": { ...mockScreenshotData, tabId: "tab-2" },
+        "tab-3": { ...mockScreenshotData, tabId: "tab-3" },
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(
+        JSON.stringify(screenshotsMap),
+      );
 
       await pruneScreenshots(["tab-1", "tab-3"]);
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
         BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
-        JSON.stringify([
-          { ...mockScreenshotData, tabId: "tab-1" },
-          { ...mockScreenshotData, tabId: "tab-3" },
-        ]),
+        JSON.stringify({
+          "tab-1": { ...mockScreenshotData, tabId: "tab-1" },
+          "tab-3": { ...mockScreenshotData, tabId: "tab-3" },
+        }),
       );
     });
 
     it("should remove all screenshots when no active tabs", async () => {
-      const screenshots = [
-        { ...mockScreenshotData, tabId: "tab-1" },
-        { ...mockScreenshotData, tabId: "tab-2" },
-      ];
-      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(screenshots));
+      const screenshotsMap = {
+        "tab-1": { ...mockScreenshotData, tabId: "tab-1" },
+        "tab-2": { ...mockScreenshotData, tabId: "tab-2" },
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(
+        JSON.stringify(screenshotsMap),
+      );
 
       await pruneScreenshots([]);
 
-      expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
+      expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith(
         BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
-        JSON.stringify([]),
       );
     });
 
@@ -240,6 +235,60 @@ describe("screenshots helpers", () => {
       mockAsyncStorage.getItem.mockRejectedValue(error);
 
       await expect(pruneScreenshots(["tab-1"])).resolves.not.toThrow();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        "screenshots",
+        "Failed to get stored screenshots:",
+        error,
+      );
+    });
+  });
+
+  describe("removeTabScreenshot", () => {
+    it("should remove specific screenshot successfully", async () => {
+      const screenshotsMap = {
+        "tab-123": mockScreenshotData,
+        "other-tab": { ...mockScreenshotData, tabId: "other-tab" },
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(
+        JSON.stringify(screenshotsMap),
+      );
+
+      const result = await removeTabScreenshot("tab-123");
+
+      expect(result).toBe(true);
+      expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
+        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        JSON.stringify({
+          "other-tab": { ...mockScreenshotData, tabId: "other-tab" },
+        }),
+      );
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        "removeTabScreenshot",
+        "Screenshot removed for tab tab-123",
+      );
+    });
+
+    it("should return true even if screenshot doesn't exist", async () => {
+      const screenshotsMap = {
+        "other-tab": { ...mockScreenshotData, tabId: "other-tab" },
+      };
+      mockAsyncStorage.getItem.mockResolvedValue(
+        JSON.stringify(screenshotsMap),
+      );
+
+      const result = await removeTabScreenshot("non-existent");
+
+      expect(result).toBe(true);
+      expect(mockAsyncStorage.setItem).not.toHaveBeenCalled();
+    });
+
+    it("should handle storage errors gracefully", async () => {
+      const error = new Error("Storage error");
+      mockAsyncStorage.getItem.mockRejectedValue(error);
+
+      const result = await removeTabScreenshot("tab-123");
+
+      expect(result).toBe(true); // getStoredScreenshots returns empty Map on error
       expect(mockLogger.error).toHaveBeenCalledWith(
         "screenshots",
         "Failed to get stored screenshots:",
