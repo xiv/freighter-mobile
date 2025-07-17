@@ -196,7 +196,7 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
         const screenshotPromises = updatedTabs.map(async (tab, index) => {
           if (tab.url && tab.url !== BROWSER_CONSTANTS.HOMEPAGE_URL) {
             try {
-              const screenshot = await findTabScreenshot(tab.id, tab.url);
+              const screenshot = await findTabScreenshot(tab.id);
               if (screenshot) {
                 updatedTabs[index] = { ...tab, screenshot: screenshot.uri };
               }

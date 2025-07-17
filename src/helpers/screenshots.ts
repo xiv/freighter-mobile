@@ -37,30 +37,17 @@ export const getStoredScreenshots = async (): Promise<ScreenshotData[]> => {
 /**
  * Finds the most recent screenshot for a given tab and URL.
  * @param tabId - The ID of the tab
- * @param tabUrl - (Optional) The URL of the tab
  * @returns Promise<ScreenshotData | null> - The screenshot data or null if not found
  */
 export const findTabScreenshot = async (
   tabId: string,
-  tabUrl?: string,
 ): Promise<ScreenshotData | null> => {
-  if (!tabUrl || tabUrl === BROWSER_CONSTANTS.HOMEPAGE_URL) return null;
-
   try {
     const screenshots = await getStoredScreenshots();
-    const matchingScreenshots = screenshots.filter(
+    const matchingScreenshot = screenshots.find(
       (screenshot) => screenshot.tabId === tabId,
     );
-    const screenshotsWithMatchingUrl = matchingScreenshots.filter(
-      (screenshot) => screenshot.tabUrl === tabUrl,
-    );
-
-    if (screenshotsWithMatchingUrl.length > 0) {
-      // Return the most recent screenshot
-      return screenshotsWithMatchingUrl.reduce((a, b) =>
-        a.timestamp > b.timestamp ? a : b,
-      );
-    }
+    return matchingScreenshot || null;
   } catch (error) {
     logger.error("screenshots", "Failed to find tab screenshot:", error);
   }
@@ -79,9 +66,9 @@ export const saveScreenshot = async (
   try {
     const screenshots = await getStoredScreenshots();
 
-    // Remove old screenshots for the same tab and URL
+    // Remove old screenshots for the same tab
     const filteredScreenshots = screenshots.filter(
-      (s) => !(s.tabId === screenshot.tabId && s.tabUrl === screenshot.tabUrl),
+      (s) => !(s.tabId === screenshot.tabId),
     );
 
     // Add new screenshot
