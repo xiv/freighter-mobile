@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { WalletKit, IWalletKit } from "@reown/walletkit";
 import {
   FeeBumpTransaction,
@@ -400,5 +401,31 @@ export const disconnectAllSessions = async (
       `Failed to disconnect all sessions. publicKey: ${publicKey}, network: ${network}`,
       error,
     );
+  }
+};
+
+/**
+ * Clears all WalletConnect storage data from AsyncStorage
+ * This function removes all keys that start with 'wc@2:' which are used by WalletConnect
+ * to store session data, proposals, and other connection information
+ * This is safe to clear as WalletConnect re-creates everything as needed
+ * @returns {Promise<void>} A promise that resolves when the storage clearing is complete
+ */
+export const clearWalletKitStorage = async (): Promise<boolean> => {
+  try {
+    const allKeys = await AsyncStorage.getAllKeys();
+    const wcKeys = allKeys.filter((key) => key.startsWith("wc@2:"));
+    if (wcKeys.length > 0) {
+      await AsyncStorage.multiRemove(wcKeys);
+    }
+
+    return true;
+  } catch (error) {
+    logger.error(
+      "clearWalletConnectStorage",
+      "Failed to clear WC storage",
+      error,
+    );
+    return false;
   }
 };

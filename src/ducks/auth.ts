@@ -34,6 +34,7 @@ import {
   decryptDataWithPassword,
 } from "helpers/encryptPassword";
 import { createKeyManager } from "helpers/keyManager/keyManager";
+import { clearWalletKitStorage } from "helpers/walletKitUtil";
 import { t } from "i18next";
 import { getAccount } from "services/stellar";
 import {
@@ -1398,6 +1399,9 @@ export const useAuthenticationStore = create<AuthStore>()((set, get) => {
           try {
             // Make sure to disconnect all WalletConnect sessions first
             await useWalletKitStore.getState().disconnectAllSessions();
+
+            // Clear all Wallet Connect storage
+            await clearWalletKitStorage();
 
             // Clear all WebView data (cookies and screenshots)
             await clearAllWebViewData();
