@@ -305,11 +305,11 @@ describe("screenshots helpers", () => {
         BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
       );
       expect(result).toBe(true);
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.debug).toHaveBeenCalledWith(
         "clearAllScreenshots",
         "Starting screenshot cleanup",
       );
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.debug).toHaveBeenCalledWith(
         "clearAllScreenshots",
         "All screenshots cleared successfully",
       );

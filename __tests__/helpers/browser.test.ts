@@ -240,11 +240,11 @@ describe("browser helpers", () => {
 
       expect(mockCookieManager.clearAll).toHaveBeenCalledWith(true);
       expect(result).toBe(true);
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.debug).toHaveBeenCalledWith(
         "clearAllCookies",
         "Starting cookie cleanup",
       );
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.debug).toHaveBeenCalledWith(
         "clearAllCookies",
         "All cookies cleared successfully",
       );
@@ -287,11 +287,11 @@ describe("browser helpers", () => {
       expect(mockCookieManager.clearAll).toHaveBeenCalledWith(true);
       expect(mockClearAllScreenshots).toHaveBeenCalled();
       expect(result).toBe(true);
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.debug).toHaveBeenCalledWith(
         "clearAllWebViewData",
         "Starting WebView data cleanup",
       );
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.debug).toHaveBeenCalledWith(
         "clearAllWebViewData",
         "WebView data cleanup completed successfully",
       );

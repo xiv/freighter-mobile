@@ -129,13 +129,13 @@ export const generateTabId = (): string => Date.now().toString();
  */
 export const clearAllCookies = async (): Promise<boolean> => {
   try {
-    logger.info("clearAllCookies", "Starting cookie cleanup");
+    logger.debug("clearAllCookies", "Starting cookie cleanup");
 
     // Clear all cookies using CookieManager
     const result = await CookieManager.clearAll(true); // true = useWebKit for WebView
 
     if (result) {
-      logger.info("clearAllCookies", "All cookies cleared successfully");
+      logger.debug("clearAllCookies", "All cookies cleared successfully");
     } else {
       logger.warn("clearAllCookies", "Cookie cleanup may have failed");
     }
@@ -153,7 +153,7 @@ export const clearAllCookies = async (): Promise<boolean> => {
  */
 export const clearAllWebViewData = async (): Promise<boolean> => {
   try {
-    logger.info("clearAllWebViewData", "Starting WebView data cleanup");
+    logger.debug("clearAllWebViewData", "Starting WebView data cleanup");
 
     // Clear cookies and screenshots in parallel
     const [cookieResult, screenshotResult] = await Promise.all([
@@ -163,7 +163,7 @@ export const clearAllWebViewData = async (): Promise<boolean> => {
 
     const success = cookieResult && screenshotResult;
     if (success) {
-      logger.info(
+      logger.debug(
         "clearAllWebViewData",
         "WebView data cleanup completed successfully",
       );

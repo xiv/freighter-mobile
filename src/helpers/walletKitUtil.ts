@@ -394,6 +394,11 @@ export const disconnectAllSessions = async (
         }
       }),
     );
+
+    logger.debug(
+      "disconnectAllSessions",
+      "All sessions disconnected successfully",
+    );
   } catch (error) {
     // Let's not block the user from logging out if this fails
     logger.error(
@@ -419,13 +424,14 @@ export const clearWalletKitStorage = async (): Promise<boolean> => {
       await AsyncStorage.multiRemove(wcKeys);
     }
 
+    logger.debug(
+      "clearWalletKitStorage",
+      "All WalletKit storage cleared successfully",
+    );
+
     return true;
   } catch (error) {
-    logger.error(
-      "clearWalletConnectStorage",
-      "Failed to clear WC storage",
-      error,
-    );
+    logger.error("clearWalletKitStorage", "Failed to clear WC storage", error);
     return false;
   }
 };

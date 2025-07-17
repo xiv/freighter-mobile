@@ -129,9 +129,9 @@ export const saveScreenshot = async (
  */
 export const clearAllScreenshots = async (): Promise<boolean> => {
   try {
-    logger.info("clearAllScreenshots", "Starting screenshot cleanup");
+    logger.debug("clearAllScreenshots", "Starting screenshot cleanup");
     await AsyncStorage.removeItem(BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY);
-    logger.info("clearAllScreenshots", "All screenshots cleared successfully");
+    logger.debug("clearAllScreenshots", "All screenshots cleared successfully");
     return true;
   } catch (error) {
     logger.error("clearAllScreenshots", "Failed to clear screenshots:", error);
