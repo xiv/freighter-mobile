@@ -208,9 +208,11 @@ export const BROWSER_CONSTANTS = {
   DEFAULT_TAB_TITLE: t("discovery.defaultTabTitle"),
   SCREENSHOT_STORAGE_KEY: "browser_screenshots",
   MAX_RECENT_TABS: 20,
-  MAX_SCREENSHOTS_STORED: 50,
+  MAX_SCREENSHOTS_STORED: 100,
   SCREENSHOT_FORMAT: "jpg",
-  SCREENSHOT_QUALITY: 0.4,
+  SCREENSHOT_QUALITY: 0.5,
+  SCREENSHOT_WIDTH: 400,
+  SCREENSHOT_HEIGHT: 600,
   SCREENSHOT_ON_LOAD_DELAY: 500, // Take screenshot after site finishes loading
   SCREENSHOT_SCROLL_DELAY: 1000, // Take screenshot after 1s of no-scrolling
   SCREENSHOT_FINAL_DELAY: 2000, // Take screenshot after site animations complete

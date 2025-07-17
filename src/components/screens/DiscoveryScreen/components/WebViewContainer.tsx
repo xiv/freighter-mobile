@@ -162,6 +162,8 @@ const WebViewContainer: React.FC<WebViewContainerProps> = React.memo(
                     options={{
                       format: BROWSER_CONSTANTS.SCREENSHOT_FORMAT,
                       quality: BROWSER_CONSTANTS.SCREENSHOT_QUALITY,
+                      width: BROWSER_CONSTANTS.SCREENSHOT_WIDTH,
+                      height: BROWSER_CONSTANTS.SCREENSHOT_HEIGHT,
                       result: "data-uri",
                     }}
                     style={{

@@ -154,6 +154,8 @@ const DiscoveryHomepage: React.FC<DiscoveryHomepageProps> = ({ tabId }) => {
       options={{
         format: BROWSER_CONSTANTS.SCREENSHOT_FORMAT,
         quality: BROWSER_CONSTANTS.SCREENSHOT_QUALITY,
+        width: BROWSER_CONSTANTS.SCREENSHOT_WIDTH,
+        height: BROWSER_CONSTANTS.SCREENSHOT_HEIGHT,
         result: "data-uri",
       }}
       style={{ flex: 1 }}
