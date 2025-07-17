@@ -1,7 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BROWSER_CONSTANTS } from "config/constants";
 import { generateTabId, isHomepageUrl } from "helpers/browser";
-import { findTabScreenshot, pruneScreenshots } from "helpers/screenshots";
+import {
+  findTabScreenshot,
+  pruneScreenshots,
+  removeTabScreenshot,
+} from "helpers/screenshots";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -115,8 +119,8 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
           };
         });
 
-        // Clean up screenshots for closed tabs
-        get().cleanupScreenshots();
+        // Clean up screenshot for closed tab
+        removeTabScreenshot(tabId);
       },
 
       setActiveTab: (tabId: string) => {
@@ -194,20 +198,21 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
 
         // Use Promise.all to load screenshots in parallel
         const screenshotPromises = updatedTabs.map(async (tab, index) => {
-          if (tab.url && tab.url !== BROWSER_CONSTANTS.HOMEPAGE_URL) {
-            try {
-              const screenshot = await findTabScreenshot(tab.id);
-              if (screenshot) {
-                updatedTabs[index] = { ...tab, screenshot: screenshot.uri };
-              }
-            } catch (error) {
-              // Ignore errors when loading screenshots
+          try {
+            const screenshot = await findTabScreenshot(tab.id);
+            if (screenshot) {
+              updatedTabs[index] = { ...tab, screenshot: screenshot.uri };
             }
+          } catch (error) {
+            // Ignore errors when loading screenshots
           }
         });
 
         await Promise.all(screenshotPromises);
         set({ tabs: updatedTabs });
+
+        // Make sure to remove unused screenshots from storage
+        get().cleanupScreenshots();
       },
 
       cleanupScreenshots: async () => {

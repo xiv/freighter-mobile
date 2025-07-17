@@ -19,23 +19,28 @@ export interface ScreenshotData {
 }
 
 /**
- * Retrieves all stored screenshots from persistent storage.
- * @returns Promise<ScreenshotData[]> - Array of stored screenshots
+ * Retrieves all stored screenshots from persistent storage as a Map for O(1) lookups.
+ * @returns Promise<Map<string, ScreenshotData>> - Map of tabId to screenshot data
  */
-export const getStoredScreenshots = async (): Promise<ScreenshotData[]> => {
+export const getStoredScreenshots = async (): Promise<
+  Map<string, ScreenshotData>
+> => {
   try {
     const data = await AsyncStorage.getItem(
       BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
     );
-    return data ? (JSON.parse(data) as ScreenshotData[]) : [];
+    if (!data) return new Map();
+
+    const screenshotsMap = JSON.parse(data) as Record<string, ScreenshotData>;
+    return new Map(Object.entries(screenshotsMap));
   } catch (error) {
     logger.error("screenshots", "Failed to get stored screenshots:", error);
-    return [];
+    return new Map();
   }
 };
 
 /**
- * Finds the most recent screenshot for a given tab and URL.
+ * Finds screenshot for a given tab.
  * @param tabId - The ID of the tab
  * @returns Promise<ScreenshotData | null> - The screenshot data or null if not found
  */
@@ -43,16 +48,43 @@ export const findTabScreenshot = async (
   tabId: string,
 ): Promise<ScreenshotData | null> => {
   try {
-    const screenshots = await getStoredScreenshots();
-    const matchingScreenshot = screenshots.find(
-      (screenshot) => screenshot.tabId === tabId,
-    );
-    return matchingScreenshot || null;
+    const screenshotsMap = await getStoredScreenshots();
+    return screenshotsMap.get(tabId) || null;
   } catch (error) {
     logger.error("screenshots", "Failed to find tab screenshot:", error);
   }
 
   return null;
+};
+
+/**
+ * Removes a specific screenshot from persistent storage.
+ * @param tabId - The ID of the tab whose screenshot should be removed
+ * @returns Promise<boolean> - True if removed successfully, false otherwise
+ */
+export const removeTabScreenshot = async (tabId: string): Promise<boolean> => {
+  try {
+    const screenshotsMap = await getStoredScreenshots();
+
+    if (screenshotsMap.has(tabId)) {
+      screenshotsMap.delete(tabId);
+
+      await AsyncStorage.setItem(
+        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        JSON.stringify(Object.fromEntries(screenshotsMap)),
+      );
+
+      logger.debug(
+        "removeTabScreenshot",
+        `Screenshot removed for tab ${tabId}`,
+      );
+    }
+
+    return true;
+  } catch (error) {
+    logger.error("removeTabScreenshot", "Failed to remove screenshot:", error);
+    return false;
+  }
 };
 
 /**
@@ -64,53 +96,30 @@ export const saveScreenshot = async (
   screenshot: ScreenshotData,
 ): Promise<void> => {
   try {
-    const screenshots = await getStoredScreenshots();
+    const screenshotsMap = await getStoredScreenshots();
 
-    // Remove old screenshots for the same tab
-    const filteredScreenshots = screenshots.filter(
-      (s) => !(s.tabId === screenshot.tabId),
-    );
-
-    // Add new screenshot
-    const updatedScreenshots = [...filteredScreenshots, screenshot];
+    // Add new screenshot (automatically replaces old one for same tabId)
+    screenshotsMap.set(screenshot.tabId, screenshot);
 
     // Keep only the most recent screenshots to prevent storage bloat
-    const sortedScreenshots = updatedScreenshots
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, BROWSER_CONSTANTS.MAX_SCREENSHOTS_STORED);
+    let limitedScreenshotsMap = screenshotsMap;
+    if (screenshotsMap.size > BROWSER_CONSTANTS.MAX_SCREENSHOTS_STORED) {
+      const sortedScreenshots = Array.from(screenshotsMap.values())
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, BROWSER_CONSTANTS.MAX_SCREENSHOTS_STORED);
+
+      // Convert back to Map and store as object
+      limitedScreenshotsMap = new Map(
+        sortedScreenshots.map((scrshot) => [scrshot.tabId, scrshot]),
+      );
+    }
 
     await AsyncStorage.setItem(
       BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
-      JSON.stringify(sortedScreenshots),
+      JSON.stringify(Object.fromEntries(limitedScreenshotsMap)),
     );
   } catch (error) {
     logger.error("screenshots", "Failed to save screenshot:", error);
-  }
-};
-
-/**
- * Removes screenshots for tabs that are no longer active.
- * @param activeTabIds - Array of currently active tab IDs
- * @returns Promise<void>
- */
-export const pruneScreenshots = async (
-  activeTabIds: string[],
-): Promise<void> => {
-  try {
-    const screenshots = await getStoredScreenshots();
-    const activeTabIdsSet = new Set(activeTabIds);
-
-    // Keep only screenshots for active tabs
-    const screenshotsToKeep = screenshots.filter((screenshot) =>
-      activeTabIdsSet.has(screenshot.tabId),
-    );
-
-    await AsyncStorage.setItem(
-      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
-      JSON.stringify(screenshotsToKeep),
-    );
-  } catch (error) {
-    logger.error("screenshots", "Failed to prune screenshots:", error);
   }
 };
 
@@ -127,6 +136,42 @@ export const clearAllScreenshots = async (): Promise<boolean> => {
   } catch (error) {
     logger.error("clearAllScreenshots", "Failed to clear screenshots:", error);
     return false;
+  }
+};
+
+/**
+ * Removes screenshots for tabs that are no longer active.
+ * @param activeTabIds - Array of currently active tab IDs
+ * @returns Promise<void>
+ */
+export const pruneScreenshots = async (
+  activeTabIds: string[],
+): Promise<void> => {
+  try {
+    if (activeTabIds.length === 0) {
+      await clearAllScreenshots();
+      return;
+    }
+
+    const screenshotsMap = await getStoredScreenshots();
+    const activeTabIdsSet = new Set(activeTabIds);
+
+    // Keep only screenshots for active tabs
+    const screenshotsToKeep = Array.from(screenshotsMap.values()).filter(
+      (screenshot) => activeTabIdsSet.has(screenshot.tabId),
+    );
+
+    // Convert to Map and store as object
+    const filteredScreenshotsMap = new Map(
+      screenshotsToKeep.map((screenshot) => [screenshot.tabId, screenshot]),
+    );
+
+    await AsyncStorage.setItem(
+      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+      JSON.stringify(Object.fromEntries(filteredScreenshotsMap)),
+    );
+  } catch (error) {
+    logger.error("screenshots", "Failed to prune screenshots:", error);
   }
 };
 
