@@ -42,7 +42,6 @@ export const DiscoveryScreen: React.FC<DiscoveryScreenProps> = () => {
     setActiveTab,
     updateTab,
     getActiveTab,
-    loadScreenshots,
     showTabOverview,
     setShowTabOverview,
   } = useBrowserTabsStore();
@@ -77,14 +76,6 @@ export const DiscoveryScreen: React.FC<DiscoveryScreenProps> = () => {
       handleNewTab();
     }
   }, [tabs.length, handleNewTab]);
-
-  useEffect(() => {
-    if (tabs.length > 0) {
-      // Load screenshots for existing tabs
-      loadScreenshots();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Update input URL when active tab changes
   useEffect(() => {

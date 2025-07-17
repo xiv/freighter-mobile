@@ -220,11 +220,24 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
       name: "browser-tabs-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        tabs: state.tabs,
+        tabs: state.tabs.map((tab) => ({
+          ...tab,
+          // Don't persist screenshots in tab storage - they're stored separately
+          screenshot: undefined,
+        })),
         activeTabId: state.activeTabId,
         // Note: showTabOverview is intentionally excluded from persistence
         // as it should always start as false when the app loads
       }),
+      onRehydrateStorage: () => (state) => {
+        // Load screenshots after store is rehydrated from storage
+        if (state?.tabs && state.tabs.length > 0) {
+          // Use setTimeout to ensure the store is fully rehydrated
+          setTimeout(() => {
+            state.loadScreenshots();
+          }, 0);
+        }
+      },
     },
   ),
 );
