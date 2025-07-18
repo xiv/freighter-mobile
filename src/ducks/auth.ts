@@ -1404,7 +1404,13 @@ export const useAuthenticationStore = create<AuthStore>()((set, get) => {
             await clearWalletKitStorage();
 
             // Clear all WebView data (cookies and screenshots)
-            await clearAllWebViewData();
+            const activeAccountId = await dataStorage.getItem(
+              STORAGE_KEYS.ACTIVE_ACCOUNT_ID,
+            );
+            // TODO: create function to clear everything from all accounts
+            if (activeAccountId) {
+              await clearAllWebViewData(activeAccountId);
+            }
             useBrowserTabsStore.getState().closeAllTabs();
 
             const accountList = await getAllAccounts();

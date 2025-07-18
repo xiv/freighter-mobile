@@ -114,7 +114,7 @@ const HorizontalListSection: React.FC<HorizontalListSectionProps> = ({
 const DiscoveryHomepage: React.FC<DiscoveryHomepageProps> = ({ tabId }) => {
   const { t } = useAppTranslation();
   const { themeColors } = useColors();
-  const { goToPage, tabs, updateTab, showTabOverview } = useBrowserTabsStore();
+  const { goToPage, tabs, updateTab, showTabOverview, accountId } = useBrowserTabsStore();
   const viewShotRef = useRef<ViewShot>(null);
 
   const handleSitePress = (url: string) => {
@@ -131,14 +131,17 @@ const DiscoveryHomepage: React.FC<DiscoveryHomepageProps> = ({ tabId }) => {
   );
 
   const captureScreenshot = useCallback(async () => {
+    if (!accountId) return;
+    
     await captureTabScreenshot({
       viewShotRef: viewShotRef.current,
       tabId,
       tabs,
       updateTab,
       source: "DiscoveryHomepage",
+      accountId,
     });
-  }, [tabs, tabId, updateTab]);
+  }, [tabs, tabId, updateTab, accountId]);
 
   // Capture screenshot on initial render and when tab overview is closed
   useEffect(() => {

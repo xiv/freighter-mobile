@@ -47,11 +47,11 @@ describe("screenshots helpers", () => {
     it("should return empty Map when no screenshots stored", async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
 
-      const result = await getStoredScreenshots();
+      const result = await getStoredScreenshots("test-account");
 
       expect(result).toEqual(new Map());
       expect(mockAsyncStorage.getItem).toHaveBeenCalledWith(
-        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        "browser_screenshots_test-account",
       );
     });
 
@@ -59,7 +59,7 @@ describe("screenshots helpers", () => {
       const storedData = JSON.stringify({ "tab-123": mockScreenshotData });
       mockAsyncStorage.getItem.mockResolvedValue(storedData);
 
-      const result = await getStoredScreenshots();
+      const result = await getStoredScreenshots("test-account");
       const expectedMap = new Map([["tab-123", mockScreenshotData]]);
 
       expect(result).toEqual(expectedMap);
@@ -69,7 +69,7 @@ describe("screenshots helpers", () => {
       const error = new Error("Storage error");
       mockAsyncStorage.getItem.mockRejectedValue(error);
 
-      const result = await getStoredScreenshots();
+      const result = await getStoredScreenshots("test-account");
 
       expect(result).toEqual(new Map());
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -82,7 +82,7 @@ describe("screenshots helpers", () => {
     it("should handle invalid JSON gracefully", async () => {
       mockAsyncStorage.getItem.mockResolvedValue("invalid json");
 
-      const result = await getStoredScreenshots();
+      const result = await getStoredScreenshots("test-account");
 
       expect(result).toEqual(new Map());
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -97,7 +97,7 @@ describe("screenshots helpers", () => {
     it("should return null when no screenshots found", async () => {
       mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify({}));
 
-      const result = await findTabScreenshot("tab-123");
+      const result = await findTabScreenshot("tab-123", "test-account");
 
       expect(result).toBeNull();
     });
@@ -115,7 +115,7 @@ describe("screenshots helpers", () => {
         JSON.stringify(screenshotsMap),
       );
 
-      const result = await findTabScreenshot("tab-123");
+      const result = await findTabScreenshot("tab-123", "test-account");
 
       expect(result).toEqual({ ...mockScreenshotData, timestamp: 2000 });
     });
@@ -124,7 +124,7 @@ describe("screenshots helpers", () => {
       const error = new Error("Storage error");
       mockAsyncStorage.getItem.mockRejectedValue(error);
 
-      const result = await findTabScreenshot("tab-123");
+      const result = await findTabScreenshot("tab-123", "test-account");
 
       expect(result).toBeNull();
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -150,7 +150,7 @@ describe("screenshots helpers", () => {
       );
 
       const newScreenshot = { ...mockScreenshotData, timestamp: 3000 };
-      await saveScreenshot(newScreenshot);
+      await saveScreenshot(newScreenshot, "test-account");
 
       // The actual implementation sorts by timestamp, so the order might be different
       const savedData = JSON.parse(mockAsyncStorage.setItem.mock.calls[0][1]);
@@ -171,7 +171,7 @@ describe("screenshots helpers", () => {
       );
 
       const newScreenshot = { ...mockScreenshotData, timestamp: 1000 };
-      await saveScreenshot(newScreenshot);
+      await saveScreenshot(newScreenshot, "test-account");
 
       const savedData = JSON.parse(mockAsyncStorage.setItem.mock.calls[0][1]);
       expect(Object.keys(savedData).length).toBeLessThanOrEqual(
@@ -183,7 +183,7 @@ describe("screenshots helpers", () => {
       const error = new Error("Storage error");
       mockAsyncStorage.getItem.mockRejectedValue(error);
 
-      await expect(saveScreenshot(mockScreenshotData)).resolves.not.toThrow();
+      await expect(saveScreenshot(mockScreenshotData, "test-account")).resolves.not.toThrow();
       expect(mockLogger.error).toHaveBeenCalledWith(
         "screenshots",
         "Failed to get stored screenshots:",
@@ -203,10 +203,10 @@ describe("screenshots helpers", () => {
         JSON.stringify(screenshotsMap),
       );
 
-      await pruneScreenshots(["tab-1", "tab-3"]);
+      await pruneScreenshots(["tab-1", "tab-3"], "test-account");
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
-        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        "browser_screenshots_test-account",
         JSON.stringify({
           "tab-1": { ...mockScreenshotData, tabId: "tab-1" },
           "tab-3": { ...mockScreenshotData, tabId: "tab-3" },
@@ -223,10 +223,10 @@ describe("screenshots helpers", () => {
         JSON.stringify(screenshotsMap),
       );
 
-      await pruneScreenshots([]);
+      await pruneScreenshots([], "test-account");
 
       expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith(
-        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        "browser_screenshots_test-account",
       );
     });
 
@@ -234,7 +234,7 @@ describe("screenshots helpers", () => {
       const error = new Error("Storage error");
       mockAsyncStorage.getItem.mockRejectedValue(error);
 
-      await expect(pruneScreenshots(["tab-1"])).resolves.not.toThrow();
+      await expect(pruneScreenshots(["tab-1"], "test-account")).resolves.not.toThrow();
       expect(mockLogger.error).toHaveBeenCalledWith(
         "screenshots",
         "Failed to get stored screenshots:",
@@ -253,11 +253,11 @@ describe("screenshots helpers", () => {
         JSON.stringify(screenshotsMap),
       );
 
-      const result = await removeTabScreenshot("tab-123");
+      const result = await removeTabScreenshot("tab-123", "test-account");
 
       expect(result).toBe(true);
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
-        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        "browser_screenshots_test-account",
         JSON.stringify({
           "other-tab": { ...mockScreenshotData, tabId: "other-tab" },
         }),
@@ -276,7 +276,7 @@ describe("screenshots helpers", () => {
         JSON.stringify(screenshotsMap),
       );
 
-      const result = await removeTabScreenshot("non-existent");
+      const result = await removeTabScreenshot("non-existent", "test-account");
 
       expect(result).toBe(true);
       expect(mockAsyncStorage.setItem).not.toHaveBeenCalled();
@@ -286,7 +286,7 @@ describe("screenshots helpers", () => {
       const error = new Error("Storage error");
       mockAsyncStorage.getItem.mockRejectedValue(error);
 
-      const result = await removeTabScreenshot("tab-123");
+      const result = await removeTabScreenshot("tab-123", "test-account");
 
       expect(result).toBe(true); // getStoredScreenshots returns empty Map on error
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -299,10 +299,10 @@ describe("screenshots helpers", () => {
 
   describe("clearAllScreenshots", () => {
     it("should remove all screenshots successfully", async () => {
-      const result = await clearAllScreenshots();
+      const result = await clearAllScreenshots("test-account");
 
       expect(mockAsyncStorage.removeItem).toHaveBeenCalledWith(
-        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        "browser_screenshots_test-account",
       );
       expect(result).toBe(true);
       expect(mockLogger.debug).toHaveBeenCalledWith(
@@ -319,7 +319,7 @@ describe("screenshots helpers", () => {
       const error = new Error("Storage error");
       mockAsyncStorage.removeItem.mockRejectedValue(error);
 
-      const result = await clearAllScreenshots();
+      const result = await clearAllScreenshots("test-account");
 
       expect(result).toBe(false);
       expect(mockLogger.error).toHaveBeenCalledWith(
@@ -352,6 +352,7 @@ describe("screenshots helpers", () => {
         tabs: [mockTab],
         updateTab: mockUpdateTab,
         source: "test",
+        accountId: "test-account",
       });
 
       // Test that the function doesn't throw
@@ -365,6 +366,7 @@ describe("screenshots helpers", () => {
         tabs: [mockTab],
         updateTab: mockUpdateTab,
         source: "test",
+        accountId: "test-account",
       });
 
       expect(mockUpdateTab).not.toHaveBeenCalled();
@@ -381,6 +383,7 @@ describe("screenshots helpers", () => {
         tabs: [mockTab],
         updateTab: mockUpdateTab,
         source: "test",
+        accountId: "test-account",
       });
 
       expect(mockUpdateTab).not.toHaveBeenCalled();
@@ -402,6 +405,7 @@ describe("screenshots helpers", () => {
           tabs: [mockTab],
           updateTab: mockUpdateTab,
           source: "test",
+          accountId: "test-account",
         }),
       ).resolves.not.toThrow();
 
@@ -423,6 +427,7 @@ describe("screenshots helpers", () => {
           tabs: [mockTab],
           updateTab: mockUpdateTab,
           source: "test",
+          accountId: "test-account",
         }),
       ).resolves.not.toThrow();
 

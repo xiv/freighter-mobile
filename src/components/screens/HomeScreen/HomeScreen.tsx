@@ -1,4 +1,5 @@
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { BalancesList } from "components/BalancesList";
 import { IconButton } from "components/IconButton";
@@ -19,6 +20,7 @@ import {
 } from "config/routes";
 import { useAuthenticationStore } from "ducks/auth";
 import { useBalancesStore } from "ducks/balances";
+import { debug } from "helpers/debug";
 import { isContractId } from "helpers/soroban";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useClipboard } from "hooks/useClipboard";
@@ -81,6 +83,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     fetchAccounts();
   }, [getAllAccounts]);
+
+  useEffect(() => {
+    AsyncStorage.getAllKeys().then(async keys => {
+      debug('HOME SCREEN> > > > > All keys:', keys);
+      const keyValues = await Promise.all(
+        keys.map(async key => {
+          const value = await AsyncStorage.getItem(key);
+          return { key, value };
+        })
+      );
+      debug('HOME SCREEN > > > > > All key-values:', keyValues);
+    });
+  }, []);
 
   const navigateToBuyXLM = useCallback(() => {
     navigation.navigate(ROOT_NAVIGATOR_ROUTES.BUY_XLM_STACK, {

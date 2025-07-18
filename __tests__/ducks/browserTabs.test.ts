@@ -47,6 +47,25 @@ describe("browserTabs", () => {
     });
   });
 
+  describe("account-specific storage", () => {
+    it("should clear tabs when switching accounts", () => {
+      const store = useBrowserTabsStore.getState();
+      
+      // Set account 1 and add a tab
+      store.setAccountId("account-1");
+      const tabId = store.addTab("https://example1.com");
+      expect(tabId).toBe("tab-123");
+      
+      // Set account 2 - should clear tabs and start fresh
+      store.setAccountId("account-2");
+      expect(store.tabs).toHaveLength(0);
+      
+      // Add a tab for account 2
+      const tabId2 = store.addTab("https://example2.com");
+      expect(tabId2).toBe("tab-123");
+    });
+  });
+
   describe("addTab", () => {
     it("should add a new tab with default homepage URL", () => {
       const store = useBrowserTabsStore.getState();
@@ -68,8 +87,9 @@ describe("browserTabs", () => {
   describe("closeTab", () => {
     it("should close a tab", () => {
       const store = useBrowserTabsStore.getState();
+      store.setAccountId("test-account");
       store.closeTab("tab-123");
-      expect(mockRemoveTabScreenshot).toHaveBeenCalledWith("tab-123");
+      expect(mockRemoveTabScreenshot).toHaveBeenCalledWith("tab-123", "test-account");
     });
   });
 
@@ -99,8 +119,9 @@ describe("browserTabs", () => {
   describe("closeAllTabs", () => {
     it("should clear all tabs", () => {
       const store = useBrowserTabsStore.getState();
+      store.setAccountId("test-account");
       store.closeAllTabs();
-      expect(mockPruneScreenshots).toHaveBeenCalled();
+      expect(mockPruneScreenshots).toHaveBeenCalledWith([], "test-account");
     });
   });
 
@@ -179,8 +200,9 @@ describe("browserTabs", () => {
   describe("cleanupScreenshots", () => {
     it("should call pruneScreenshots with active tab IDs", async () => {
       const store = useBrowserTabsStore.getState();
+      store.setAccountId("test-account");
       await store.cleanupScreenshots();
-      expect(mockPruneScreenshots).toHaveBeenCalled();
+      expect(mockPruneScreenshots).toHaveBeenCalledWith([], "test-account");
     });
   });
 });

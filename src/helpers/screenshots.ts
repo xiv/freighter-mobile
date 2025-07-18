@@ -5,6 +5,16 @@ import { BrowserTab } from "ducks/browserTabs";
 import ViewShot from "react-native-view-shot";
 
 /**
+ * Helper function to get account-specific storage key
+ * @param accountId - The account ID
+ * @param keyPrefix - The storage key prefix
+ * @returns The account-specific storage key
+ */
+const getAccountStorageKey = (accountId: string, keyPrefix: string): string => {
+  return `${keyPrefix}${accountId}`;
+};
+
+/**
  * Represents a screenshot associated with a browser tab.
  * @property tabId - The ID of the tab
  * @property tabUrl - The URL of the tab
@@ -20,15 +30,18 @@ export interface ScreenshotData {
 
 /**
  * Retrieves all stored screenshots from persistent storage as a Map for O(1) lookups.
+ * @param accountId - The account ID for account-specific storage
  * @returns Promise<Map<string, ScreenshotData>> - Map of tabId to screenshot data
  */
-export const getStoredScreenshots = async (): Promise<
-  Map<string, ScreenshotData>
-> => {
+export const getStoredScreenshots = async (
+  accountId: string,
+): Promise<Map<string, ScreenshotData>> => {
   try {
-    const data = await AsyncStorage.getItem(
-      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+    const storageKey = getAccountStorageKey(
+      accountId,
+      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY_PREFIX,
     );
+    const data = await AsyncStorage.getItem(storageKey);
     if (!data) return new Map();
 
     const screenshotsMap = JSON.parse(data) as Record<string, ScreenshotData>;
@@ -42,13 +55,15 @@ export const getStoredScreenshots = async (): Promise<
 /**
  * Finds screenshot for a given tab.
  * @param tabId - The ID of the tab
+ * @param accountId - The account ID for account-specific storage
  * @returns Promise<ScreenshotData | null> - The screenshot data or null if not found
  */
 export const findTabScreenshot = async (
   tabId: string,
+  accountId: string,
 ): Promise<ScreenshotData | null> => {
   try {
-    const screenshotsMap = await getStoredScreenshots();
+    const screenshotsMap = await getStoredScreenshots(accountId);
     return screenshotsMap.get(tabId) || null;
   } catch (error) {
     logger.error("screenshots", "Failed to find tab screenshot:", error);
@@ -60,17 +75,25 @@ export const findTabScreenshot = async (
 /**
  * Removes a specific screenshot from persistent storage.
  * @param tabId - The ID of the tab whose screenshot should be removed
+ * @param accountId - The account ID for account-specific storage
  * @returns Promise<boolean> - True if removed successfully, false otherwise
  */
-export const removeTabScreenshot = async (tabId: string): Promise<boolean> => {
+export const removeTabScreenshot = async (
+  tabId: string,
+  accountId: string,
+): Promise<boolean> => {
   try {
-    const screenshotsMap = await getStoredScreenshots();
+    const screenshotsMap = await getStoredScreenshots(accountId);
 
     if (screenshotsMap.has(tabId)) {
       screenshotsMap.delete(tabId);
 
+      const storageKey = getAccountStorageKey(
+        accountId,
+        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY_PREFIX,
+      );
       await AsyncStorage.setItem(
-        BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+        storageKey,
         JSON.stringify(Object.fromEntries(screenshotsMap)),
       );
 
@@ -90,13 +113,15 @@ export const removeTabScreenshot = async (tabId: string): Promise<boolean> => {
 /**
  * Saves a screenshot to persistent storage, keeping only the most recent ones.
  * @param screenshot - The screenshot data to save
+ * @param accountId - The account ID for account-specific storage
  * @returns Promise<void>
  */
 export const saveScreenshot = async (
   screenshot: ScreenshotData,
+  accountId: string,
 ): Promise<void> => {
   try {
-    const screenshotsMap = await getStoredScreenshots();
+    const screenshotsMap = await getStoredScreenshots(accountId);
 
     // Add new screenshot (automatically replaces old one for same tabId)
     screenshotsMap.set(screenshot.tabId, screenshot);
@@ -114,8 +139,12 @@ export const saveScreenshot = async (
       );
     }
 
+    const storageKey = getAccountStorageKey(
+      accountId,
+      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY_PREFIX,
+    );
     await AsyncStorage.setItem(
-      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+      storageKey,
       JSON.stringify(Object.fromEntries(limitedScreenshotsMap)),
     );
   } catch (error) {
@@ -125,12 +154,17 @@ export const saveScreenshot = async (
 
 /**
  * Clears all screenshots from persistent storage.
+ * @param accountId - The account ID for account-specific storage
  * @returns Promise<boolean> - True if cleared successfully, false otherwise
  */
-export const clearAllScreenshots = async (): Promise<boolean> => {
+export const clearAllScreenshots = async (accountId: string): Promise<boolean> => {
   try {
     logger.debug("clearAllScreenshots", "Starting screenshot cleanup");
-    await AsyncStorage.removeItem(BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY);
+    const storageKey = getAccountStorageKey(
+      accountId,
+      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY_PREFIX,
+    );
+    await AsyncStorage.removeItem(storageKey);
     logger.debug("clearAllScreenshots", "All screenshots cleared successfully");
     return true;
   } catch (error) {
@@ -142,18 +176,20 @@ export const clearAllScreenshots = async (): Promise<boolean> => {
 /**
  * Removes screenshots for tabs that are no longer active.
  * @param activeTabIds - Array of currently active tab IDs
+ * @param accountId - The account ID for account-specific storage
  * @returns Promise<void>
  */
 export const pruneScreenshots = async (
   activeTabIds: string[],
+  accountId: string,
 ): Promise<void> => {
   try {
     if (activeTabIds.length === 0) {
-      await clearAllScreenshots();
+      await clearAllScreenshots(accountId);
       return;
     }
 
-    const screenshotsMap = await getStoredScreenshots();
+    const screenshotsMap = await getStoredScreenshots(accountId);
     const activeTabIdsSet = new Set(activeTabIds);
 
     // Keep only screenshots for active tabs
@@ -166,8 +202,12 @@ export const pruneScreenshots = async (
       screenshotsToKeep.map((screenshot) => [screenshot.tabId, screenshot]),
     );
 
+    const storageKey = getAccountStorageKey(
+      accountId,
+      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY_PREFIX,
+    );
     await AsyncStorage.setItem(
-      BROWSER_CONSTANTS.SCREENSHOT_STORAGE_KEY,
+      storageKey,
       JSON.stringify(Object.fromEntries(filteredScreenshotsMap)),
     );
   } catch (error) {
@@ -182,6 +222,7 @@ export const pruneScreenshots = async (
  * @property tabs - Array of all browser tabs
  * @property updateTab - Function to update a tab's properties
  * @property source - Used for logging
+ * @property accountId - The account ID for account-specific storage
  */
 export interface CaptureScreenshotParams {
   viewShotRef: ViewShot | null;
@@ -189,6 +230,7 @@ export interface CaptureScreenshotParams {
   tabs: BrowserTab[];
   updateTab: (tabId: string, updates: Partial<BrowserTab>) => void;
   source: string; // used for logging
+  accountId: string;
 }
 
 /**
@@ -202,6 +244,7 @@ export const captureTabScreenshot = async ({
   tabs,
   updateTab,
   source,
+  accountId,
 }: CaptureScreenshotParams): Promise<void> => {
   logger.debug(source, "attempting to capture screenshot for tabId:", tabId);
 
@@ -219,7 +262,7 @@ export const captureTabScreenshot = async ({
           tabUrl: tab.url,
         };
 
-        await saveScreenshot(screenshotData);
+        await saveScreenshot(screenshotData, accountId);
         updateTab(tabId, { screenshot: uri });
 
         logger.debug(source, `Screenshot captured for tab ${tabId}`);

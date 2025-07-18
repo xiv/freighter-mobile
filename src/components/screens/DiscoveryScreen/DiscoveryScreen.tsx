@@ -7,7 +7,7 @@ import {
   WebViewContainer,
 } from "components/screens/DiscoveryScreen/components";
 import { Text } from "components/sds/Typography";
-import { BROWSER_CONSTANTS, DEFAULT_PADDING } from "config/constants";
+import { BROWSER_CONSTANTS, DEFAULT_PADDING, STORAGE_KEYS } from "config/constants";
 import { logger } from "config/logger";
 import { MainTabStackParamList, MAIN_TAB_ROUTES } from "config/routes";
 import { useBrowserTabsStore } from "ducks/browserTabs";
@@ -19,6 +19,8 @@ import React, { useRef, useState, useCallback, useEffect } from "react";
 import { Animated, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WebView, WebViewNavigation } from "react-native-webview";
+import { dataStorage } from "services/storage/storageFactory";
+import useGetActiveAccount from "hooks/useGetActiveAccount";
 
 type DiscoveryScreenProps = BottomTabScreenProps<
   MainTabStackParamList,
@@ -34,6 +36,9 @@ export const DiscoveryScreen: React.FC<DiscoveryScreenProps> = () => {
   const insets = useSafeAreaInsets();
   const { t } = useAppTranslation();
 
+  const { account } = useGetActiveAccount();
+  const activeAccountId = account?.id;
+
   const {
     tabs,
     activeTabId,
@@ -44,7 +49,15 @@ export const DiscoveryScreen: React.FC<DiscoveryScreenProps> = () => {
     getActiveTab,
     showTabOverview,
     setShowTabOverview,
+    setAccountId,
   } = useBrowserTabsStore();
+
+  // Set account ID when component mounts
+  useEffect(() => {
+    if (activeAccountId) {
+      setAccountId(activeAccountId);
+    }
+  }, [setAccountId, activeAccountId]);
 
   const activeTab = getActiveTab();
 

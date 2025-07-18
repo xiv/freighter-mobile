@@ -1,10 +1,12 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   NavigationContainer,
   createNavigationContainerRef,
 } from "@react-navigation/native";
 import { RootStackParamList } from "config/routes";
 import { THEME } from "config/theme";
+import { debug } from "helpers/debug";
 import i18n from "i18n";
 import { RootNavigator } from "navigators/RootNavigator";
 import { AuthCheckProvider } from "providers/AuthCheckProvider";
@@ -25,6 +27,19 @@ export const App = (): React.JSX.Element => {
     Appearance.setColorScheme("dark");
   }, []);
 
+  useEffect(() => {
+    AsyncStorage.getAllKeys().then(async keys => {
+      debug('APP > > > > > All keys:', keys);
+      const keyValues = await Promise.all(
+        keys.map(async key => {
+          const value = await AsyncStorage.getItem(key);
+          return { key, value };
+        })
+      );
+      debug('APP > > > > > All key-values:', keyValues);
+    });
+  }, []);
+  
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>

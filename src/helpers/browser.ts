@@ -149,16 +149,17 @@ export const clearAllCookies = async (): Promise<boolean> => {
 
 /**
  * Clears all WebView data including cookies and screenshots. Called during logout for security reasons.
+ * @param accountId - The account ID for account-specific storage
  * @returns Promise<boolean> - True if cleanup was successful, false otherwise
  */
-export const clearAllWebViewData = async (): Promise<boolean> => {
+export const clearAllWebViewData = async (accountId: string): Promise<boolean> => {
   try {
     logger.debug("clearAllWebViewData", "Starting WebView data cleanup");
 
     // Clear cookies and screenshots in parallel
     const [cookieResult, screenshotResult] = await Promise.all([
       clearAllCookies(),
-      clearAllScreenshots(),
+      clearAllScreenshots(accountId),
     ]);
 
     const success = cookieResult && screenshotResult;

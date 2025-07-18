@@ -8,6 +8,17 @@ import {
 } from "helpers/screenshots";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { debug } from "helpers/debug";
+
+/**
+ * Helper function to get account-specific storage key
+ * @param accountId - The account ID
+ * @param keyPrefix - The storage key prefix
+ * @returns The account-specific storage key
+ */
+const getAccountStorageKey = (accountId: string, keyPrefix: string): string => {
+  return `${keyPrefix}${accountId}`;
+};
 
 /**
  * Represents a single browser tab in the in-app browser.
@@ -33,10 +44,13 @@ export interface BrowserTab {
 
 /**
  * Zustand store for managing browser tabs, their state, and actions.
+ * Each account has its own separate browser tabs store.
  *
- * @property tabs - Array of all open browser tabs
+ * @property accountId - The account ID this store belongs to
+ * @property tabs - Array of all open browser tabs for this account
  * @property activeTabId - The ID of the currently active tab
  * @property showTabOverview - Whether the tab overview UI is shown
+ * @method setAccountId - Sets the account ID and loads account-specific data
  * @method addTab - Adds a new tab (optionally with a URL), returns the new tab's ID
  * @method closeTab - Closes a tab by ID
  * @method setActiveTab - Sets the active tab by ID
@@ -50,9 +64,11 @@ export interface BrowserTab {
  * @method setShowTabOverview - Sets the tab overview UI visibility
  */
 interface BrowserTabsState {
+  accountId: string | null;
   tabs: BrowserTab[];
   activeTabId: string | null;
   showTabOverview: boolean;
+  setAccountId: (accountId: string) => void;
   addTab: (url?: string) => string; // Return the tab ID
   closeTab: (tabId: string) => void;
   setActiveTab: (tabId: string) => void;
@@ -69,9 +85,55 @@ interface BrowserTabsState {
 export const useBrowserTabsStore = create<BrowserTabsState>()(
   persist(
     (set, get) => ({
+      accountId: null,
       tabs: [],
       activeTabId: null,
       showTabOverview: false,
+
+      setAccountId: async (accountId: string) => {
+        
+        debug("> > > > > state 111: ", get());
+        
+        // Update the storage key to be account-specific
+        const storageKey = getAccountStorageKey(
+          accountId,
+          BROWSER_CONSTANTS.BROWSER_TABS_STORAGE_KEY_PREFIX,
+        );
+        
+        useBrowserTabsStore.persist.setOptions({
+          name: storageKey,
+        });
+        
+        // TODO: wrap everything in a try catch
+
+        // TODO: this is working on account switch but not on app start
+        // TODO: if we comment AsyncStorage.getItem it works on app start
+        const hasKey = await AsyncStorage.getItem(storageKey);
+        debug("> > > > > HAS KEY 111: ", hasKey);
+
+        if(!hasKey) {
+          debug("> > > > > NO KEY 333: ", hasKey);
+          set({ 
+            accountId,
+            tabs: [],
+            activeTabId: null,
+            showTabOverview: false,
+          });
+        } else {
+          debug("> > > > > HAS KEY 222: ", hasKey);
+
+        //   // Rehydrate to load the account-specific data
+        await  useBrowserTabsStore.persist.rehydrate();
+        
+
+          debug("> > > > > state 333: ", get());
+
+          set({ accountId, showTabOverview: false }); 
+
+          debug("> > > > > state 444: ", get());
+        }
+
+      },
 
       addTab: (url = BROWSER_CONSTANTS.HOMEPAGE_URL) => {
         const newTab: BrowserTab = {
@@ -120,7 +182,10 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
         });
 
         // Clean up screenshot for closed tab
-        removeTabScreenshot(tabId);
+        const state = get();
+        if (state.accountId) {
+          removeTabScreenshot(tabId, state.accountId);
+        }
       },
 
       setActiveTab: (tabId: string) => {
@@ -142,7 +207,10 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
 
       closeAllTabs: () => {
         set({ tabs: [], activeTabId: null });
-        get().cleanupScreenshots();
+        const state = get();
+        if (state.accountId) {
+          get().cleanupScreenshots();
+        }
       },
 
       getActiveTab: () => {
@@ -194,12 +262,14 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
 
       loadScreenshots: async () => {
         const state = get();
+        if (!state.accountId) return;
+
         const updatedTabs = [...state.tabs];
 
         // Use Promise.all to load screenshots in parallel
         const screenshotPromises = updatedTabs.map(async (tab, index) => {
           try {
-            const screenshot = await findTabScreenshot(tab.id);
+            const screenshot = await findTabScreenshot(tab.id, state.accountId!);
             if (screenshot) {
               updatedTabs[index] = { ...tab, screenshot: screenshot.uri };
             }
@@ -217,14 +287,18 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
 
       cleanupScreenshots: async () => {
         const state = get();
+        if (!state.accountId) return;
+        
         const activeTabIds = state.tabs.map((tab) => tab.id);
-        await pruneScreenshots(activeTabIds);
+        await pruneScreenshots(activeTabIds, state.accountId);
       },
     }),
     {
-      name: "browser-tabs-storage",
+      // TODO: try using `{BROWSER_CONSTANTS.BROWSER_TABS_STORAGE_KEY_PREFIX}default`
+      name: "browser-tabs-storage-all-accounts",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
+        accountId: state.accountId,
         tabs: state.tabs.map((tab) => ({
           ...tab,
           // Don't persist screenshots in tab storage - they're stored separately
@@ -234,15 +308,15 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
         // Note: showTabOverview is intentionally excluded from persistence
         // as it should always start as false when the app loads
       }),
-      onRehydrateStorage: () => (state) => {
-        // Load screenshots after store is rehydrated from storage
-        if (state?.tabs && state.tabs.length > 0) {
-          // Use setTimeout to ensure the store is fully rehydrated
-          setTimeout(() => {
-            state.loadScreenshots();
-          }, 0);
-        }
-      },
+      // onRehydrateStorage: () => (state) => {
+      //   // Load screenshots after store is rehydrated from storage
+      //   if (state?.accountId && state?.tabs && state.tabs.length > 0) {
+      //     // Use setTimeout to ensure the store is fully rehydrated
+      //     setTimeout(() => {
+      //       state.loadScreenshots();
+      //     }, 0);
+      //   }
+      // },
     },
   ),
 );

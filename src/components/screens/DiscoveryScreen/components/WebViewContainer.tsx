@@ -21,7 +21,7 @@ interface WebViewContainerProps {
 // Memoize to avoid unnecessary expensive re-renders
 const WebViewContainer: React.FC<WebViewContainerProps> = React.memo(
   ({ webViewRef, onNavigationStateChange }) => {
-    const { tabs, isTabActive, updateTab, activeTabId } = useBrowserTabsStore();
+    const { tabs, isTabActive, updateTab, activeTabId, accountId } = useBrowserTabsStore();
     const { themeColors } = useColors();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -66,15 +66,18 @@ const WebViewContainer: React.FC<WebViewContainerProps> = React.memo(
 
     const captureScreenshot = useCallback(
       async (tabId: string) => {
+        if (!accountId) return;
+        
         await captureTabScreenshot({
           viewShotRef: viewShotRefs.current[tabId],
           tabId,
           tabs,
           updateTab,
           source: "WebViewContainer",
+          accountId,
         });
       },
-      [tabs, updateTab],
+      [tabs, updateTab, accountId],
     );
 
     const handleScroll = useCallback(
