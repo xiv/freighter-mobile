@@ -74,6 +74,7 @@ export const getExpectedEventName = (routeName: string): string => {
  * Debug helper: Shows which routes use auto vs manual mapping.
  * Development only - no-op in production.
  */
+/* eslint-disable no-console */
 export const debugAnalyticsRoutes = (): void => {
   if (!__DEV__) return;
 
@@ -110,3 +111,4 @@ export const debugAnalyticsRoutes = (): void => {
 
   console.groupEnd();
 };
+/* eslint-enable no-console */

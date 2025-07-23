@@ -25,7 +25,9 @@ import {
   TemporaryStore,
 } from "config/types";
 import { useBalancesStore } from "ducks/balances";
+import { useBrowserTabsStore } from "ducks/browserTabs";
 import { useWalletKitStore } from "ducks/walletKit";
+import { clearAllWebViewData } from "helpers/browser";
 import {
   deriveKeyFromPassword,
   encryptDataWithPassword,
@@ -33,6 +35,7 @@ import {
   decryptDataWithPassword,
 } from "helpers/encryptPassword";
 import { createKeyManager } from "helpers/keyManager/keyManager";
+import { clearWalletKitStorage } from "helpers/walletKitUtil";
 import { t } from "i18next";
 import { analytics } from "services/analytics";
 import { getAccount } from "services/stellar";
@@ -1413,6 +1416,13 @@ export const useAuthenticationStore = create<AuthStore>()((set, get) => {
           try {
             // Make sure to disconnect all WalletConnect sessions first
             await useWalletKitStore.getState().disconnectAllSessions();
+
+            // Clear all Wallet Connect storage
+            await clearWalletKitStorage();
+
+            // Clear all WebView data (cookies and screenshots)
+            await clearAllWebViewData();
+            useBrowserTabsStore.getState().closeAllTabs();
 
             const accountList = await getAllAccounts();
             const hasAccountList = accountList.length > 0;
