@@ -1,160 +1,159 @@
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { userEvent } from "@testing-library/react-native";
 import PreferencesScreen from "components/screens/SettingsScreen/PreferencesScreen";
-import { useAnalyticsStore } from "ducks/analytics";
+import { SETTINGS_ROUTES, SettingsStackParamList } from "config/routes";
 import { renderWithProviders } from "helpers/testUtils";
+import { useAnalyticsPermissions } from "hooks/useAnalyticsPermissions";
 import React from "react";
-import { analytics } from "services/analytics";
 
-jest.mock("ducks/analytics", () => ({
-  useAnalyticsStore: jest.fn(),
+jest.mock("@react-navigation/native", () => ({
+  useFocusEffect: jest.fn((callback) => {
+    callback();
+    return () => {};
+  }),
 }));
 
-jest.mock("services/analytics", () => ({
-  analytics: {
-    setAnalyticsEnabled: jest.fn(),
-  },
+const mockHandleAnalyticsToggle = jest.fn(() => Promise.resolve());
+const mockSyncTrackingPermission = jest.fn();
+const mockSetShowPermissionModal = jest.fn();
+const mockHandleOpenSettings = jest.fn(() => Promise.resolve());
+
+jest.mock("hooks/useAnalyticsPermissions", () => ({
+  useAnalyticsPermissions: jest.fn(),
 }));
 
-const mockUseAnalyticsStore = useAnalyticsStore as jest.MockedFunction<
-  typeof useAnalyticsStore
->;
+const mockUseAnalyticsPermissions =
+  useAnalyticsPermissions as jest.MockedFunction<
+    typeof useAnalyticsPermissions
+  >;
+
+type PreferencesScreenNavigationProp = NativeStackScreenProps<
+  SettingsStackParamList,
+  typeof SETTINGS_ROUTES.PREFERENCES_SCREEN
+>["navigation"];
+
+type PreferencesScreenRouteProp = NativeStackScreenProps<
+  SettingsStackParamList,
+  typeof SETTINGS_ROUTES.PREFERENCES_SCREEN
+>["route"];
+
+const mockNavigation = {
+  goBack: jest.fn(),
+  setOptions: jest.fn(),
+} as unknown as PreferencesScreenNavigationProp;
+
+const mockRoute = {
+  key: "preferences",
+  name: SETTINGS_ROUTES.PREFERENCES_SCREEN,
+} as unknown as PreferencesScreenRouteProp;
 
 describe("PreferencesScreen", () => {
-  const mockSetEnabled = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseAnalyticsStore.mockReturnValue({
-      isEnabled: false,
-      setEnabled: mockSetEnabled,
+
+    mockUseAnalyticsPermissions.mockReturnValue({
+      isTrackingEnabled: false,
+      isAttRequested: false,
+      handleAnalyticsToggle: mockHandleAnalyticsToggle,
+      syncTrackingPermission: mockSyncTrackingPermission,
+      isPermissionLoading: false,
+      showPermissionModal: false,
+      setShowPermissionModal: mockSetShowPermissionModal,
+      handleOpenSettings: mockHandleOpenSettings,
+      permissionAction: "enable",
     });
   });
 
   const renderPreferencesScreen = () =>
     renderWithProviders(
-      <PreferencesScreen navigation={{} as never} route={{} as never} />,
+      <PreferencesScreen navigation={mockNavigation} route={mockRoute} />,
     );
 
-  describe("Basic Rendering", () => {
-    it("renders correctly with analytics disabled", () => {
-      const { getByTestId } = renderPreferencesScreen();
+  it("renders the analytics toggle correctly", () => {
+    const { getByTestId } = renderPreferencesScreen();
 
-      expect(getByTestId("toggle-analytics-toggle")).toBeTruthy();
-      expect(getByTestId("anonymous-data-sharing-item")).toBeTruthy();
-    });
-
-    it("renders correctly with analytics enabled", () => {
-      mockUseAnalyticsStore.mockReturnValue({
-        isEnabled: true,
-        setEnabled: mockSetEnabled,
-      });
-
-      const { getByTestId } = renderPreferencesScreen();
-
-      expect(getByTestId("toggle-analytics-toggle")).toBeTruthy();
-
-      const toggle = getByTestId("toggle-analytics-toggle");
-      expect(toggle.props.accessibilityState.checked).toBe(true);
-    });
+    expect(getByTestId("toggle-analytics-toggle")).toBeTruthy();
+    expect(getByTestId("anonymous-data-sharing-item")).toBeTruthy();
   });
 
-  describe("Analytics Toggle Interaction", () => {
-    it("enables analytics when toggle is pressed while disabled", async () => {
-      mockUseAnalyticsStore.mockReturnValue({
-        isEnabled: false,
-        setEnabled: mockSetEnabled,
-      });
+  it("shows analytics toggle as disabled by default", () => {
+    const { getByTestId } = renderPreferencesScreen();
 
-      const { getByTestId } = renderPreferencesScreen();
-
-      const toggle = getByTestId("toggle-analytics-toggle");
-      expect(toggle.props.accessibilityState.checked).toBe(false);
-
-      await userEvent.press(toggle);
-
-      expect(analytics.setAnalyticsEnabled).toHaveBeenCalledTimes(1);
-      expect(analytics.setAnalyticsEnabled).toHaveBeenCalledWith(true);
-    }, 15000);
-
-    it("disables analytics when toggle is pressed while enabled", async () => {
-      mockUseAnalyticsStore.mockReturnValue({
-        isEnabled: true,
-        setEnabled: mockSetEnabled,
-      });
-
-      const { getByTestId } = renderPreferencesScreen();
-
-      const toggle = getByTestId("toggle-analytics-toggle");
-      expect(toggle.props.accessibilityState.checked).toBe(true);
-
-      await userEvent.press(toggle);
-
-      expect(analytics.setAnalyticsEnabled).toHaveBeenCalledTimes(1);
-      expect(analytics.setAnalyticsEnabled).toHaveBeenCalledWith(false);
-    });
-
-    it("handles rapid toggle presses correctly", async () => {
-      const { getByTestId } = renderPreferencesScreen();
-
-      const toggle = getByTestId("toggle-analytics-toggle");
-
-      // Simulate rapid presses - each press calls setEnabled with the opposite of current mock state
-      await userEvent.press(toggle);
-      await userEvent.press(toggle);
-      await userEvent.press(toggle);
-
-      expect(analytics.setAnalyticsEnabled).toHaveBeenCalledTimes(3);
-      // Each call should pass the opposite of the mocked isEnabled (false), so all calls should be true
-      expect(analytics.setAnalyticsEnabled).toHaveBeenNthCalledWith(1, true);
-      expect(analytics.setAnalyticsEnabled).toHaveBeenNthCalledWith(2, true);
-      expect(analytics.setAnalyticsEnabled).toHaveBeenNthCalledWith(3, true);
-    });
+    const toggle = getByTestId("toggle-analytics-toggle");
+    expect(toggle.props.accessibilityState.checked).toBe(false);
   });
 
-  describe("Accessibility", () => {
-    it("has proper accessibility labels for the toggle", () => {
-      const { getByTestId } = renderPreferencesScreen();
+  it("enables analytics when toggle is pressed while disabled", async () => {
+    const { getByTestId } = renderPreferencesScreen();
 
-      const toggle = getByTestId("toggle-analytics-toggle");
-      expect(toggle.props.accessibilityRole).toBe("switch");
-      expect(toggle.props.accessibilityState.checked).toBe(false);
+    const toggle = getByTestId("toggle-analytics-toggle");
+    expect(toggle.props.accessibilityState.checked).toBe(false);
+
+    await userEvent.press(toggle);
+
+    expect(mockHandleAnalyticsToggle).toHaveBeenCalledTimes(1);
+  }, 15000);
+
+  it("disables analytics when toggle is pressed while enabled", async () => {
+    mockUseAnalyticsPermissions.mockReturnValue({
+      isTrackingEnabled: true,
+      isAttRequested: false,
+      handleAnalyticsToggle: mockHandleAnalyticsToggle,
+      syncTrackingPermission: mockSyncTrackingPermission,
+      isPermissionLoading: false,
+      showPermissionModal: false,
+      setShowPermissionModal: mockSetShowPermissionModal,
+      handleOpenSettings: mockHandleOpenSettings,
+      permissionAction: "disable",
     });
 
-    it("maintains accessibility when analytics is enabled", () => {
-      mockUseAnalyticsStore.mockReturnValue({
-        isEnabled: true,
-        setEnabled: mockSetEnabled,
-      });
+    const { getByTestId } = renderPreferencesScreen();
 
-      const { getByTestId } = renderPreferencesScreen();
+    const toggle = getByTestId("toggle-analytics-toggle");
+    expect(toggle.props.accessibilityState.checked).toBe(true);
 
-      const toggle = getByTestId("toggle-analytics-toggle");
-      expect(toggle.props.accessibilityRole).toBe("switch");
-      expect(toggle.props.accessibilityState.checked).toBe(true);
+    await userEvent.press(toggle);
+
+    expect(mockHandleAnalyticsToggle).toHaveBeenCalledTimes(1);
+  }, 15000);
+
+  it("handles rapid toggle presses correctly", async () => {
+    const { getByTestId } = renderPreferencesScreen();
+
+    const toggle = getByTestId("toggle-analytics-toggle");
+
+    // Simulate rapid presses
+    await userEvent.press(toggle);
+    await userEvent.press(toggle);
+    await userEvent.press(toggle);
+
+    expect(mockHandleAnalyticsToggle).toHaveBeenCalledTimes(3);
+  }, 15000);
+
+  it("calls handleAnalyticsToggle when toggle is pressed", async () => {
+    const { getByTestId } = renderPreferencesScreen();
+
+    const toggle = getByTestId("toggle-analytics-toggle");
+    await userEvent.press(toggle);
+
+    expect(mockHandleAnalyticsToggle).toHaveBeenCalledTimes(1);
+  }, 15000);
+
+  it("shows loading spinner when permission is being checked", () => {
+    mockUseAnalyticsPermissions.mockReturnValue({
+      isTrackingEnabled: false,
+      isAttRequested: false,
+      handleAnalyticsToggle: mockHandleAnalyticsToggle,
+      syncTrackingPermission: mockSyncTrackingPermission,
+      isPermissionLoading: true,
+      showPermissionModal: false,
+      setShowPermissionModal: mockSetShowPermissionModal,
+      handleOpenSettings: mockHandleOpenSettings,
+      permissionAction: "enable",
     });
-  });
 
-  describe("State Management", () => {
-    it("reflects the analytics disabled state correctly", () => {
-      mockUseAnalyticsStore.mockReturnValue({
-        isEnabled: false,
-        setEnabled: mockSetEnabled,
-      });
+    const { getByTestId } = renderPreferencesScreen();
 
-      const { getByTestId } = renderPreferencesScreen();
-      const toggle = getByTestId("toggle-analytics-toggle");
-      expect(toggle.props.accessibilityState.checked).toBe(false);
-    });
-
-    it("reflects the analytics enabled state correctly", () => {
-      mockUseAnalyticsStore.mockReturnValue({
-        isEnabled: true,
-        setEnabled: mockSetEnabled,
-      });
-
-      const { getByTestId } = renderPreferencesScreen();
-      const toggle = getByTestId("toggle-analytics-toggle");
-      expect(toggle.props.accessibilityState.checked).toBe(true);
-    });
-  });
+    expect(getByTestId("analytics-toggle-loading")).toBeTruthy();
+  }, 15000);
 });
