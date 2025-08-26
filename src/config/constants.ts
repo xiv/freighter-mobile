@@ -161,6 +161,24 @@ export enum OPERATION_TYPES {
   restoreFootprint = "Restore Footprint",
 }
 
+export enum CLAIM_PREDICATES {
+  claimPredicateUnconditional = t(
+    "signTransactionDetails.claimPredicates.unconditional",
+  ),
+  claimPredicateConditional = t(
+    "signTransactionDetails.claimPredicates.conditional",
+  ),
+  claimPredicateAnd = t("signTransactionDetails.claimPredicates.and"),
+  claimPredicateOr = t("signTransactionDetails.claimPredicates.or"),
+  claimPredicateNot = t("signTransactionDetails.claimPredicates.not"),
+  claimPredicateBeforeRelativeTime = t(
+    "signTransactionDetails.claimPredicates.beforeRelativeTime",
+  ),
+  claimPredicateBeforeAbsoluteTime = t(
+    "signTransactionDetails.claimPredicates.beforeAbsoluteTime",
+  ),
+}
+
 export const DEFAULT_TRANSACTION_TIMEOUT = 180;
 export const MIN_TRANSACTION_TIMEOUT = 1;
 export const MIN_IOS_VERSION_FOR_ATT_REQUEST = 14.5;
