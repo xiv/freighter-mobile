@@ -116,11 +116,11 @@
     "copyButton": "Copy address",
     "helperText": "Scan the QR code or \ncopy your address",
     "bottomSheet": {
-      "title": "Receive XLM",
+      "title": "QR Code",
       "description": "Have the sender scan the QR code on their Freighter app to retrieve your wallet address securely."
     }
   },
-  "scanQRCodeScreen": {
+  "walletConnect": {
     "title": "Scan to Connect",
     "scanWCQrCode": "Scan a WalletConnect QR code",
     "connectWithWalletConnect": "Paste a WalletConnect URI",
@@ -128,6 +128,9 @@
     "connect": "Connect",
     "pairingError": "Failed to pair",
     "invalidUriError": "Please enter a valid QR Code URI"
+  },
+  "qrCodeScannerScreen": {
+    "title": "Scan to send"
   },
   "addFundsScreen": {
     "title": "Add funds",
@@ -468,7 +471,8 @@
     "recents": "Recents",
     "suggestions": "Suggestions",
     "cannotSendToSelf": "Cannot send to yourself",
-    "invalidAddress": "Invalid Stellar address"
+    "invalidAddress": "Invalid Stellar address",
+    "scanQRCodeText": "Scan a Freighter QR Code"
   },
   "swapScreen": {
     "swapFrom": "Swap from",
