@@ -1,10 +1,15 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/no-unstable-nested-components */
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 import { CustomHeaderButton } from "components/layout/CustomHeaderButton";
 import CustomNavigationHeader from "components/layout/CustomNavigationHeader";
 import AccountQRCodeScreen from "components/screens/AccountQRCodeScreen";
 import AddCollectibleScreen from "components/screens/AddCollectibleScreen";
+import { BiometricsOnboardingScreen } from "components/screens/BiometricsEnableScreen/BiometricsEnableScreen";
 import CollectibleDetailsScreen from "components/screens/CollectibleDetailsScreen";
 import ConnectedAppsScreen from "components/screens/ConnectedAppsScreen";
 import { LoadingScreen } from "components/screens/LoadingScreen";
@@ -12,6 +17,7 @@ import { LockScreen } from "components/screens/LockScreen";
 import ScanQRCodeScreen from "components/screens/ScanQRCodeScreen";
 import TokenDetailsScreen from "components/screens/TokenDetailsScreen";
 import Icon from "components/sds/Icon";
+import { STORAGE_KEYS } from "config/constants";
 import {
   ManageWalletsStackParamList,
   ROOT_NAVIGATOR_ROUTES,
@@ -20,11 +26,14 @@ import {
   SendPaymentStackParamList,
   AddFundsStackParamList,
   ManageTokensStackParamList,
+  AUTH_STACK_ROUTES,
+  AuthStackParamList,
 } from "config/routes";
 import { AUTH_STATUS } from "config/types";
 import { useAuthenticationStore } from "ducks/auth";
 import { useAnalyticsPermissions } from "hooks/useAnalyticsPermissions";
 import useAppTranslation from "hooks/useAppTranslation";
+import { useBiometrics } from "hooks/useBiometrics";
 import {
   AuthNavigator,
   AddFundsStackNavigator,
@@ -37,6 +46,7 @@ import {
 import { TabNavigator } from "navigators/TabNavigator";
 import React, { useEffect, useMemo, useState } from "react";
 import RNBootSplash from "react-native-bootsplash";
+import { dataStorage } from "services/storage/storageFactory";
 
 const RootStack = createNativeStackNavigator<
   RootStackParamList &
@@ -44,14 +54,19 @@ const RootStack = createNativeStackNavigator<
     SettingsStackParamList &
     ManageWalletsStackParamList &
     SendPaymentStackParamList &
+    AuthStackParamList &
     AddFundsStackParamList
 >();
 
 export const RootNavigator = () => {
+  const navigation =
+    useNavigation<
+      NativeStackNavigationProp<RootStackParamList & AuthStackParamList>
+    >();
   const { authStatus, getAuthStatus } = useAuthenticationStore();
   const [initializing, setInitializing] = useState(true);
   const { t } = useAppTranslation();
-
+  const { checkBiometrics, isBiometricsEnabled } = useBiometrics();
   // Use analytics/permissions hook only after splash is hidden
   useAnalyticsPermissions({
     previousState: initializing ? undefined : "none",
@@ -63,8 +78,41 @@ export const RootNavigator = () => {
       setInitializing(false);
       RNBootSplash.hide({ fade: true });
     };
-    initializeApp();
-  }, [getAuthStatus]);
+
+    const triggerFaceIdOnboarding = () => {
+      if (authStatus === AUTH_STATUS.AUTHENTICATED) {
+        setTimeout(() => {
+          dataStorage
+            .getItem(STORAGE_KEYS.HAS_SEEN_BIOMETRICS_ENABLE_SCREEN)
+            .then(async (hasSeenBiometricsEnableScreenStorage) => {
+              const type = await checkBiometrics();
+              if (
+                !isBiometricsEnabled &&
+                hasSeenBiometricsEnableScreenStorage !== "true" &&
+                !!type
+              ) {
+                navigation.navigate(
+                  AUTH_STACK_ROUTES.BIOMETRICS_ENABLE_SCREEN,
+                  {
+                    postOnboarding: true,
+                  },
+                );
+              }
+            });
+        }, 3000);
+      }
+    };
+
+    initializeApp().then(() => {
+      triggerFaceIdOnboarding();
+    });
+  }, [
+    getAuthStatus,
+    navigation,
+    authStatus,
+    checkBiometrics,
+    isBiometricsEnabled,
+  ]);
 
   // Make the stack re-render when auth status changes
   const initialRouteName = useMemo(() => {
@@ -169,6 +217,15 @@ export const RootNavigator = () => {
             component={AddCollectibleScreen}
             options={{
               headerTitle: t("addCollectibleScreen.title"),
+              headerShown: true,
+              header: (props) => <CustomNavigationHeader {...props} />,
+              headerLeft: () => <CustomHeaderButton icon={Icon.X} />,
+            }}
+          />
+          <RootStack.Screen
+            name={AUTH_STACK_ROUTES.BIOMETRICS_ENABLE_SCREEN}
+            component={BiometricsOnboardingScreen}
+            options={{
               headerShown: true,
               header: (props) => <CustomNavigationHeader {...props} />,
               headerLeft: () => <CustomHeaderButton icon={Icon.X} />,

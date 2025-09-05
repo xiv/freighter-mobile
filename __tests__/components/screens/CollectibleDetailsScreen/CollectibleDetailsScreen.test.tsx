@@ -42,6 +42,24 @@ jest.mock("hooks/useRightHeader", () => ({
 jest.mock("ducks/auth", () => ({
   useAuthenticationStore: () => ({
     network: "testnet",
+    setSignInMethod: jest.fn(),
+  }),
+  getLoginType: jest.fn((biometryType) => {
+    if (!biometryType) return "password";
+    if (biometryType === "FaceID" || biometryType === "Face") return "face";
+    if (biometryType === "TouchID" || biometryType === "Fingerprint")
+      return "fingerprint";
+    return "password";
+  }),
+}));
+
+// Mock the useGetActiveAccount hook
+jest.mock("hooks/useGetActiveAccount", () => ({
+  __esModule: true,
+  default: () => ({
+    account: {
+      publicKey: "test-public-key",
+    },
   }),
 }));
 
