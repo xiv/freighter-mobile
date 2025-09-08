@@ -1,4 +1,5 @@
 import { BigNumber } from "bignumber.js";
+import { IconButton } from "components/IconButton";
 import { List, ListItemProps } from "components/List";
 import { TokenIcon } from "components/TokenIcon";
 import SignTransactionDetails from "components/screens/SignTransactionDetails";
@@ -28,6 +29,7 @@ type SendReviewBottomSheetProps = {
   tokenAmount: string;
   onCancel?: () => void;
   onConfirm?: () => void;
+  onSettingsPress?: () => void;
   /**
    * Indicates if a required memo is missing from the transaction
    * When true, shows a warning banner and may disable transaction confirmation
@@ -69,6 +71,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
   tokenAmount,
   onCancel,
   onConfirm,
+  onSettingsPress,
   isRequiredMemoMissing,
   isValidatingMemo,
   onBannerPress,
@@ -391,6 +394,18 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
       {signTransactionDetails && (
         <SignTransactionDetails data={signTransactionDetails} />
       )}
+
+      {onSettingsPress && (
+        <View className="mt-[24px] flex-row justify-center">
+          <IconButton
+            Icon={Icon.Settings01}
+            size="lg"
+            variant="ghost"
+            onPress={onSettingsPress}
+          />
+        </View>
+      )}
+
       <View
         className={`${!isMalicious && !isSuspicious ? "flex-row" : "flex-col"} w-full gap-[12px] mt-[4px]`}
       >

@@ -622,11 +622,18 @@
     "title": "Transaction settings",
     "feeTitle": "Transaction fee",
     "memoTitle": "Memo",
+    "slippageTitle": "Slippage",
     "timeoutTitle": "Transaction timeout",
+    "resetFee": "Reset",
     "memoInfo": {
       "title": "Memo",
       "description": "Some destination accounts on the Stellar network require a memo to identify your payment.",
       "additionalInfo": "If a required memo is missing or incorrect, your funds may not reach the intended recipient."
+    },
+    "slippageInfo": {
+      "title": "Allowed slippage",
+      "description": "The maximum price change (in percentage) you are willing to accept between initiating and confirming your swap. If the market price moves beyond this tolerance, the transaction will not execute.",
+      "additionalInfo": "A higher slippage tolerance means you're willing to accept a larger price difference, which can help ensure your trade executes but may result in a less favorable price."
     },
     "timeoutInfo": {
       "title": "Transaction timeout",

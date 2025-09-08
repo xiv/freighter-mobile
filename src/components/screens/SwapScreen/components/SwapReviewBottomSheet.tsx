@@ -1,4 +1,5 @@
 import StellarLogo from "assets/logos/stellar-logo.svg";
+import { IconButton } from "components/IconButton";
 import { List } from "components/List";
 import { TokenIcon } from "components/TokenIcon";
 import {
@@ -31,11 +32,13 @@ import { TouchableOpacity, View } from "react-native";
 type SwapReviewBottomSheetProps = {
   onCancel?: () => void;
   onConfirm?: () => void;
+  onSettingsPress?: () => void;
 };
 
 const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
   onCancel,
   onConfirm,
+  onSettingsPress,
 }) => {
   const { t } = useAppTranslation();
   const { themeColors } = useColors();
@@ -315,6 +318,17 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
           },
         ]}
       />
+
+      {onSettingsPress && (
+        <View className="mt-[24px] flex-row justify-center">
+          <IconButton
+            Icon={Icon.Settings01}
+            size="lg"
+            variant="ghost"
+            onPress={onSettingsPress}
+          />
+        </View>
+      )}
 
       <View className="mt-[24px]">
         <Text sm medium secondary textAlign="center">

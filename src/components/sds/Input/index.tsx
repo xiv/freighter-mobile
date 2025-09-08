@@ -4,7 +4,7 @@ import { Text } from "components/sds/Typography";
 import { THEME } from "config/theme";
 import { fs, px } from "helpers/dimensions";
 import React, { useState } from "react";
-import { Platform, TouchableOpacity, TextInput } from "react-native";
+import { Platform, TouchableOpacity, TextInput, View } from "react-native";
 import styled, { css } from "styled-components/native";
 
 // =============================================================================
@@ -126,6 +126,20 @@ const StyledBottomSheetTextInput = styled(BottomSheetTextInput)`
 const SideElement = styled.View<{ marginSide: "left" | "right" }>`
   justify-content: center;
   margin-${({ marginSide }: { marginSide: "left" | "right" }) => marginSide}: ${px(8)};
+`;
+
+const TextExtra = styled.Text<{ $fieldSize: InputSize }>`
+  font-size: ${({ $fieldSize }: { $fieldSize: InputSize }) =>
+    fs(INPUT_SIZES[$fieldSize].fontSize)};
+  color: ${THEME.colors.text.primary};
+  font-family: ${Platform.select({
+    ios: "Inter-Variable",
+    android: "Inter-Regular",
+  })};
+  font-weight: ${Platform.select({
+    ios: "400",
+    android: "normal",
+  })};
 `;
 
 const FieldNoteWrapper = styled.View`
@@ -271,6 +285,8 @@ interface InputProps {
     | "email-address"
     | "phone-pad";
   isBottomSheetInput?: boolean;
+  textExtra?: string;
+  centered?: boolean;
 }
 
 export const Input = React.forwardRef<TextInput, InputProps>(
@@ -297,6 +313,8 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       testID,
       autoCorrect = true,
       isBottomSheetInput = false,
+      textExtra,
+      centered = false,
       ...props
     },
     ref,
@@ -309,6 +327,24 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       }
 
       Clipboard.setString(value);
+    };
+
+    // Common TextInput props
+    const commonTextInputProps = {
+      ref,
+      testID,
+      placeholder,
+      placeholderTextColor: THEME.colors.text.secondary,
+      value,
+      onChangeText,
+      editable,
+      secureTextEntry: isPassword && !showPassword,
+      autoCorrect,
+      autoFocus: props.autoFocus,
+      $fieldSize: fieldSize,
+      $isDisabled: !editable,
+      selection: !editable && value ? { start: 0, end: 0 } : undefined,
+      ...props,
     };
 
     const getLabelSize = () => ({
@@ -354,28 +390,62 @@ export const Input = React.forwardRef<TextInput, InputProps>(
             <SideElement marginSide="right">{leftElement}</SideElement>
           )}
 
-          <StyledTextInputComponent
-            ref={ref}
-            testID={testID}
-            placeholder={placeholder}
-            placeholderTextColor={THEME.colors.text.secondary}
-            value={value}
-            onChangeText={onChangeText}
-            editable={editable}
-            secureTextEntry={isPassword && !showPassword}
-            autoCorrect={autoCorrect}
-            autoFocus={props.autoFocus}
-            $fieldSize={fieldSize}
-            $hasLeftElement={leftElement || copyButton?.position === "left"}
-            $hasRightElement={
-              rightElement ||
-              copyButton?.position === "right" ||
-              (isPassword && !endButton)
-            }
-            $isDisabled={!editable}
-            selection={!editable && value ? { start: 0, end: 0 } : undefined}
-            {...props}
-          />
+          <View
+            className="flex-1 flex-row items-center relative"
+            style={{
+              justifyContent: centered ? "center" : "flex-start",
+              minHeight: (() => {
+                switch (fieldSize) {
+                  case "sm":
+                    return 32;
+                  case "md":
+                    return 40;
+                  default:
+                    return 48;
+                }
+              })(),
+            }}
+          >
+            {textExtra && value && (
+              <View
+                className="absolute left-0 right-0 top-0 bottom-0 flex-row items-center"
+                style={{
+                  justifyContent: centered ? "center" : "flex-start",
+                }}
+              >
+                <TextExtra $fieldSize={fieldSize}>{value}</TextExtra>
+                <TextExtra $fieldSize={fieldSize}>{textExtra}</TextExtra>
+              </View>
+            )}
+            <StyledTextInputComponent
+              {...commonTextInputProps}
+              $hasLeftElement={
+                textExtra
+                  ? false
+                  : leftElement || copyButton?.position === "left"
+              }
+              $hasRightElement={
+                textExtra
+                  ? false
+                  : rightElement ||
+                    copyButton?.position === "right" ||
+                    (isPassword && !endButton)
+              }
+              style={{
+                ...(textExtra && {
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  backgroundColor: "transparent",
+                  color: value ? "transparent" : THEME.colors.text.secondary,
+                  paddingRight: 20, // Reserve space for textExtra
+                }),
+                textAlign: centered ? "center" : "left",
+              }}
+            />
+          </View>
 
           {rightElement && (
             <SideElement marginSide="left">{rightElement}</SideElement>

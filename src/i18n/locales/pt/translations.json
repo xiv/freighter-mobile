@@ -587,11 +587,18 @@
     "title": "Configurações da transação",
     "feeTitle": "Taxa da transação",
     "memoTitle": "Memo",
+    "slippageTitle": "Deslizamento permitido",
     "timeoutTitle": "Tempo limite da transação",
+    "resetFee": "Redefinir",
     "memoInfo": {
       "title": "Memo",
       "description": "Algumas contas de destino na rede Stellar requerem um memo para identificar seu pagamento.",
       "additionalInfo": "Se um memo necessário estiver ausente ou incorreto, seus fundos podem não chegar ao destinatário pretendido."
+    },
+    "slippageInfo": {
+      "title": "Deslizamento permitido",
+      "description": "O deslizamento é a diferença entre o preço esperado de uma negociação e o preço real pelo qual a negociação é executada.",
+      "additionalInfo": "Uma tolerância de deslizamento maior significa que você está disposto a aceitar uma diferença de preço maior, o que pode ajudar a garantir que sua negociação seja executada, mas pode resultar em um preço menos favorável."
     },
     "timeoutInfo": {
       "title": "Tempo limite da transação",
