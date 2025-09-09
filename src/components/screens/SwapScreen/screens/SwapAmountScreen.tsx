@@ -290,9 +290,6 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
 
   const handleConfirmSettings = () => {
     transactionSettingsBottomSheetModalRef.current?.dismiss();
-    setTimeout(() => {
-      swapReviewBottomSheetModalRef.current?.present();
-    }, 100);
   };
 
   const handleMainButtonPress = () => {

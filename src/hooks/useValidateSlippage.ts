@@ -12,24 +12,32 @@ export const useValidateSlippage = (slippage: string) => {
 
   useEffect(() => {
     if (!slippage) {
-      setError(t("slippageScreen.errors.customRequired"));
+      setError(t("transactionSettings.errors.slippage.customRequired"));
       return;
     }
 
     const numValue = parseFloat(slippage);
 
     if (Number.isNaN(numValue)) {
-      setError(t("slippageScreen.errors.invalidNumber"));
+      setError(t("transactionSettings.errors.slippage.invalidNumber"));
       return;
     }
 
     if (numValue < MIN_SLIPPAGE) {
-      setError(t("slippageScreen.errors.minSlippage", { min: MIN_SLIPPAGE }));
+      setError(
+        t("transactionSettings.errors.slippage.minSlippage", {
+          min: MIN_SLIPPAGE,
+        }),
+      );
       return;
     }
 
     if (numValue > MAX_SLIPPAGE) {
-      setError(t("slippageScreen.errors.maxSlippage", { max: MAX_SLIPPAGE }));
+      setError(
+        t("transactionSettings.errors.slippage.maxSlippage", {
+          max: MAX_SLIPPAGE,
+        }),
+      );
       return;
     }
 
