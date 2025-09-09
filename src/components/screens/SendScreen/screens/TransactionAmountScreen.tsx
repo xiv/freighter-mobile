@@ -38,6 +38,7 @@ import { useSendRecipientStore } from "ducks/sendRecipient";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { calculateSpendableAmount, hasXLMForFees } from "helpers/balances";
+import { pxValue } from "helpers/dimensions";
 import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
 import { useBlockaidTransaction } from "hooks/blockaid/useBlockaidTransaction";
 import useAppTranslation from "hooks/useAppTranslation";
@@ -527,7 +528,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
                 onPress={() => setShowFiatAmount(!showFiatAmount)}
               >
                 <Icon.RefreshCcw03
-                  size={16}
+                  size={pxValue(16)}
                   color={themeColors.text.secondary}
                 />
               </TouchableOpacity>
@@ -643,7 +644,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
               <View className="bg-red-3 p-2 rounded-[8px]">
                 <Icon.InfoOctagon
                   color={themeColors.status.error}
-                  size={28}
+                  size={pxValue(28)}
                   withBackground
                 />
               </View>
