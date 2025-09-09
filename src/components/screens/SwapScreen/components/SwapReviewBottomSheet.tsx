@@ -1,5 +1,4 @@
 import StellarLogo from "assets/logos/stellar-logo.svg";
-import { IconButton } from "components/IconButton";
 import { List } from "components/List";
 import { TokenIcon } from "components/TokenIcon";
 import {
@@ -319,17 +318,6 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
         ]}
       />
 
-      {onSettingsPress && (
-        <View className="mt-[24px] flex-row justify-center">
-          <IconButton
-            Icon={Icon.Settings01}
-            size="lg"
-            variant="ghost"
-            onPress={onSettingsPress}
-          />
-        </View>
-      )}
-
       <View className="mt-[24px]">
         <Text sm medium secondary textAlign="center">
           {t("swapScreen.review.warning")}
@@ -337,6 +325,14 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
       </View>
 
       <View className="mt-[24px] gap-[12px] flex-row">
+        {onSettingsPress && (
+          <TouchableOpacity
+            onPress={onSettingsPress}
+            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
+          >
+            <Icon.Settings04 size={24} color={themeColors.foreground.primary} />
+          </TouchableOpacity>
+        )}
         <View className="flex-1">
           <Button onPress={onCancel} secondary xl>
             {t("common.cancel")}

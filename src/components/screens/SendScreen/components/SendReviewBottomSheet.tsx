@@ -1,5 +1,4 @@
 import { BigNumber } from "bignumber.js";
-import { IconButton } from "components/IconButton";
 import { List, ListItemProps } from "components/List";
 import { TokenIcon } from "components/TokenIcon";
 import SignTransactionDetails from "components/screens/SignTransactionDetails";
@@ -395,20 +394,17 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         <SignTransactionDetails data={signTransactionDetails} />
       )}
 
-      {onSettingsPress && (
-        <View className="mt-[24px] flex-row justify-center">
-          <IconButton
-            Icon={Icon.Settings01}
-            size="lg"
-            variant="ghost"
-            onPress={onSettingsPress}
-          />
-        </View>
-      )}
-
       <View
         className={`${!isMalicious && !isSuspicious ? "flex-row" : "flex-col"} w-full gap-[12px] mt-[4px]`}
       >
+        {onSettingsPress && (
+          <TouchableOpacity
+            onPress={onSettingsPress}
+            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
+          >
+            <Icon.Settings04 size={24} color={themeColors.foreground.primary} />
+          </TouchableOpacity>
+        )}
         {renderButtons()}
       </View>
     </View>

@@ -280,10 +280,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
   };
 
   const handleOpenSettings = () => {
-    swapReviewBottomSheetModalRef.current?.dismiss();
-    setTimeout(() => {
-      transactionSettingsBottomSheetModalRef.current?.present();
-    }, 100);
+    transactionSettingsBottomSheetModalRef.current?.present();
   };
 
   const handleCancelSettings = () => {

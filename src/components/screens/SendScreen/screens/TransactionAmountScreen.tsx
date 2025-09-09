@@ -168,10 +168,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
   };
 
   const handleOpenSettingsFromReview = () => {
-    reviewBottomSheetModalRef.current?.dismiss();
-    setTimeout(() => {
-      transactionSettingsBottomSheetModalRef.current?.present();
-    }, 100);
+    transactionSettingsBottomSheetModalRef.current?.present();
   };
 
   const handleCancelTransactionSettings = () => {
