@@ -10,14 +10,16 @@ import { WebView } from "react-native-webview";
 /**
  * Custom React hook providing browser tab action handlers for the in-app browser.
  *
- * @param webViewRef - Ref to the WebView instance
  * @returns Object with handlers for URL submission, navigation, reload, tab management, sharing, and context menu actions
  */
-export const useBrowserActions = (
-  webViewRef: React.RefObject<WebView | null>,
-) => {
-  const { activeTabId, goToPage, closeTab, closeAllTabs, getActiveTab } =
-    useBrowserTabsStore();
+export const useBrowserActions = () => {
+  const { 
+    activeTabId, 
+    goToPage, 
+    closeTab, 
+    closeAllTabs, 
+    getActiveTab
+  } = useBrowserTabsStore();
 
   const { t } = useAppTranslation();
 
@@ -41,26 +43,34 @@ export const useBrowserActions = (
    * Handler for navigating back in the current tab's history.
    */
   const handleGoBack = useCallback(() => {
-    if (!activeTab?.canGoBack) return;
+    if (!activeTab?.canGoBack || !activeTabId) return;
 
-    webViewRef.current?.goBack();
-  }, [activeTab?.canGoBack, webViewRef]);
+    const webViewRefs = (global as any).webViewRefs;
+    const activeWebView = webViewRefs?.[activeTabId];
+    activeWebView?.goBack();
+  }, [activeTab?.canGoBack, activeTabId]);
 
   /**
    * Handler for navigating forward in the current tab's history.
    */
   const handleGoForward = useCallback(() => {
-    if (!activeTab?.canGoForward) return;
+    if (!activeTab?.canGoForward || !activeTabId) return;
 
-    webViewRef.current?.goForward();
-  }, [activeTab?.canGoForward, webViewRef]);
+    const webViewRefs = (global as any).webViewRefs;
+    const activeWebView = webViewRefs?.[activeTabId];
+    activeWebView?.goForward();
+  }, [activeTab?.canGoForward, activeTabId]);
 
   /**
    * Handler for reloading the current tab.
    */
   const handleReload = useCallback(() => {
-    webViewRef.current?.reload();
-  }, [webViewRef]);
+    if (!activeTabId) return;
+    
+    const webViewRefs = (global as any).webViewRefs;
+    const activeWebView = webViewRefs?.[activeTabId];
+    activeWebView?.reload();
+  }, [activeTabId]);
 
   /**
    * Handler for closing the currently active tab.

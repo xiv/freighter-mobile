@@ -8,6 +8,7 @@ import {
 } from "helpers/screenshots";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { WebView } from "react-native-webview";
 
 /**
  * Represents a single browser tab in the in-app browser.
@@ -32,11 +33,19 @@ export interface BrowserTab {
 }
 
 /**
+ * WebView reference management for tabs
+ */
+export interface WebViewRefs {
+  [tabId: string]: WebView | null;
+}
+
+/**
  * Zustand store for managing browser tabs, their state, and actions.
  *
  * @property tabs - Array of all open browser tabs
  * @property activeTabId - The ID of the currently active tab
  * @property showTabOverview - Whether the tab overview UI is shown
+ * @property webViewRefs - WebView references for each tab
  * @method addTab - Adds a new tab (optionally with a URL), returns the new tab's ID
  * @method closeTab - Closes a tab by ID
  * @method setActiveTab - Sets the active tab by ID
@@ -48,11 +57,15 @@ export interface BrowserTab {
  * @method loadScreenshots - Loads screenshots for all tabs (async)
  * @method cleanupScreenshots - Removes screenshots for closed tabs (async)
  * @method setShowTabOverview - Sets the tab overview UI visibility
+ * @method setWebViewRef - Sets the WebView reference for a specific tab
+ * @method getWebViewRef - Gets the WebView reference for a specific tab
+ * @method getActiveWebViewRef - Gets the WebView reference for the active tab
  */
 interface BrowserTabsState {
   tabs: BrowserTab[];
   activeTabId: string | null;
   showTabOverview: boolean;
+  webViewRefs: WebViewRefs;
   addTab: (url?: string) => string; // Return the tab ID
   closeTab: (tabId: string) => void;
   setActiveTab: (tabId: string) => void;
@@ -64,6 +77,9 @@ interface BrowserTabsState {
   loadScreenshots: () => Promise<void>;
   cleanupScreenshots: () => Promise<void>;
   setShowTabOverview: (show: boolean) => void;
+  setWebViewRef: (tabId: string, webViewRef: WebView | null) => void;
+  getWebViewRef: (tabId: string) => WebView | null;
+  getActiveWebViewRef: () => WebView | null;
 }
 
 export const useBrowserTabsStore = create<BrowserTabsState>()(
@@ -72,8 +88,20 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
       tabs: [],
       activeTabId: null,
       showTabOverview: false,
+      webViewRefs: {},
 
       addTab: (url = BROWSER_CONSTANTS.HOMEPAGE_URL) => {
+        const state = get();
+        
+        // Enforce maximum tab limit of 6
+        if (state.tabs.length >= 6) {
+          // Close the oldest tab (first in the array)
+          const oldestTab = state.tabs[0];
+          if (oldestTab) {
+            get().closeTab(oldestTab.id);
+          }
+        }
+
         const newTab: BrowserTab = {
           id: generateTabId(),
           url,
@@ -96,6 +124,8 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
       closeTab: (tabId: string) => {
         set((state) => {
           const newTabs = state.tabs.filter((tab) => tab.id !== tabId);
+          const newWebViewRefs = { ...state.webViewRefs };
+          delete newWebViewRefs[tabId];
           let newActiveTabId = state.activeTabId;
 
           // If we're closing the active tab, switch to another tab
@@ -116,6 +146,7 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
           return {
             tabs: newTabs,
             activeTabId: newActiveTabId,
+            webViewRefs: newWebViewRefs,
           };
         });
 
@@ -141,7 +172,7 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
       },
 
       closeAllTabs: () => {
-        set({ tabs: [], activeTabId: null });
+        set({ tabs: [], activeTabId: null, webViewRefs: {} });
         get().cleanupScreenshots();
       },
 
@@ -220,6 +251,26 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
         const activeTabIds = state.tabs.map((tab) => tab.id);
         await pruneScreenshots(activeTabIds);
       },
+
+      setWebViewRef: (tabId: string, webViewRef: WebView | null) => {
+        set((state) => ({
+          webViewRefs: {
+            ...state.webViewRefs,
+            [tabId]: webViewRef,
+          },
+        }));
+      },
+
+      getWebViewRef: (tabId: string) => {
+        const state = get();
+        return state.webViewRefs[tabId] || null;
+      },
+
+      getActiveWebViewRef: () => {
+        const state = get();
+        if (!state.activeTabId) return null;
+        return state.webViewRefs[state.activeTabId] || null;
+      },
     }),
     {
       name: "browser-tabs-storage",
@@ -231,8 +282,8 @@ export const useBrowserTabsStore = create<BrowserTabsState>()(
           screenshot: undefined,
         })),
         activeTabId: state.activeTabId,
-        // Note: showTabOverview is intentionally excluded from persistence
-        // as it should always start as false when the app loads
+        // Note: showTabOverview and webViewRefs are intentionally excluded from persistence
+        // as they should always start as false/empty when the app loads
       }),
       onRehydrateStorage: () => (state) => {
         // Load screenshots after store is rehydrated from storage

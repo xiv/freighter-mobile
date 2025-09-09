@@ -19,7 +19,7 @@ import { useBrowserActions } from "hooks/useBrowserActions";
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import { Animated, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { WebView, WebViewNavigation } from "react-native-webview";
+import { WebViewNavigation } from "react-native-webview";
 
 type DiscoveryScreenProps = BottomTabScreenProps<
   MainTabStackParamList,
@@ -27,7 +27,6 @@ type DiscoveryScreenProps = BottomTabScreenProps<
 >;
 
 export const DiscoveryScreen: React.FC<DiscoveryScreenProps> = () => {
-  const webViewRef = useRef<WebView>(null);
   const [inputUrl, setInputUrl] = useState("");
   const [newTabId, setNewTabId] = useState<string | null>(null);
   const mainContentFadeAnim = useRef(new Animated.Value(1)).current;
@@ -50,7 +49,7 @@ export const DiscoveryScreen: React.FC<DiscoveryScreenProps> = () => {
   const activeTab = getActiveTab();
 
   // Get browser actions from custom hook
-  const browserActions = useBrowserActions(webViewRef);
+  const browserActions = useBrowserActions();
 
   // Adds a new default homepage tab
   const handleNewTab = useCallback(() => {
@@ -248,7 +247,6 @@ export const DiscoveryScreen: React.FC<DiscoveryScreenProps> = () => {
         />
 
         <WebViewContainer
-          webViewRef={webViewRef}
           onNavigationStateChange={handleNavigationStateChange}
           onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
         />
