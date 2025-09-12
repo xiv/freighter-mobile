@@ -250,6 +250,7 @@ export enum STORAGE_KEYS {
   MEMO_REQUIRED_ACCOUNTS = "memoRequiredAccounts",
   WELCOME_BANNER_SHOWN_PREFIX = "welcomeBanner_shown_",
   HAS_SEEN_BIOMETRICS_ENABLE_SCREEN = "hasSeenBiometricsEnableScreen",
+  REMOTE_CONFIG = "remoteConfig",
 }
 
 /**

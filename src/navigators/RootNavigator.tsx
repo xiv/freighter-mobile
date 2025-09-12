@@ -31,6 +31,7 @@ import {
 } from "config/routes";
 import { AUTH_STATUS } from "config/types";
 import { useAuthenticationStore } from "ducks/auth";
+import { useRemoteConfigStore } from "ducks/remoteConfig";
 import { useAnalyticsPermissions } from "hooks/useAnalyticsPermissions";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBiometrics } from "hooks/useBiometrics";
@@ -64,6 +65,7 @@ export const RootNavigator = () => {
       NativeStackNavigationProp<RootStackParamList & AuthStackParamList>
     >();
   const { authStatus, getAuthStatus } = useAuthenticationStore();
+  const { fetchFeatureFlags } = useRemoteConfigStore();
   const [initializing, setInitializing] = useState(true);
   const { t } = useAppTranslation();
   const { checkBiometrics, isBiometricsEnabled } = useBiometrics();
@@ -74,7 +76,8 @@ export const RootNavigator = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
-      await getAuthStatus();
+      await Promise.all([getAuthStatus(), fetchFeatureFlags()]);
+
       setInitializing(false);
       RNBootSplash.hide({ fade: true });
     };
@@ -108,6 +111,7 @@ export const RootNavigator = () => {
     });
   }, [
     getAuthStatus,
+    fetchFeatureFlags,
     navigation,
     authStatus,
     checkBiometrics,
