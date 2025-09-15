@@ -7,6 +7,7 @@ import {
   TransactionAmountScreen,
 } from "components/screens/SendScreen/screens";
 import { SEND_PAYMENT_ROUTES, SendPaymentStackParamList } from "config/routes";
+import { getScreenBottomNavigateOptions } from "helpers/navigationOptions";
 import useAppTranslation from "hooks/useAppTranslation";
 import React from "react";
 
@@ -25,9 +26,7 @@ export const SendPaymentStackNavigator = () => {
       <SendPaymentStack.Screen
         name={SEND_PAYMENT_ROUTES.SEND_SEARCH_CONTACTS_SCREEN}
         component={SendSearchContacts}
-        options={{
-          headerTitle: t("sendPaymentScreen.title"),
-        }}
+        options={getScreenBottomNavigateOptions(t("sendPaymentScreen.title"))}
       />
       <SendPaymentStack.Screen
         name={SEND_PAYMENT_ROUTES.TRANSACTION_TOKEN_SCREEN}

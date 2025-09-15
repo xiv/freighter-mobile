@@ -5,6 +5,7 @@ import SwapScreen from "components/screens/SwapScreen";
 import { SwapAmountScreen } from "components/screens/SwapScreen/screens";
 import { SWAP_SELECTION_TYPES } from "config/constants";
 import { SWAP_ROUTES, SwapStackParamList } from "config/routes";
+import { getScreenBottomNavigateOptions } from "helpers/navigationOptions";
 import useAppTranslation from "hooks/useAppTranslation";
 import React from "react";
 
@@ -22,12 +23,13 @@ export const SwapStackNavigator = () => {
       <SwapStack.Screen
         name={SWAP_ROUTES.SWAP_SCREEN}
         component={SwapScreen}
-        options={({ route }) => ({
-          headerTitle:
+        options={({ route }) =>
+          getScreenBottomNavigateOptions(
             route.params.selectionType === SWAP_SELECTION_TYPES.DESTINATION
               ? t("swapScreen.swapTo")
               : t("swapScreen.swapFrom"),
-        })}
+          )
+        }
       />
       <SwapStack.Screen
         name={SWAP_ROUTES.SWAP_AMOUNT_SCREEN}
