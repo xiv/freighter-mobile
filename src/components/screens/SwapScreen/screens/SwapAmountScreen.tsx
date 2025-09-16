@@ -58,8 +58,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
   const { themeColors } = useColors();
   const { account } = useGetActiveAccount();
   const { network } = useAuthenticationStore();
-  const { swapFee, swapTimeout, swapSlippage, resetToDefaults } =
-    useSwapSettingsStore();
+  const { swapFee, swapSlippage, resetToDefaults } = useSwapSettingsStore();
   const { isBuilding, resetTransaction } = useTransactionBuilderStore();
 
   const swapReviewBottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -193,9 +192,6 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     destinationBalance,
     pathResult,
     account,
-    swapFee,
-    swapTimeout,
-    swapSlippage,
     network,
     navigation,
   });
@@ -272,11 +268,13 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     }
   };
 
-  const handleOpenReview = async () => {
+  const prepareSwapTransaction = async (shouldOpenReview = false) => {
     try {
       await setupSwapTransaction();
 
-      swapReviewBottomSheetModalRef.current?.present();
+      if (shouldOpenReview) {
+        swapReviewBottomSheetModalRef.current?.present();
+      }
     } catch (error) {
       logger.error(
         "SwapAmountScreen",
@@ -326,9 +324,14 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     transactionSettingsBottomSheetModalRef.current?.dismiss();
   };
 
+  const handleSettingsChange = () => {
+    // Settings have changed, rebuild the transaction with new values
+    prepareSwapTransaction(false);
+  };
+
   const handleMainButtonPress = () => {
     if (destinationBalance) {
-      handleOpenReview();
+      prepareSwapTransaction(true);
     } else {
       navigateToSelectDestinationTokenScreen();
     }
@@ -503,6 +506,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
             context={TransactionSettingsContext.Swap}
             onCancel={handleCancelSettings}
             onConfirm={handleConfirmSettings}
+            onSettingsChange={handleSettingsChange}
           />
         }
       />

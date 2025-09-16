@@ -11,6 +11,7 @@ import {
 import { PricedBalance, NativeToken, NonNativeToken } from "config/types";
 import { ActiveAccount } from "ducks/auth";
 import { SwapPathResult } from "ducks/swap";
+import { useSwapSettingsStore } from "ducks/swapSettings";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useState } from "react";
 import { analytics } from "services/analytics";
@@ -21,9 +22,6 @@ interface SwapTransactionParams {
   destinationBalance: PricedBalance | undefined;
   pathResult: SwapPathResult | null;
   account: ActiveAccount | null;
-  swapFee: string;
-  swapTimeout: number;
-  swapSlippage?: number;
   network: NETWORKS;
   navigation: NativeStackNavigationProp<
     SwapStackParamList,
@@ -46,9 +44,6 @@ export const useSwapTransaction = ({
   destinationBalance,
   pathResult,
   account,
-  swapFee,
-  swapTimeout,
-  swapSlippage,
   network,
   navigation,
 }: SwapTransactionParams): UseSwapTransactionResult => {
@@ -65,6 +60,10 @@ export const useSwapTransaction = ({
     ) {
       return;
     }
+
+    // Get fresh settings values each time the function is called
+    const { swapFee, swapTimeout } = useSwapSettingsStore.getState();
+    console.log({ swapFee, swapTimeout });
 
     const transactionXDR = await buildSwapTransaction({
       sourceAmount,
@@ -115,6 +114,9 @@ export const useSwapTransaction = ({
       if (!transactionHash) {
         throw new Error("Failed to submit transaction");
       }
+
+      // Get fresh slippage value for analytics
+      const { swapSlippage } = useSwapSettingsStore.getState();
 
       analytics.trackSwapSuccess({
         sourceToken: sourceBalance.tokenCode,

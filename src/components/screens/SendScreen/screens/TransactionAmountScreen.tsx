@@ -88,9 +88,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
   const { account } = useGetActiveAccount();
   const { network } = useAuthenticationStore();
   const {
-    transactionMemo,
     transactionFee,
-    transactionTimeout,
     recipientAddress,
     selectedTokenId,
     saveSelectedTokenId,
@@ -299,51 +297,66 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     },
   });
 
-  const handleOpenReview = useCallback(async () => {
-    try {
-      const finalXDR = await buildTransaction({
-        tokenAmount,
-        selectedBalance,
-        recipientAddress,
-        transactionMemo,
-        transactionFee,
-        transactionTimeout,
-        network,
-        senderAddress: publicKey,
-      });
+  const prepareTransaction = useCallback(
+    async (shouldOpenReview = false) => {
+      try {
+        // Get fresh settings values each time the function is called
+        const {
+          transactionMemo,
+          transactionFee: freshTransactionFee,
+          transactionTimeout,
+          recipientAddress: storeRecipientAddress,
+        } = useTransactionSettingsStore.getState();
 
-      if (!finalXDR) return;
-
-      scanTransaction(finalXDR, "internal")
-        .then((scanResult) => {
-          logger.info("TransactionAmountScreen", "scanResult", scanResult);
-          setTransactionScanResult(scanResult);
-        })
-        .catch(() => {
-          setTransactionScanResult(undefined);
-        })
-        .finally(() => {
-          reviewBottomSheetModalRef.current?.present();
+        const finalXDR = await buildTransaction({
+          tokenAmount,
+          selectedBalance,
+          recipientAddress: recipientAddress || storeRecipientAddress,
+          transactionMemo,
+          transactionFee: freshTransactionFee,
+          transactionTimeout,
+          network,
+          senderAddress: publicKey,
         });
-    } catch (error) {
-      logger.error(
-        "TransactionAmountScreen",
-        "Failed to build transaction:",
-        error,
-      );
-    }
-  }, [
-    tokenAmount,
-    selectedBalance,
-    recipientAddress,
-    transactionMemo,
-    transactionFee,
-    transactionTimeout,
-    network,
-    publicKey,
-    buildTransaction,
-    scanTransaction,
-  ]);
+
+        if (!finalXDR) return;
+
+        if (shouldOpenReview) {
+          scanTransaction(finalXDR, "internal")
+            .then((scanResult) => {
+              logger.info("TransactionAmountScreen", "scanResult", scanResult);
+              setTransactionScanResult(scanResult);
+            })
+            .catch(() => {
+              setTransactionScanResult(undefined);
+            })
+            .finally(() => {
+              reviewBottomSheetModalRef.current?.present();
+            });
+        }
+      } catch (error) {
+        logger.error(
+          "TransactionAmountScreen",
+          "Failed to build transaction:",
+          error,
+        );
+      }
+    },
+    [
+      tokenAmount,
+      selectedBalance,
+      recipientAddress,
+      network,
+      publicKey,
+      buildTransaction,
+      scanTransaction,
+    ],
+  );
+
+  const handleSettingsChange = () => {
+    // Settings have changed, rebuild the transaction with new values
+    prepareTransaction(false);
+  };
 
   const handleTransactionConfirmation = () => {
     setIsProcessing(true);
@@ -490,7 +503,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
       return;
     }
 
-    handleOpenReview();
+    prepareTransaction(true);
   };
 
   const getContinueButtonText = () => {
@@ -698,6 +711,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
             context={TransactionSettingsContext.Transaction}
             onCancel={handleCancelTransactionSettings}
             onConfirm={handleConfirmTransactionSettings}
+            onSettingsChange={handleSettingsChange}
           />
         }
       />

@@ -38,11 +38,12 @@ type TransactionSettingsBottomSheetProps = {
   onCancel: () => void;
   onConfirm: () => void;
   context: TransactionSettingsContext;
+  onSettingsChange?: () => void;
 };
 
 const TransactionSettingsBottomSheet: React.FC<
   TransactionSettingsBottomSheetProps
-> = ({ onCancel, onConfirm, context }) => {
+> = ({ onCancel, onConfirm, context, onSettingsChange }) => {
   // All hooks at the top
   const { t } = useAppTranslation();
   const { themeColors } = useColors();
@@ -233,6 +234,9 @@ const TransactionSettingsBottomSheet: React.FC<
     settings.forEach((setting) => {
       settingSaveCallbacks[setting]();
     });
+
+    // Notify that settings have changed
+    onSettingsChange?.();
 
     onConfirm();
   };
