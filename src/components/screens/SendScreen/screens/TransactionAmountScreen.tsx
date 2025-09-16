@@ -23,7 +23,7 @@ import { AnalyticsEvent } from "config/analyticsConfig";
 import {
   DEFAULT_DECIMALS,
   FIAT_DECIMALS,
-  TransactionSetting,
+  TransactionSettingsContext,
 } from "config/constants";
 import { logger } from "config/logger";
 import {
@@ -695,11 +695,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
         }
         customContent={
           <TransactionSettingsBottomSheet
-            settings={[
-              TransactionSetting.Fee,
-              TransactionSetting.Timeout,
-              TransactionSetting.Memo,
-            ]}
+            context={TransactionSettingsContext.Transaction}
             onCancel={handleCancelTransactionSettings}
             onConfirm={handleConfirmTransactionSettings}
           />

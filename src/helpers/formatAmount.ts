@@ -50,16 +50,7 @@ export const formatTokenAmount = (
   locale?: string,
 ) => {
   const bnAmount = convertToBigNumber(amount);
-  let deviceLocale = locale || getOSLocale();
-
-  // Fallback to en-US if the locale is invalid
-  try {
-    // Test if the locale is valid by creating a formatter
-    const testFormatter = new Intl.NumberFormat(deviceLocale);
-    testFormatter.format(1); // Test that it works
-  } catch (error) {
-    deviceLocale = "en-US";
-  }
+  const deviceLocale = locale || getOSLocale();
 
   const formatter = new Intl.NumberFormat(deviceLocale, {
     useGrouping: true,
@@ -97,16 +88,7 @@ export const formatFiatAmount = (
   // Convert input to a number
   const numericAmount =
     typeof amount === "number" ? amount : parseFloat(amount.toString());
-  let deviceLocale = locale || getOSLocale();
-
-  // Fallback to en-US if the locale is invalid
-  try {
-    // Test if the locale is valid by creating a formatter
-    const testFormatter = new Intl.NumberFormat(deviceLocale);
-    testFormatter.format(1); // Test that it works
-  } catch (error) {
-    deviceLocale = "en-US";
-  }
+  const deviceLocale = locale || getOSLocale();
 
   // Format as USD currency with 2 decimal places using device locale
   return new Intl.NumberFormat(deviceLocale, {
@@ -129,15 +111,10 @@ export const formatFiatAmount = (
 export const getLocaleDecimalSeparator = (locale?: string): string => {
   const deviceLocale = locale || getOSLocale();
 
-  // Fallback to en-US if the locale is invalid
-  try {
-    const formatter = new Intl.NumberFormat(deviceLocale);
-    const parts = formatter.formatToParts(1.1); // dummy value to get the decimal separator
-    const decimalPart = parts.find((part) => part.type === "decimal");
-    return decimalPart?.value || ".";
-  } catch (error) {
-    return "."; // Default to dot for en-US
-  }
+  const formatter = new Intl.NumberFormat(deviceLocale);
+  const parts = formatter.formatToParts(1.1); // dummy value to get the decimal separator
+  const decimalPart = parts.find((part) => part.type === "decimal");
+  return decimalPart?.value || ".";
 };
 
 /**
@@ -157,12 +134,15 @@ export const getLocaleDecimalSeparator = (locale?: string): string => {
  * parseLocaleNumber("1,234.56"); // Returns 1234.56 (handles thousands separator)
  * parseLocaleNumber(new BigNumber("1.23")); // Returns 1.23 (handles BigNumber)
  */
-export const parseLocaleNumber = (input: string | BigNumber, locale?: string): number => {
+export const parseLocaleNumber = (
+  input: string | BigNumber,
+  locale?: string,
+): number => {
   // Handle BigNumber instances
   if (input instanceof BigNumber) {
     return input.toNumber();
   }
-  
+
   if (!input || input === "") return 0;
 
   const deviceLocale = locale || getOSLocale();
@@ -208,13 +188,18 @@ export const parseLocaleNumber = (input: string | BigNumber, locale?: string): n
  * parseLocaleNumberToBigNumber("1,234.56", "en-US"); // Returns BigNumber(1234.56)
  * parseLocaleNumberToBigNumber(new BigNumber("1.23")); // Returns BigNumber(1.23)
  */
-export const parseLocaleNumberToBigNumber = (input: string | BigNumber, locale?: string): BigNumber => {
+export const parseLocaleNumberToBigNumber = (
+  input: string | BigNumber,
+  locale?: string,
+): BigNumber => {
   // Handle BigNumber instances
   if (input instanceof BigNumber) {
     return input;
   }
-  
-  if (!input || input === "") return new BigNumber(0);
+
+  if (!input) {
+    return new BigNumber(0);
+  }
 
   const deviceLocale = locale || getOSLocale();
 
@@ -267,10 +252,11 @@ export const formatNumberForLocale = (
 
   try {
     // Handle BigNumber instances
-    const valueAsString = numericValue instanceof BigNumber 
-      ? numericValue.toString() 
-      : numericValue;
-    
+    const valueAsString =
+      numericValue instanceof BigNumber
+        ? numericValue.toString()
+        : numericValue;
+
     const parsedValue = parseFloat(valueAsString);
     if (Number.isNaN(parsedValue)) {
       return valueAsString; // Return original if not a valid number
@@ -285,9 +271,10 @@ export const formatNumberForLocale = (
     return formatter.format(parsedValue);
   } catch (error) {
     // Fallback: manually replace dot with locale decimal separator
-    const valueAsString = numericValue instanceof BigNumber 
-      ? numericValue.toString() 
-      : numericValue;
+    const valueAsString =
+      numericValue instanceof BigNumber
+        ? numericValue.toString()
+        : numericValue;
     const decimalSeparator = getLocaleDecimalSeparator(deviceLocale);
     return valueAsString.replace(".", decimalSeparator);
   }
@@ -324,12 +311,13 @@ export const formatBigNumberForLocale = (
 
   try {
     // Use BigNumber's precise string representation
-    const valueString = decimalPlaces !== undefined 
-      ? bigNumberValue.toFixed(decimalPlaces)
-      : bigNumberValue.toString();
-    
+    const valueString =
+      decimalPlaces !== undefined
+        ? bigNumberValue.toFixed(decimalPlaces)
+        : bigNumberValue.toString();
+
     const numericValue = parseFloat(valueString);
-    
+
     if (Number.isNaN(numericValue)) {
       return valueString;
     }
@@ -343,9 +331,10 @@ export const formatBigNumberForLocale = (
     return formatter.format(numericValue);
   } catch (error) {
     // Fallback: manually replace dot with locale decimal separator
-    const valueString = decimalPlaces !== undefined 
-      ? bigNumberValue.toFixed(decimalPlaces)
-      : bigNumberValue.toString();
+    const valueString =
+      decimalPlaces !== undefined
+        ? bigNumberValue.toFixed(decimalPlaces)
+        : bigNumberValue.toString();
     const decimalSeparator = getLocaleDecimalSeparator(deviceLocale);
     return valueString.replace(".", decimalSeparator);
   }
