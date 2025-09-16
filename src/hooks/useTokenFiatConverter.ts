@@ -1,6 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { DEFAULT_DECIMALS, FIAT_DECIMALS } from "config/constants";
 import { PricedBalance } from "config/types";
+import { parseLocaleNumber } from "helpers/formatAmount";
 import { formatNumericInput } from "helpers/numericInput";
 import { useMemo, useState, useEffect } from "react";
 
@@ -44,9 +45,10 @@ export const useTokenFiatConverter = ({
   // Update fiat amount when token amount changes
   useEffect(() => {
     if (!showFiatAmount) {
-      const parsedTokenAmount = new BigNumber(tokenAmount);
-      if (parsedTokenAmount.isFinite()) {
-        const newFiatAmount = tokenPrice.multipliedBy(parsedTokenAmount);
+      const parsedTokenAmount = parseLocaleNumber(tokenAmount);
+      const bnTokenAmount = new BigNumber(parsedTokenAmount);
+      if (bnTokenAmount.isFinite()) {
+        const newFiatAmount = tokenPrice.multipliedBy(bnTokenAmount);
         setFiatAmount(newFiatAmount.toFixed(FIAT_DECIMALS));
       } else {
         setFiatAmount("0");
@@ -57,11 +59,12 @@ export const useTokenFiatConverter = ({
   // Update token amount when fiat amount changes
   useEffect(() => {
     if (showFiatAmount) {
-      const parsedFiatAmount = new BigNumber(fiatAmount);
-      if (parsedFiatAmount.isFinite()) {
+      const parsedFiatAmount = parseLocaleNumber(fiatAmount);
+      const bnFiatAmount = new BigNumber(parsedFiatAmount);
+      if (bnFiatAmount.isFinite()) {
         const newTokenAmount = tokenPrice.isZero()
           ? new BigNumber(0)
-          : parsedFiatAmount.dividedBy(tokenPrice);
+          : bnFiatAmount.dividedBy(tokenPrice);
         setTokenAmount(newTokenAmount.toFixed(DEFAULT_DECIMALS));
       } else {
         setTokenAmount("0");

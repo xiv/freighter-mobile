@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { MIN_TRANSACTION_FEE } from "config/constants";
+import { formatConstantForLocale } from "helpers/formatAmount";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useEffect, useState } from "react";
 
@@ -28,7 +29,7 @@ export const useValidateTransactionFee = (fee: string) => {
     if (feeValue.isLessThan(minFee)) {
       setError(
         t("transactionSettings.errors.fee.tooLow", {
-          min: MIN_TRANSACTION_FEE,
+          min: formatConstantForLocale(MIN_TRANSACTION_FEE),
         }),
       );
       return;

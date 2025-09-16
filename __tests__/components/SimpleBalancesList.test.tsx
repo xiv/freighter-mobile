@@ -12,6 +12,13 @@ import { useBalancesList } from "hooks/useBalancesList";
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 
+// Mock the OS locale detection for consistent test behavior
+jest.mock("helpers/getOsLanguage", () => ({
+  __esModule: true,
+  default: () => "en", // Mock default export (getOSLanguage)
+  getOSLocale: () => "en-US", // Mock named export (getOSLocale)
+}));
+
 const MockTouchable = TouchableOpacity;
 const MockText = Text;
 const MockView = View;

@@ -3,6 +3,13 @@ import BigNumber from "bignumber.js";
 import { MIN_TRANSACTION_FEE } from "config/constants";
 import { useValidateTransactionFee } from "hooks/useValidateTransactionFee";
 
+// Mock the OS locale detection for consistent test behavior
+jest.mock("helpers/getOsLanguage", () => ({
+  __esModule: true,
+  default: () => "en", // Mock default export (getOSLanguage)
+  getOSLocale: () => "en-US", // Mock named export (getOSLocale)
+}));
+
 jest.mock("hooks/useAppTranslation", () => () => ({
   t: (key: string, params?: { min?: string }) => {
     const translations: Record<string, string> = {
@@ -29,7 +36,7 @@ describe("useValidateTransactionFee", () => {
     const invalidFee = new BigNumber(MIN_TRANSACTION_FEE).minus(1).toString();
     const { result } = renderHook(() => useValidateTransactionFee(invalidFee));
     expect(result.current.error).toBe(
-      `Fee must be at least ${MIN_TRANSACTION_FEE}`,
+      "Fee must be at least 0.00001", // Formatted for en-US locale
     );
   });
 
@@ -59,7 +66,7 @@ describe("useValidateTransactionFee", () => {
     const invalidFee = new BigNumber(MIN_TRANSACTION_FEE).minus(1).toString();
     rerender({ fee: invalidFee });
     expect(result.current.error).toBe(
-      `Fee must be at least ${MIN_TRANSACTION_FEE}`,
+      "Fee must be at least 0.00001", // Formatted for en-US locale
     );
 
     rerender({ fee: String(MIN_TRANSACTION_FEE) });

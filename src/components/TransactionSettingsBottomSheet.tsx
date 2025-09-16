@@ -18,6 +18,11 @@ import { NetworkCongestion } from "config/types";
 import { useSwapSettingsStore } from "ducks/swapSettings";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { pxValue } from "helpers/dimensions";
+import {
+  parseLocaleNumber,
+  getLocaleDecimalSeparator,
+  formatConstantForLocale,
+} from "helpers/formatAmount";
 import useAppTranslation from "hooks/useAppTranslation";
 import useColors from "hooks/useColors";
 import { useNetworkFees } from "hooks/useNetworkFees";
@@ -117,9 +122,8 @@ const TransactionSettingsBottomSheet: React.FC<
    */
   const handleUpdateSlippage = useCallback(
     (step: number) => {
-      // Parse the current value, handling locale-specific separators
-      const normalizedValue = localSlippage.replace(",", ".");
-      const currentValue = parseFloat(normalizedValue) || 0;
+      // Parse the current value using locale-aware parsing
+      const currentValue = parseLocaleNumber(localSlippage) || 0;
       const newValue = Math.max(0, Math.min(MAX_SLIPPAGE, currentValue + step));
 
       const roundedValue = Math.round(newValue * 100) / 100;
@@ -129,8 +133,11 @@ const TransactionSettingsBottomSheet: React.FC<
         ? Math.round(roundedValue)
         : roundedValue;
 
-      // Format with locale-specific separators
-      const formattedValue = finalValue.toString().replace(".", ",");
+      // Format with locale-specific decimal separator
+      const decimalSeparator = getLocaleDecimalSeparator();
+      const formattedValue = finalValue
+        .toString()
+        .replace(".", decimalSeparator);
       updateSlippage(formattedValue);
     },
     [localSlippage, updateSlippage],
@@ -273,10 +280,7 @@ const TransactionSettingsBottomSheet: React.FC<
               size="md"
               variant="secondary"
               onPress={() => handleUpdateSlippage(-STEP_SIZE_PERCENT)}
-              disabled={
-                (parseFloat(localSlippage.replace(",", ".")) || 0) <=
-                MIN_SLIPPAGE
-              }
+              disabled={(parseLocaleNumber(localSlippage) || 0) <= MIN_SLIPPAGE}
             />
           </View>
 
@@ -300,10 +304,7 @@ const TransactionSettingsBottomSheet: React.FC<
               size="md"
               variant="secondary"
               onPress={() => handleUpdateSlippage(STEP_SIZE_PERCENT)}
-              disabled={
-                (parseFloat(localSlippage.replace(",", ".")) || 0) >=
-                MAX_SLIPPAGE
-              }
+              disabled={(parseLocaleNumber(localSlippage) || 0) >= MAX_SLIPPAGE}
             />
           </View>
         </View>
@@ -356,7 +357,7 @@ const TransactionSettingsBottomSheet: React.FC<
             }
             onChangeText={handleFeeChange}
             keyboardType="numeric"
-            placeholder={MIN_TRANSACTION_FEE}
+            placeholder={formatConstantForLocale(MIN_TRANSACTION_FEE)}
             error={feeError}
             rightElement={
               <Text md secondary>

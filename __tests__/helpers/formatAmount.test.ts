@@ -3,7 +3,17 @@ import {
   formatTokenAmount,
   formatFiatAmount,
   formatPercentageAmount,
+  formatConstantForLocale,
+  getLocaleDecimalSeparator,
+  parseLocaleNumber,
 } from "helpers/formatAmount";
+
+// Mock the OS locale detection for consistent test behavior
+jest.mock("helpers/getOsLanguage", () => ({
+  __esModule: true,
+  default: () => "en", // Mock default export (getOSLanguage)
+  getOSLocale: () => "en-US", // Mock named export (getOSLocale)
+}));
 
 describe("formatAmount helpers", () => {
   describe("formatTokenAmount", () => {
@@ -169,6 +179,91 @@ describe("formatAmount helpers", () => {
 
       const negObj = { toString: () => "-1.23" };
       expect(formatPercentageAmount(negObj)).toBe("-1.23%");
+    });
+  });
+
+  describe("formatConstantForLocale", () => {
+    it("should format constants with US locale (dot decimal separator)", () => {
+      expect(formatConstantForLocale("0.00001", "en-US")).toBe("0.00001");
+      expect(formatConstantForLocale("0.5", "en-US")).toBe("0.5");
+      expect(formatConstantForLocale("100", "en-US")).toBe("100");
+    });
+
+    it("should format constants with pt-BR locale (comma decimal separator)", () => {
+      expect(formatConstantForLocale("0.00001", "pt-BR")).toBe("0,00001");
+      expect(formatConstantForLocale("0.5", "pt-BR")).toBe("0,5");
+      expect(formatConstantForLocale("100", "pt-BR")).toBe("100");
+    });
+
+    it("should handle invalid input gracefully", () => {
+      expect(formatConstantForLocale("not-a-number", "en-US")).toBe(
+        "not-a-number",
+      );
+      expect(formatConstantForLocale("", "en-US")).toBe("");
+    });
+
+    it("should use device locale when none specified", () => {
+      // Since we mock en-US as default, this should use dot
+      expect(formatConstantForLocale("0.00001")).toBe("0.00001");
+    });
+  });
+
+  describe("getLocaleDecimalSeparator", () => {
+    it("should return dot for US locale", () => {
+      expect(getLocaleDecimalSeparator("en-US")).toBe(".");
+    });
+
+    it("should return comma for pt-BR locale", () => {
+      expect(getLocaleDecimalSeparator("pt-BR")).toBe(",");
+    });
+
+    it("should return comma for de-DE locale", () => {
+      expect(getLocaleDecimalSeparator("de-DE")).toBe(",");
+    });
+  });
+
+  describe("parseLocaleNumber", () => {
+    it("should parse US format (dot decimal)", () => {
+      expect(parseLocaleNumber("1,234.56", "en-US")).toBe(1234.56);
+      expect(parseLocaleNumber("0.00001", "en-US")).toBe(0.00001);
+    });
+
+    it("should parse pt-BR format (comma decimal)", () => {
+      expect(parseLocaleNumber("1.234,56", "pt-BR")).toBe(1234.56);
+      expect(parseLocaleNumber("0,00001", "pt-BR")).toBe(0.00001);
+    });
+
+    it("should handle empty input", () => {
+      expect(parseLocaleNumber("", "en-US")).toBe(0);
+      expect(parseLocaleNumber("", "pt-BR")).toBe(0);
+    });
+
+    it("should handle malformed input gracefully", () => {
+      expect(parseLocaleNumber("1.234.567,89,extra", "pt-BR")).toBe(1234567.89);
+    });
+  });
+
+  describe("Cross-locale formatting", () => {
+    it("should format the same value differently across locales", () => {
+      const amount = 1234.56;
+
+      expect(formatTokenAmount(amount, "XLM", "en-US")).toBe("1,234.56 XLM");
+      expect(formatTokenAmount(amount, "XLM", "de-DE")).toBe("1.234,56 XLM");
+      expect(formatTokenAmount(amount, "XLM", "pt-BR")).toBe("1.234,56 XLM");
+    });
+
+    it("should handle transaction fee formatting consistently", () => {
+      const feeValue = 0.00001;
+
+      expect(formatTokenAmount(feeValue, "XLM", "en-US")).toBe("0.00001 XLM");
+      expect(formatTokenAmount(feeValue, "XLM", "de-DE")).toBe("0,00001 XLM");
+      expect(formatTokenAmount(feeValue, "XLM", "pt-BR")).toBe("0,00001 XLM");
+    });
+
+    it("should parse input correctly regardless of locale", () => {
+      expect(parseLocaleNumber("0.00001", "en-US")).toBe(0.00001);
+      expect(parseLocaleNumber("0,00001", "de-DE")).toBe(0.00001);
+      expect(parseLocaleNumber("0,00001", "pt-BR")).toBe(0.00001);
     });
   });
 });
