@@ -3,9 +3,11 @@ import {
   formatTokenAmount,
   formatFiatAmount,
   formatPercentageAmount,
-  formatConstantForLocale,
+  formatNumberForLocale,
+  formatBigNumberForLocale,
   getLocaleDecimalSeparator,
   parseLocaleNumber,
+  parseLocaleNumberToBigNumber,
 } from "helpers/formatAmount";
 
 // Mock the OS locale detection for consistent test behavior
@@ -182,29 +184,29 @@ describe("formatAmount helpers", () => {
     });
   });
 
-  describe("formatConstantForLocale", () => {
+  describe("formatNumberForLocale", () => {
     it("should format constants with US locale (dot decimal separator)", () => {
-      expect(formatConstantForLocale("0.00001", "en-US")).toBe("0.00001");
-      expect(formatConstantForLocale("0.5", "en-US")).toBe("0.5");
-      expect(formatConstantForLocale("100", "en-US")).toBe("100");
+      expect(formatNumberForLocale("0.00001", "en-US")).toBe("0.00001");
+      expect(formatNumberForLocale("0.5", "en-US")).toBe("0.5");
+      expect(formatNumberForLocale("100", "en-US")).toBe("100");
     });
 
     it("should format constants with pt-BR locale (comma decimal separator)", () => {
-      expect(formatConstantForLocale("0.00001", "pt-BR")).toBe("0,00001");
-      expect(formatConstantForLocale("0.5", "pt-BR")).toBe("0,5");
-      expect(formatConstantForLocale("100", "pt-BR")).toBe("100");
+      expect(formatNumberForLocale("0.00001", "pt-BR")).toBe("0,00001");
+      expect(formatNumberForLocale("0.5", "pt-BR")).toBe("0,5");
+      expect(formatNumberForLocale("100", "pt-BR")).toBe("100");
     });
 
     it("should handle invalid input gracefully", () => {
-      expect(formatConstantForLocale("not-a-number", "en-US")).toBe(
+      expect(formatNumberForLocale("not-a-number", "en-US")).toBe(
         "not-a-number",
       );
-      expect(formatConstantForLocale("", "en-US")).toBe("");
+      expect(formatNumberForLocale("", "en-US")).toBe("");
     });
 
     it("should use device locale when none specified", () => {
       // Since we mock en-US as default, this should use dot
-      expect(formatConstantForLocale("0.00001")).toBe("0.00001");
+      expect(formatNumberForLocale("0.00001")).toBe("0.00001");
     });
   });
 
@@ -240,6 +242,80 @@ describe("formatAmount helpers", () => {
 
     it("should handle malformed input gracefully", () => {
       expect(parseLocaleNumber("1.234.567,89,extra", "pt-BR")).toBe(1234567.89);
+    });
+
+    it("should handle BigNumber input", () => {
+      const bigNum = new BigNumber("123.45");
+      const result = parseLocaleNumber(bigNum);
+      expect(result).toBe(123.45);
+    });
+
+    it("should handle BigNumber with high precision", () => {
+      const bigNum = new BigNumber("123.456789012345");
+      const result = parseLocaleNumber(bigNum);
+      expect(result).toBe(123.456789012345);
+    });
+  });
+
+  describe("formatBigNumberForLocale", () => {
+    it("should format BigNumber with default options", () => {
+      const bigNum = new BigNumber("1234.56789");
+      const resultUS = formatBigNumberForLocale(bigNum, { locale: "en-US" });
+      const resultPT = formatBigNumberForLocale(bigNum, { locale: "pt-BR" });
+
+      expect(resultUS).toBe("1234.56789");
+      expect(resultPT).toBe("1234,56789");
+    });
+
+    it("should format BigNumber with decimal places", () => {
+      const bigNum = new BigNumber("1234.56789");
+      const result = formatBigNumberForLocale(bigNum, {
+        locale: "pt-BR",
+        decimalPlaces: 2,
+      });
+
+      expect(result).toBe("1234,57"); // Should round to 2 decimal places
+    });
+
+    it("should preserve high precision", () => {
+      const bigNum = new BigNumber("0.000000000123456789");
+      const result = formatBigNumberForLocale(bigNum, { locale: "en-US" });
+      expect(result).toBe("0.000000000123456789");
+    });
+  });
+
+  describe("parseLocaleNumberToBigNumber", () => {
+    it("should parse US format to BigNumber", () => {
+      const result = parseLocaleNumberToBigNumber("1234.56", "en-US");
+      expect(result.toString()).toBe("1234.56");
+      expect(result instanceof BigNumber).toBe(true);
+    });
+
+    it("should parse pt-BR format to BigNumber", () => {
+      const result = parseLocaleNumberToBigNumber("1234,56", "pt-BR");
+      expect(result.toString()).toBe("1234.56");
+      expect(result instanceof BigNumber).toBe(true);
+    });
+
+    it("should handle BigNumber input", () => {
+      const input = new BigNumber("1234.56");
+      const result = parseLocaleNumberToBigNumber(input);
+      expect(result).toBe(input); // Should return the same instance
+    });
+
+    it("should handle empty input", () => {
+      const result = parseLocaleNumberToBigNumber("");
+      expect(result.toString()).toBe("0");
+    });
+
+    it("should preserve high precision", () => {
+      const result = parseLocaleNumberToBigNumber(
+        "0.000000000123456789",
+        "en-US",
+      );
+      expect(result.toString()).toBe("1.23456789e-10"); // BigNumber converts very small numbers to scientific notation
+      // Verify the actual numeric value is correct
+      expect(result.toNumber()).toBe(0.000000000123456789);
     });
   });
 

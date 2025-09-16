@@ -17,7 +17,7 @@ import { AnalyticsEvent } from "config/analyticsConfig";
 import {
   DEFAULT_DECIMALS,
   SWAP_SELECTION_TYPES,
-  TransactionSetting,
+  TransactionSettingsContext,
 } from "config/constants";
 import { logger } from "config/logger";
 import { SWAP_ROUTES, SwapStackParamList } from "config/routes";
@@ -500,11 +500,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
         }
         customContent={
           <TransactionSettingsBottomSheet
-            settings={[
-              TransactionSetting.Fee,
-              TransactionSetting.Timeout,
-              TransactionSetting.Slippage,
-            ]}
+            context={TransactionSettingsContext.Swap}
             onCancel={handleCancelSettings}
             onConfirm={handleConfirmSettings}
           />
