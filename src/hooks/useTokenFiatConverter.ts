@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { DEFAULT_DECIMALS, FIAT_DECIMALS } from "config/constants";
 import { PricedBalance } from "config/types";
-import { parseLocaleNumber } from "helpers/formatAmount";
+import { parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 import { formatNumericInput } from "helpers/numericInput";
 import { useMemo, useState, useEffect } from "react";
 
@@ -45,8 +45,7 @@ export const useTokenFiatConverter = ({
   // Update fiat amount when token amount changes
   useEffect(() => {
     if (!showFiatAmount) {
-      const parsedTokenAmount = parseLocaleNumber(tokenAmount);
-      const bnTokenAmount = new BigNumber(parsedTokenAmount);
+      const bnTokenAmount = parseLocaleNumberToBigNumber(tokenAmount);
       if (bnTokenAmount.isFinite()) {
         const newFiatAmount = tokenPrice.multipliedBy(bnTokenAmount);
         setFiatAmount(newFiatAmount.toFixed(FIAT_DECIMALS));
@@ -59,8 +58,7 @@ export const useTokenFiatConverter = ({
   // Update token amount when fiat amount changes
   useEffect(() => {
     if (showFiatAmount) {
-      const parsedFiatAmount = parseLocaleNumber(fiatAmount);
-      const bnFiatAmount = new BigNumber(parsedFiatAmount);
+      const bnFiatAmount = parseLocaleNumberToBigNumber(fiatAmount);
       if (bnFiatAmount.isFinite()) {
         const newTokenAmount = tokenPrice.isZero()
           ? new BigNumber(0)

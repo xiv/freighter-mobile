@@ -19,7 +19,7 @@ import {
 } from "config/constants";
 import { Balance, NativeBalance, PricedBalance } from "config/types";
 import { isLiquidityPool } from "helpers/balances";
-import { xlmToStroop } from "helpers/formatAmount";
+import { xlmToStroop, parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 import { isContractId, getNativeContractDetails } from "helpers/soroban";
 import { isValidStellarAddress, isSameAccount } from "helpers/stellar";
 import { t } from "i18next";
@@ -100,7 +100,7 @@ export const validateTransactionParams = (
   }
 
   // Validate sufficient balance
-  const transactionAmount = new BigNumber(amount);
+  const transactionAmount = parseLocaleNumberToBigNumber(amount);
   const balanceAmount = new BigNumber(balance.total);
 
   if (transactionAmount.isGreaterThan(balanceAmount)) {
@@ -152,7 +152,7 @@ export const validateSwapTransactionParams = (params: {
   }
 
   // Validate sufficient balance
-  const transactionAmount = new BigNumber(sourceAmount);
+  const transactionAmount = parseLocaleNumberToBigNumber(sourceAmount);
   const balanceAmount = new BigNumber(sourceBalance.total);
 
   if (transactionAmount.isGreaterThan(balanceAmount)) {
