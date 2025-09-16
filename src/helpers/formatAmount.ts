@@ -345,19 +345,22 @@ export const formatBigNumberForLocale = (
  *
  * This function formats numbers with 2 decimal places using the device's locale decimal separator
  * and adds a percentage symbol. Positive numbers are prefixed with a '+' sign, and negative numbers with a '-' sign.
- * The locale is automatically detected from the device settings.
+ * The locale is automatically detected from the device settings, but can be overridden.
  *
  * @param {string | number | { toString: () => string }} [amount] - The amount to format as percentage
+ * @param {string} [locale] - Optional locale override; uses device locale by default
  * @returns {string} Formatted percentage string with sign and locale-aware decimal separator (e.g., "+1.23%" or "+1,23%")
  *
  * @example
  * formatPercentageAmount(1.23); // Returns "+1.23%" (en-US) or "+1,23%" (de-DE)
  * formatPercentageAmount(-1.23); // Returns "-1.23%" (en-US) or "-1,23%" (de-DE)
  * formatPercentageAmount(0); // Returns "0.00%" (en-US) or "0,00%" (de-DE)
+ * formatPercentageAmount(1.23, "pt-BR"); // Returns "+1,23%"
  * formatPercentageAmount(); // Returns "--"
  */
 export const formatPercentageAmount = (
   amount?: string | number | { toString: () => string } | null,
+  locale?: string,
 ): string => {
   if (amount === null || amount === undefined) {
     return "--";
@@ -366,7 +369,7 @@ export const formatPercentageAmount = (
   const bnAmount = convertToBigNumber(amount);
 
   // Format the number with exactly 2 decimal places using locale-aware formatting
-  const deviceLocale = getOSLocale();
+  const deviceLocale = locale || getOSLocale();
   const formatter = new Intl.NumberFormat(deviceLocale, {
     useGrouping: false,
     minimumFractionDigits: 2,

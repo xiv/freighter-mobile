@@ -182,6 +182,56 @@ describe("formatAmount helpers", () => {
       const negObj = { toString: () => "-1.23" };
       expect(formatPercentageAmount(negObj)).toBe("-1.23%");
     });
+
+    it("should use device locale for formatting (mocked as en-US in tests)", () => {
+      // These tests use the mocked device locale (en-US)
+      expect(formatPercentageAmount(1.23)).toBe("+1.23%");
+      expect(formatPercentageAmount(-1.23)).toBe("-1.23%");
+      expect(formatPercentageAmount(0)).toBe("0.00%");
+      expect(formatPercentageAmount(1234.5678)).toBe("+1234.57%");
+      expect(formatPercentageAmount(-1234.5678)).toBe("-1234.57%");
+    });
+
+    it("should format with locale-aware decimal separators for US locale", () => {
+      expect(formatPercentageAmount(1.23, "en-US")).toBe("+1.23%");
+      expect(formatPercentageAmount(-1.23, "en-US")).toBe("-1.23%");
+      expect(formatPercentageAmount(0, "en-US")).toBe("0.00%");
+    });
+
+    it("should format with locale-aware decimal separators for German locale", () => {
+      expect(formatPercentageAmount(1.23, "de-DE")).toBe("+1,23%");
+      expect(formatPercentageAmount(-1.23, "de-DE")).toBe("-1,23%");
+      expect(formatPercentageAmount(0, "de-DE")).toBe("0,00%");
+    });
+
+    it("should format with locale-aware decimal separators for Portuguese Brazil locale", () => {
+      expect(formatPercentageAmount(1.23, "pt-BR")).toBe("+1,23%");
+      expect(formatPercentageAmount(-1.23, "pt-BR")).toBe("-1,23%");
+      expect(formatPercentageAmount(0, "pt-BR")).toBe("0,00%");
+    });
+
+    it("should format with locale-aware decimal separators for French locale", () => {
+      expect(formatPercentageAmount(1.23, "fr-FR")).toBe("+1,23%");
+      expect(formatPercentageAmount(-1.23, "fr-FR")).toBe("-1,23%");
+      expect(formatPercentageAmount(0, "fr-FR")).toBe("0,00%");
+    });
+
+    it("should maintain precision with locale formatting", () => {
+      expect(formatPercentageAmount(1234.5678, "en-US")).toBe("+1234.57%");
+      expect(formatPercentageAmount(1234.5678, "de-DE")).toBe("+1234,57%");
+      expect(formatPercentageAmount(-1234.5678, "pt-BR")).toBe("-1234,57%");
+    });
+
+    it("should work with pt-BR locale formatting capability", () => {
+      // Test formatPercentageAmount directly with pt-BR locale
+      expect(formatPercentageAmount(1.23, "pt-BR")).toBe("+1,23%");
+      expect(formatPercentageAmount(-1.23, "pt-BR")).toBe("-1,23%");
+      expect(formatPercentageAmount(0, "pt-BR")).toBe("0,00%");
+      expect(formatPercentageAmount(0.1, "pt-BR")).toBe("+0,10%");
+
+      // Verify getLocaleDecimalSeparator for context
+      expect(getLocaleDecimalSeparator("pt-BR")).toBe(",");
+    });
   });
 
   describe("formatNumberForLocale", () => {
