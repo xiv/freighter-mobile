@@ -19,7 +19,10 @@ import {
 } from "config/constants";
 import { Balance, NativeBalance, PricedBalance } from "config/types";
 import { isLiquidityPool } from "helpers/balances";
-import { xlmToStroop, parseLocaleNumberToBigNumber } from "helpers/formatAmount";
+import {
+  xlmToStroop,
+  parseLocaleNumberToBigNumber,
+} from "helpers/formatAmount";
 import { isContractId, getNativeContractDetails } from "helpers/soroban";
 import { isValidStellarAddress, isSameAccount } from "helpers/stellar";
 import { t } from "i18next";

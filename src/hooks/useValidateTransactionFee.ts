@@ -1,6 +1,9 @@
 import BigNumber from "bignumber.js";
 import { MIN_TRANSACTION_FEE } from "config/constants";
-import { formatNumberForLocale, parseLocaleNumberToBigNumber } from "helpers/formatAmount";
+import {
+  formatNumberForLocale,
+  parseLocaleNumberToBigNumber,
+} from "helpers/formatAmount";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useEffect, useState } from "react";
 

@@ -262,18 +262,17 @@ describe("formatAmount helpers", () => {
       const bigNum = new BigNumber("1234.56789");
       const resultUS = formatBigNumberForLocale(bigNum, { locale: "en-US" });
       const resultPT = formatBigNumberForLocale(bigNum, { locale: "pt-BR" });
-      
       expect(resultUS).toBe("1234.56789");
       expect(resultPT).toBe("1234,56789");
     });
 
     it("should format BigNumber with decimal places", () => {
       const bigNum = new BigNumber("1234.56789");
-      const result = formatBigNumberForLocale(bigNum, { 
-        locale: "pt-BR", 
-        decimalPlaces: 2 
+      const result = formatBigNumberForLocale(bigNum, {
+        locale: "pt-BR",
+        decimalPlaces: 2,
       });
-      
+
       expect(result).toBe("1234,57"); // Should round to 2 decimal places
     });
 
@@ -309,7 +308,10 @@ describe("formatAmount helpers", () => {
     });
 
     it("should preserve high precision", () => {
-      const result = parseLocaleNumberToBigNumber("0.000000000123456789", "en-US");
+      const result = parseLocaleNumberToBigNumber(
+        "0.000000000123456789",
+        "en-US",
+      );
       expect(result.toString()).toBe("1.23456789e-10"); // BigNumber converts very small numbers to scientific notation
       // Verify the actual numeric value is correct
       expect(result.toNumber()).toBe(0.000000000123456789);

@@ -5,7 +5,6 @@ import {
   BASE_RESERVE,
   MIN_TRANSACTION_FEE,
 } from "config/constants";
-import { parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 import {
   Balance,
   NativeToken,
@@ -18,6 +17,7 @@ import {
   NonNativeToken,
   Token,
 } from "config/types";
+import { parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 
 interface GetTokenPriceFromBalanceParams {
   prices: TokenPricesMap;

@@ -38,7 +38,9 @@ const SignTransactionSummary = ({ summary }: SignTransactionSummaryProps) => {
     },
     {
       title: t("signTransactionDetails.summary.fee"),
-      trailingContent: <Text>{formatTokenAmount(feeXlm, NATIVE_TOKEN_CODE)}</Text>,
+      trailingContent: (
+        <Text>{formatTokenAmount(feeXlm, NATIVE_TOKEN_CODE)}</Text>
+      ),
       titleColor: themeColors.text.secondary,
     },
     {
