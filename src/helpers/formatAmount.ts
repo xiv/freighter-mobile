@@ -341,19 +341,20 @@ export const formatBigNumberForLocale = (
 };
 
 /**
- * Formats a numeric value as a percentage with sign indicator
+ * Formats a numeric value as a percentage with sign indicator and locale-aware decimal separator
  *
- * This function formats numbers with 2 decimal places and adds a percentage symbol.
- * Positive numbers are prefixed with a '+' sign, and negative numbers with a '-' sign.
+ * This function formats numbers with 2 decimal places using the device's locale decimal separator
+ * and adds a percentage symbol. Positive numbers are prefixed with a '+' sign, and negative numbers with a '-' sign.
+ * The locale is automatically detected from the device settings.
  *
  * @param {string | number | { toString: () => string }} [amount] - The amount to format as percentage
- * @returns {string} Formatted percentage string with sign (e.g., "+1.23%" or "-1.23%")
+ * @returns {string} Formatted percentage string with sign and locale-aware decimal separator (e.g., "+1.23%" or "+1,23%")
  *
  * @example
- * formatPercentageAmount(1.23); // Returns "+1.23%"
- * formatPercentageAmount(-1.23); // Returns "-1.23%"
- * formatPercentageAmount(0); // Returns "0.00%"
- * formatPercentageAmount(); // Returns "0.00%"
+ * formatPercentageAmount(1.23); // Returns "+1.23%" (en-US) or "+1,23%" (de-DE)
+ * formatPercentageAmount(-1.23); // Returns "-1.23%" (en-US) or "-1,23%" (de-DE)
+ * formatPercentageAmount(0); // Returns "0.00%" (en-US) or "0,00%" (de-DE)
+ * formatPercentageAmount(); // Returns "--"
  */
 export const formatPercentageAmount = (
   amount?: string | number | { toString: () => string } | null,
@@ -364,8 +365,14 @@ export const formatPercentageAmount = (
 
   const bnAmount = convertToBigNumber(amount);
 
-  // Format the number with 2 decimal places
-  const formattedNumber = bnAmount.toFixed(2);
+  // Format the number with exactly 2 decimal places using locale-aware formatting
+  const deviceLocale = getOSLocale();
+  const formatter = new Intl.NumberFormat(deviceLocale, {
+    useGrouping: false,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const formattedNumber = formatter.format(bnAmount.toNumber());
 
   // Add the appropriate sign and percentage symbol
   if (bnAmount.gt(0)) {
