@@ -42,6 +42,11 @@ export enum TransactionSetting {
   Timeout = "timeout",
 }
 
+export enum TransactionSettingsContext {
+  Swap = "swap",
+  Transaction = "transaction",
+}
+
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 32;
 export const ACCOUNT_NAME_MIN_LENGTH = 1;

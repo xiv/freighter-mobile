@@ -12,6 +12,7 @@ import {
   MIN_SLIPPAGE,
   MIN_TRANSACTION_FEE,
   NATIVE_TOKEN_CODE,
+  TransactionSettingsContext,
   TransactionSetting,
 } from "config/constants";
 import { NetworkCongestion } from "config/types";
@@ -21,7 +22,7 @@ import { pxValue } from "helpers/dimensions";
 import {
   parseLocaleNumber,
   getLocaleDecimalSeparator,
-  formatConstantForLocale,
+  formatNumberForLocale,
 } from "helpers/formatAmount";
 import useAppTranslation from "hooks/useAppTranslation";
 import useColors from "hooks/useColors";
@@ -33,107 +34,140 @@ import { useValidateTransactionTimeout } from "hooks/useValidateTransactionTimeo
 import React, { useCallback, useRef, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
-/**
- * Props for the TransactionSettingsBottomSheet component
- * @interface TransactionSettingsBottomSheetProps
- * @property {() => void} onCancel - Callback function when settings are cancelled
- * @property {() => void} onConfirm - Callback function when settings are confirmed
- * @property {TransactionSetting[]} settings - Array of settings to display
- */
 type TransactionSettingsBottomSheetProps = {
   onCancel: () => void;
   onConfirm: () => void;
-  settings: TransactionSetting[];
+  context: TransactionSettingsContext;
 };
 
-/**
- * TransactionSettingsBottomSheet Component
- *
- * A bottom sheet modal that allows users to configure transaction settings including:
- * - Transaction fee (with network congestion indicator)
- * - Transaction timeout
- * - Transaction memo
- *
- * Each setting includes validation and informational tooltips. The component
- * manages local state for each setting and only saves to the global store
- * when the user confirms the changes.
- *
- * @param {TransactionSettingsBottomSheetProps} props - Component props
- * @returns {JSX.Element} The rendered bottom sheet component
- *
- * @example
- * ```tsx
- * <TransactionSettingsBottomSheet
- *   onCancel={() => setShowSettings(false)}
- *   onConfirm={() => {
- *     // Settings saved, proceed with transaction
- *     setShowSettings(false);
- *   }}
- * />
- * ```
- */
 const TransactionSettingsBottomSheet: React.FC<
   TransactionSettingsBottomSheetProps
-> = ({ onCancel, onConfirm, settings }) => {
+> = ({ onCancel, onConfirm, context }) => {
+  // All hooks at the top
   const { t } = useAppTranslation();
+  const { themeColors } = useColors();
+  const { recommendedFee, networkCongestion } = useNetworkFees();
+
   const {
     transactionMemo,
-    saveMemo,
-    transactionTimeout,
-    saveTransactionTimeout,
     transactionFee,
+    transactionTimeout,
+    saveMemo: saveTransactionMemo,
     saveTransactionFee,
+    saveTransactionTimeout,
   } = useTransactionSettingsStore();
 
-  const { swapSlippage, saveSwapSlippage } = useSwapSettingsStore();
+  const {
+    swapFee,
+    swapTimeout,
+    swapSlippage,
+    saveSwapFee,
+    saveSwapTimeout,
+    saveSwapSlippage,
+  } = useSwapSettingsStore();
+
   const timeoutInfoBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const feeInfoBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const memoInfoBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const slippageInfoBottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const { themeColors } = useColors();
-  const { recommendedFee, networkCongestion } = useNetworkFees();
-  const [localFee, setLocalFee] = useState(transactionFee ?? recommendedFee);
-  const [localMemo, setLocalMemo] = useState(transactionMemo);
-  const [localTimeout, setLocalTimeout] = useState(
-    transactionTimeout.toString(),
+  // Derived values based on context
+  const memo =
+    context === TransactionSettingsContext.Swap ? "" : transactionMemo;
+  const fee =
+    context === TransactionSettingsContext.Swap ? swapFee : transactionFee;
+  const timeout =
+    context === TransactionSettingsContext.Swap
+      ? swapTimeout
+      : transactionTimeout;
+  const slippage =
+    context === TransactionSettingsContext.Swap ? swapSlippage : 1;
+
+  const settings =
+    context === TransactionSettingsContext.Swap
+      ? [
+          TransactionSetting.Fee,
+          TransactionSetting.Timeout,
+          TransactionSetting.Slippage,
+        ]
+      : [
+          TransactionSetting.Fee,
+          TransactionSetting.Timeout,
+          TransactionSetting.Memo,
+        ];
+
+  // State hooks
+  const [localFee, setLocalFee] = useState(
+    formatNumberForLocale(fee ?? recommendedFee),
   );
-  const [localSlippage, setLocalSlippage] = useState(swapSlippage.toString());
+  const [localMemo, setLocalMemo] = useState(memo);
+  const [localTimeout, setLocalTimeout] = useState(timeout.toString());
+  const [localSlippage, setLocalSlippage] = useState(
+    slippage.toString().replace(".", getLocaleDecimalSeparator()),
+  );
 
-  // Constants
-  const STEP_SIZE_PERCENT = 0.5;
-
+  // Validation hooks
   const { error: memoError } = useValidateMemo(localMemo);
   const { error: feeError } = useValidateTransactionFee(localFee);
   const { error: timeoutError } = useValidateTransactionTimeout(localTimeout);
   const { error: slippageError } = useValidateSlippage(localSlippage);
 
-  /**
-   * Updates slippage value
-   * @param value - The numeric value (without %)
-   */
+  // Constants
+  const STEP_SIZE_PERCENT = 0.5;
+
+  // Callback functions
+  const saveMemo = useCallback(
+    (value: string) => {
+      if (context === TransactionSettingsContext.Transaction) {
+        saveTransactionMemo(value);
+      }
+    },
+    [context, saveTransactionMemo],
+  );
+
+  const saveFee = useCallback(
+    (value: string) => {
+      if (context === TransactionSettingsContext.Swap) {
+        saveSwapFee(value);
+      } else {
+        saveTransactionFee(value);
+      }
+    },
+    [context, saveSwapFee, saveTransactionFee],
+  );
+
+  const saveTimeout = useCallback(
+    (value: number) => {
+      if (context === TransactionSettingsContext.Swap) {
+        saveSwapTimeout(value);
+      } else {
+        saveTransactionTimeout(value);
+      }
+    },
+    [context, saveSwapTimeout, saveTransactionTimeout],
+  );
+
+  const saveSlippage = useCallback(
+    (value: number) => {
+      if (context === TransactionSettingsContext.Swap) {
+        saveSwapSlippage(value);
+      }
+    },
+    [context, saveSwapSlippage],
+  );
+
   const updateSlippage = useCallback((value: string) => {
     setLocalSlippage(value);
   }, []);
-
-  /**
-   * Handles slippage increment/decrement with a specified step
-   * @param step - The step size to add/subtract (positive for increment, negative for decrement)
-   */
   const handleUpdateSlippage = useCallback(
     (step: number) => {
-      // Parse the current value using locale-aware parsing
       const currentValue = parseLocaleNumber(localSlippage) || 0;
       const newValue = Math.max(0, Math.min(MAX_SLIPPAGE, currentValue + step));
-
       const roundedValue = Math.round(newValue * 100) / 100;
-
       const isWholeNumber = roundedValue % 1 === 0;
       const finalValue = isWholeNumber
         ? Math.round(roundedValue)
         : roundedValue;
-
-      // Format with locale-specific decimal separator
       const decimalSeparator = getLocaleDecimalSeparator();
       const formattedValue = finalValue
         .toString()
@@ -143,18 +177,10 @@ const TransactionSettingsBottomSheet: React.FC<
     [localSlippage, updateSlippage],
   );
 
-  /**
-   * Handles text input changes
-   * @param text - The input text
-   */
   const handleSlippageTextChange = useCallback((text: string) => {
-    // Remove % if user types it
     const numericValue = text.replace("%", "");
-    // Allow both comma and dot as decimal separators for manual input
     setLocalSlippage(numericValue);
   }, []);
-
-  // Memoize other onChangeText handlers to prevent re-renders
   const handleMemoChange = useCallback((text: string) => {
     setLocalMemo(text);
   }, []);
@@ -167,34 +193,6 @@ const TransactionSettingsBottomSheet: React.FC<
     setLocalTimeout(text);
   }, []);
 
-  /**
-   * Error mapping for each setting type
-   */
-  const settingErrors = {
-    [TransactionSetting.Memo]: memoError,
-    [TransactionSetting.Slippage]: slippageError,
-    [TransactionSetting.Fee]: feeError,
-    [TransactionSetting.Timeout]: timeoutError,
-  };
-
-  /**
-   * Save callbacks for each setting type
-   */
-  const settingSaveCallbacks = {
-    [TransactionSetting.Memo]: () => saveMemo(localMemo),
-    [TransactionSetting.Slippage]: () =>
-      saveSwapSlippage(Number(localSlippage)),
-    [TransactionSetting.Fee]: () => saveTransactionFee(localFee),
-    [TransactionSetting.Timeout]: () =>
-      saveTransactionTimeout(Number(localTimeout)),
-  };
-
-  /**
-   * Converts network congestion level to localized string
-   *
-   * @param {NetworkCongestion} congestion - The network congestion level
-   * @returns {string} Localized string representation of congestion level
-   */
   const getLocalizedCongestionLevel = useCallback(
     (congestion: NetworkCongestion): string => {
       switch (congestion) {
@@ -211,9 +209,35 @@ const TransactionSettingsBottomSheet: React.FC<
     [t],
   );
 
-  /**
-   * Individual row component functions - memoized to prevent re-renders
-   */
+  // Data objects and configurations
+  const settingErrors = {
+    [TransactionSetting.Memo]: memoError,
+    [TransactionSetting.Slippage]: slippageError,
+    [TransactionSetting.Fee]: feeError,
+    [TransactionSetting.Timeout]: timeoutError,
+  };
+
+  const settingSaveCallbacks = {
+    [TransactionSetting.Memo]: () => saveMemo(localMemo),
+    [TransactionSetting.Slippage]: () =>
+      saveSlippage(parseLocaleNumber(localSlippage)),
+    [TransactionSetting.Fee]: () =>
+      saveFee(parseLocaleNumber(localFee).toString()),
+    [TransactionSetting.Timeout]: () => saveTimeout(Number(localTimeout)),
+  };
+
+  const handleConfirm = () => {
+    const hasErrors = settings.some((setting) => settingErrors[setting]);
+    if (hasErrors) return;
+
+    settings.forEach((setting) => {
+      settingSaveCallbacks[setting]();
+    });
+
+    onConfirm();
+  };
+
+  // Render functions
   const getMemoRow = useCallback(
     () => (
       <View className="flex-col gap-2 mt-[24px]">
@@ -318,7 +342,6 @@ const TransactionSettingsBottomSheet: React.FC<
       handleUpdateSlippage,
       handleSlippageTextChange,
       STEP_SIZE_PERCENT,
-
       themeColors.gray,
       updateSlippage,
     ],
@@ -338,7 +361,9 @@ const TransactionSettingsBottomSheet: React.FC<
               <Icon.InfoCircle color={themeColors.gray[8]} size={pxValue(16)} />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => setLocalFee(recommendedFee)}>
+          <TouchableOpacity
+            onPress={() => setLocalFee(formatNumberForLocale(recommendedFee))}
+          >
             <Text sm medium color={themeColors.lilac[11]}>
               {t("transactionSettings.resetFee")}
             </Text>
@@ -357,7 +382,7 @@ const TransactionSettingsBottomSheet: React.FC<
             }
             onChangeText={handleFeeChange}
             keyboardType="numeric"
-            placeholder={formatConstantForLocale(MIN_TRANSACTION_FEE)}
+            placeholder={formatNumberForLocale(MIN_TRANSACTION_FEE)}
             error={feeError}
             rightElement={
               <Text md secondary>
@@ -385,11 +410,11 @@ const TransactionSettingsBottomSheet: React.FC<
       t,
       themeColors.foreground.primary,
       themeColors.lilac,
-      recommendedFee,
       networkCongestion,
       getLocalizedCongestionLevel,
       handleFeeChange,
       themeColors.gray,
+      recommendedFee,
     ],
   );
 
@@ -438,31 +463,6 @@ const TransactionSettingsBottomSheet: React.FC<
     ],
   );
 
-  /**
-   * Handles confirmation of transaction settings
-   * Validates all inputs and saves to global store if valid
-   */
-  const handleConfirm = () => {
-    // Check for errors in enabled settings only
-    const hasErrors = settings.some((setting) => settingErrors[setting]);
-
-    if (hasErrors) return;
-
-    // Save settings dynamically using callbacks
-    settings.forEach((setting) => {
-      const saveCallback = settingSaveCallbacks[setting];
-      if (saveCallback) {
-        saveCallback();
-      }
-    });
-
-    onConfirm();
-  };
-
-  /**
-   * Configuration for information bottom sheets
-   * Each setting has its own info modal with icon, title, and content
-   */
   const bottomSheetsConfig = [
     {
       IconComponent: Icon.File02,

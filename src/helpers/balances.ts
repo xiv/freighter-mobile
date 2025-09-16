@@ -5,6 +5,7 @@ import {
   BASE_RESERVE,
   MIN_TRANSACTION_FEE,
 } from "config/constants";
+import { parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 import {
   Balance,
   NativeToken,
@@ -413,7 +414,7 @@ export const isAmountSpendable = ({
   subentryCount = 0,
   transactionFee = "0.00001",
 }: IsAmountSpendableParams): boolean => {
-  const amountBN = new BigNumber(amount);
+  const amountBN = parseLocaleNumberToBigNumber(amount);
   const spendableAmount = calculateSpendableAmount({
     balance,
     subentryCount,
