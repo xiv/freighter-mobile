@@ -50,16 +50,7 @@ export const formatTokenAmount = (
   locale?: string,
 ) => {
   const bnAmount = convertToBigNumber(amount);
-  let deviceLocale = locale || getOSLocale();
-
-  // Fallback to en-US if the locale is invalid
-  try {
-    // Test if the locale is valid by creating a formatter
-    const testFormatter = new Intl.NumberFormat(deviceLocale);
-    testFormatter.format(1); // Test that it works
-  } catch (error) {
-    deviceLocale = "en-US";
-  }
+  const deviceLocale = locale || getOSLocale();
 
   const formatter = new Intl.NumberFormat(deviceLocale, {
     useGrouping: true,
@@ -97,16 +88,7 @@ export const formatFiatAmount = (
   // Convert input to a number
   const numericAmount =
     typeof amount === "number" ? amount : parseFloat(amount.toString());
-  let deviceLocale = locale || getOSLocale();
-
-  // Fallback to en-US if the locale is invalid
-  try {
-    // Test if the locale is valid by creating a formatter
-    const testFormatter = new Intl.NumberFormat(deviceLocale);
-    testFormatter.format(1); // Test that it works
-  } catch (error) {
-    deviceLocale = "en-US";
-  }
+  const deviceLocale = locale || getOSLocale();
 
   // Format as USD currency with 2 decimal places using device locale
   return new Intl.NumberFormat(deviceLocale, {
@@ -129,15 +111,10 @@ export const formatFiatAmount = (
 export const getLocaleDecimalSeparator = (locale?: string): string => {
   const deviceLocale = locale || getOSLocale();
 
-  // Fallback to en-US if the locale is invalid
-  try {
-    const formatter = new Intl.NumberFormat(deviceLocale);
-    const parts = formatter.formatToParts(1.1); // dummy value to get the decimal separator
-    const decimalPart = parts.find((part) => part.type === "decimal");
-    return decimalPart?.value || ".";
-  } catch (error) {
-    return "."; // Default to dot for en-US
-  }
+  const formatter = new Intl.NumberFormat(deviceLocale);
+  const parts = formatter.formatToParts(1.1); // dummy value to get the decimal separator
+  const decimalPart = parts.find((part) => part.type === "decimal");
+  return decimalPart?.value || ".";
 };
 
 /**
@@ -220,7 +197,9 @@ export const parseLocaleNumberToBigNumber = (
     return input;
   }
 
-  if (!input || input === "") return new BigNumber(0);
+  if (!input) {
+    return new BigNumber(0);
+  }
 
   const deviceLocale = locale || getOSLocale();
 
