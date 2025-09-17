@@ -63,7 +63,6 @@ export const useSwapTransaction = ({
 
     // Get fresh settings values each time the function is called
     const { swapFee, swapTimeout } = useSwapSettingsStore.getState();
-    console.log({ swapFee, swapTimeout });
 
     const transactionXDR = await buildSwapTransaction({
       sourceAmount,
