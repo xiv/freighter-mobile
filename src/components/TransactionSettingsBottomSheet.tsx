@@ -302,7 +302,7 @@ const TransactionSettingsBottomSheet: React.FC<
           </TouchableOpacity>
         </View>
         <View className="flex flex-row items-start gap-2">
-          <View className="mt-2">
+          <View className="mt-1">
             <IconButton
               Icon={Icon.Minus}
               size="md"
@@ -326,7 +326,7 @@ const TransactionSettingsBottomSheet: React.FC<
             />
           </View>
 
-          <View className="mt-2">
+          <View className="mt-1">
             <IconButton
               Icon={Icon.Plus}
               size="md"

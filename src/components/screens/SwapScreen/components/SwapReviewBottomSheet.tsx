@@ -19,7 +19,11 @@ import { useSwapSettingsStore } from "ducks/swapSettings";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { calculateSwapRate } from "helpers/balances";
 import { pxValue } from "helpers/dimensions";
-import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
+import {
+  formatTokenAmount,
+  formatFiatAmount,
+  parseLocaleNumberToBigNumber,
+} from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
@@ -60,6 +64,11 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
   const [stableConversionRate, setStableConversionRate] = useState<string>("");
   const [stableMinimumReceived, setStableMinimumReceived] =
     useState<string>("");
+
+  // Convert locale-formatted amounts back to standard format for display
+  const normalizedSourceAmount = parseLocaleNumberToBigNumber(sourceAmount);
+  const normalizedDestinationAmount =
+    parseLocaleNumberToBigNumber(destinationAmount);
 
   const currentConversionRate =
     pathResult?.conversionRate ||
@@ -132,7 +141,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
   const sourceTokenFiatAmountValue = calculateTokenFiatAmount({
     token: sourceToken,
-    amount: pathResult?.sourceAmount || sourceAmount,
+    amount: pathResult?.sourceAmount || normalizedSourceAmount.toString(),
     balanceItems,
   });
 
@@ -143,7 +152,8 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
   const destinationTokenFiatAmountValue = calculateTokenFiatAmount({
     token: destinationToken,
-    amount: pathResult?.destinationAmount || destinationAmount,
+    amount:
+      pathResult?.destinationAmount || normalizedDestinationAmount.toString(),
     balanceItems,
   });
   const destinationTokenFiatAmount =
@@ -171,10 +181,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             <TokenIcon token={sourceToken} />
             <View className="flex-1">
               <Text xl medium>
-                {formatTokenAmount(
-                  pathResult?.sourceAmount || sourceAmount,
-                  sourceTokenSymbol,
-                )}
+                {`${pathResult?.sourceAmount || sourceAmount} ${sourceTokenSymbol}`}
               </Text>
               <Text md medium secondary>
                 {sourceTokenFiatAmount}
@@ -193,7 +200,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             <TokenIcon token={destinationToken} />
             <View className="flex-1">
               <Text xl medium>
-                {formatTokenAmount(destinationAmount, destinationTokenSymbol)}
+                {`${destinationAmount} ${destinationTokenSymbol}`}
               </Text>
               <Text md medium secondary>
                 {destinationTokenFiatAmount}

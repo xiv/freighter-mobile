@@ -13,6 +13,7 @@ import { ActiveAccount } from "ducks/auth";
 import { SwapPathResult } from "ducks/swap";
 import { useSwapSettingsStore } from "ducks/swapSettings";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
+import { parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 import { useState } from "react";
 import { analytics } from "services/analytics";
 
@@ -64,13 +65,23 @@ export const useSwapTransaction = ({
     // Get fresh settings values each time the function is called
     const { swapFee, swapTimeout } = useSwapSettingsStore.getState();
 
+    // Convert locale-formatted amounts back to dot notation for transaction building
+    const normalizedSourceAmount =
+      parseLocaleNumberToBigNumber(sourceAmount).toString();
+    const normalizedDestinationAmount = parseLocaleNumberToBigNumber(
+      pathResult.destinationAmount,
+    ).toString();
+    const normalizedDestinationAmountMin = parseLocaleNumberToBigNumber(
+      pathResult.destinationAmountMin,
+    ).toString();
+
     const transactionXDR = await buildSwapTransaction({
-      sourceAmount,
+      sourceAmount: normalizedSourceAmount,
       sourceBalance,
       destinationBalance,
       path: pathResult.path,
-      destinationAmount: pathResult.destinationAmount,
-      destinationAmountMin: pathResult.destinationAmountMin,
+      destinationAmount: normalizedDestinationAmount,
+      destinationAmountMin: normalizedDestinationAmountMin,
       transactionFee: swapFee,
       transactionTimeout: swapTimeout,
       network,

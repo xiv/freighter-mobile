@@ -15,7 +15,11 @@ import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { isLiquidityPool } from "helpers/balances";
 import { pxValue } from "helpers/dimensions";
-import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
+import {
+  formatTokenAmount,
+  formatFiatAmount,
+  parseLocaleNumberToBigNumber,
+} from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useClipboard } from "hooks/useClipboard";
@@ -367,6 +371,10 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
     ],
   );
 
+  // Convert locale-formatted tokenAmount back to standard format for display
+  const normalizedTokenAmount =
+    parseLocaleNumberToBigNumber(tokenAmount).toString();
+
   return (
     <View className="flex-1 gap-[12px]">
       <View className="rounded-[16px] p-[16px] gap-[16px] bg-background-tertiary">
@@ -377,12 +385,12 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
               <TokenIcon token={selectedBalance} />
               <View className="flex-1">
                 <Text xl medium>
-                  {formatTokenAmount(tokenAmount, selectedBalance.tokenCode)}
+                  {`${tokenAmount} ${selectedBalance.tokenCode}`}
                 </Text>
                 <Text md medium secondary>
                   {selectedBalance.currentPrice
                     ? formatFiatAmount(
-                        new BigNumber(tokenAmount).times(
+                        new BigNumber(normalizedTokenAmount).times(
                           selectedBalance.currentPrice,
                         ),
                       )

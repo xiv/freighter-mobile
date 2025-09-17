@@ -103,7 +103,7 @@ export const validateTransactionParams = (
   }
 
   // Validate sufficient balance
-  const transactionAmount = parseLocaleNumberToBigNumber(amount);
+  const transactionAmount = new BigNumber(amount);
   const balanceAmount = new BigNumber(balance.total);
 
   if (transactionAmount.isGreaterThan(balanceAmount)) {

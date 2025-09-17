@@ -39,7 +39,11 @@ import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { calculateSpendableAmount, hasXLMForFees } from "helpers/balances";
 import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
 import { pxValue } from "helpers/dimensions";
-import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
+import {
+  formatFiatAmount,
+  formatBigNumberForLocale,
+  parseLocaleNumberToBigNumber,
+} from "helpers/formatAmount";
 import { useBlockaidTransaction } from "hooks/blockaid/useBlockaidTransaction";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
@@ -238,9 +242,21 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     if (showFiatAmount) {
       const tokenPrice = selectedBalance.currentPrice || BigNumber(0);
       const calculatedFiatAmount = targetAmount.multipliedBy(tokenPrice);
-      setFiatAmount(calculatedFiatAmount.toFixed(FIAT_DECIMALS));
+      // Use locale-aware formatting for fiat amount
+      setFiatAmount(
+        formatBigNumberForLocale(calculatedFiatAmount, {
+          decimalPlaces: FIAT_DECIMALS,
+          useGrouping: false,
+        }),
+      );
     } else {
-      setTokenAmount(targetAmount.toFixed(DEFAULT_DECIMALS));
+      // Use locale-aware formatting for token amount
+      setTokenAmount(
+        formatBigNumberForLocale(targetAmount, {
+          decimalPlaces: DEFAULT_DECIMALS,
+          useGrouping: false,
+        }),
+      );
     }
   };
 
@@ -308,8 +324,12 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
           recipientAddress: storeRecipientAddress,
         } = useTransactionSettingsStore.getState();
 
+        // Convert locale-formatted amount back to dot notation for transaction building
+        const normalizedTokenAmount =
+          parseLocaleNumberToBigNumber(tokenAmount).toString();
+
         const finalXDR = await buildTransaction({
-          tokenAmount,
+          tokenAmount: normalizedTokenAmount,
           selectedBalance,
           recipientAddress: recipientAddress || storeRecipientAddress,
           transactionMemo,
@@ -558,7 +578,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
             <View className="flex-row items-center justify-center">
               <Text lg medium secondary>
                 {showFiatAmount
-                  ? formatTokenAmount(tokenAmount, selectedBalance?.tokenCode)
+                  ? `${tokenAmount} ${selectedBalance?.tokenCode}`
                   : formatFiatAmount(fiatAmount)}
               </Text>
               <TouchableOpacity

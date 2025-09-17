@@ -1,3 +1,4 @@
+import { TransactionBuilder } from "@stellar/stellar-sdk";
 import StellarLogo from "assets/logos/stellar-logo.svg";
 import { BigNumber } from "bignumber.js";
 import { List } from "components/List";
@@ -13,7 +14,11 @@ import { useAuthenticationStore } from "ducks/auth";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { formatTransactionDate } from "helpers/date";
-import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
+import {
+  formatTokenAmount,
+  formatFiatAmount,
+  parseLocaleNumberToBigNumber,
+} from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import { getStellarExpertUrl } from "helpers/stellarExpert";
 import useAppTranslation from "hooks/useAppTranslation";
@@ -70,6 +75,16 @@ const TransactionDetailsBottomSheet: React.FC<
   const selectedBalance = balanceItems.find(
     (item) => item.id === selectedTokenId,
   );
+
+  const transaction = TransactionBuilder.fromXDR(
+    transactionXDR as string,
+    network,
+  );
+
+  const memo =
+    "memo" in transaction && transaction.memo.value
+      ? String(transaction.memo.value)
+      : (transactionMemo ?? "");
 
   const slicedAddress = truncateAddress(recipientAddress, 4, 4);
   const [transactionDetails, setTransactionDetails] =
@@ -144,6 +159,9 @@ const TransactionDetailsBottomSheet: React.FC<
     );
   };
 
+  const normalizedTransactionAmount =
+    parseLocaleNumberToBigNumber(transactionAmount);
+
   return (
     <View className="gap-[24px]">
       <View className="flex-row gap-[16px]">
@@ -167,12 +185,12 @@ const TransactionDetailsBottomSheet: React.FC<
         <View className="flex-row items-center justify-between">
           <View>
             <Text xl medium primary>
-              {formatTokenAmount(transactionAmount, selectedBalance?.tokenCode)}
+              {`${transactionAmount} ${selectedBalance?.tokenCode}`}
             </Text>
             <Text md medium secondary>
               {selectedBalance?.currentPrice
                 ? formatFiatAmount(
-                    new BigNumber(transactionAmount).times(
+                    new BigNumber(normalizedTransactionAmount).times(
                       selectedBalance.currentPrice,
                     ),
                   )
@@ -232,8 +250,8 @@ const TransactionDetailsBottomSheet: React.FC<
               </Text>
             ),
             trailingContent: (
-              <Text md medium secondary={!transactionMemo}>
-                {transactionMemo || t("common.none")}
+              <Text md medium secondary={!memo}>
+                {memo || t("common.none")}
               </Text>
             ),
           },

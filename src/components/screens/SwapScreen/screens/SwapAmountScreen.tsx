@@ -32,6 +32,7 @@ import {
 } from "helpers/balances";
 import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
 import { pxValue } from "helpers/dimensions";
+import { formatBigNumberForLocale } from "helpers/formatAmount";
 import { formatNumericInput } from "helpers/numericInput";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
@@ -253,7 +254,13 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     if (spendableAmount) {
       analytics.track(AnalyticsEvent.SEND_PAYMENT_SET_MAX);
 
-      setSourceAmount(spendableAmount.toString());
+      // Use locale-aware formatting for the max amount
+      setSourceAmount(
+        formatBigNumberForLocale(spendableAmount, {
+          decimalPlaces: DEFAULT_DECIMALS,
+          useGrouping: false,
+        }),
+      );
     }
   };
 
@@ -264,7 +271,13 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
       handleSetMax();
     } else {
       const targetAmount = spendableAmount.multipliedBy(percentage / 100);
-      setSourceAmount(targetAmount.toFixed(DEFAULT_DECIMALS));
+      // Use locale-aware formatting for the amount
+      setSourceAmount(
+        formatBigNumberForLocale(targetAmount, {
+          decimalPlaces: DEFAULT_DECIMALS,
+          useGrouping: false,
+        }),
+      );
     }
   };
 
