@@ -1924,18 +1924,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/intl-datetimeformat@npm:^6.18.0":
-  version: 6.18.0
-  resolution: "@formatjs/intl-datetimeformat@npm:6.18.0"
-  dependencies:
-    "@formatjs/ecma402-abstract": "npm:2.3.4"
-    "@formatjs/intl-localematcher": "npm:0.6.1"
-    decimal.js: "npm:^10.4.3"
-    tslib: "npm:^2.8.0"
-  checksum: 10c0/686498b644764d5c13954411ed48432f46f9ede49ecc97736da6331033522e265e2e16fd788f83b09d6ce36dbabf1a389e6d0a481ea6f6ef3880b10ed1760b22
-  languageName: node
-  linkType: hard
-
 "@formatjs/intl-enumerator@npm:1.8.10":
   version: 1.8.10
   resolution: "@formatjs/intl-enumerator@npm:1.8.10"
@@ -8984,7 +8972,6 @@ __metadata:
     "@blockaid/client": "npm:^0.58.0"
     "@dr.pogodin/react-native-fs": "npm:^2.35.1"
     "@fnando/eslint-plugin-consistent-import": "npm:*"
-    "@formatjs/intl-datetimeformat": "npm:^6.18.0"
     "@formatjs/intl-getcanonicallocales": "npm:^2.5.5"
     "@formatjs/intl-locale": "npm:^4.2.11"
     "@formatjs/intl-numberformat": "npm:^8.15.4"
