@@ -34,6 +34,7 @@ import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
 import { pxValue } from "helpers/dimensions";
 import {
   formatBigNumberForLocale,
+  formatNumberForLocale,
   parseLocaleNumberToBigNumber,
 } from "helpers/formatAmount";
 import { formatNumericInput } from "helpers/numericInput";
@@ -145,14 +146,16 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
       })
     ) {
       const errorMessage = t("swapScreen.errors.insufficientBalance", {
-        amount: spendableAmount?.toFixed() || "0",
+        amount: spendableAmount ? formatNumberForLocale(spendableAmount) : "0",
         symbol: sourceTokenSymbol,
       });
       setAmountError(errorMessage);
       showToast({
         variant: "error",
         title: t("swapScreen.errors.insufficientBalance", {
-          amount: spendableAmount?.toFixed() || "0",
+          amount: spendableAmount
+            ? formatNumberForLocale(spendableAmount)
+            : "0",
           symbol: sourceTokenSymbol,
         }),
         toastId: "insufficient-balance",
@@ -376,7 +379,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
   }
 
   return (
-    <BaseLayout useKeyboardAvoidingView insets={{ top: false }}>
+    <BaseLayout insets={{ top: false }}>
       <View className="flex-1">
         <View className="flex-none items-center py-[24px] max-xs:py-[16px] px-6">
           <View className="flex-row items-center gap-1">

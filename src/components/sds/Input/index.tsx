@@ -365,6 +365,81 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       ? StyledBottomSheetTextInput
       : StyledTextInput;
 
+    const inputContent = (
+      <>
+        {inputSuffixDisplay && (
+          <View
+            className="absolute left-0 right-0 top-0 bottom-0 flex-row items-center"
+            style={{
+              justifyContent: centered ? "center" : "flex-start",
+              display: value ? "flex" : "none",
+            }}
+            pointerEvents="none"
+          >
+            <TextWithSuffixDisplay $fieldSize={fieldSize}>
+              {value || ""}
+            </TextWithSuffixDisplay>
+            <TextWithSuffixDisplay $fieldSize={fieldSize}>
+              {inputSuffixDisplay}
+            </TextWithSuffixDisplay>
+          </View>
+        )}
+        <StyledTextInputComponent
+          {...commonTextInputProps}
+          $hasLeftElement={
+            inputSuffixDisplay
+              ? false
+              : leftElement || copyButton?.position === "left"
+          }
+          $hasRightElement={
+            inputSuffixDisplay
+              ? false
+              : rightElement ||
+                copyButton?.position === "right" ||
+                (isPassword && !endButton)
+          }
+          style={{
+            ...(inputSuffixDisplay && {
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              backgroundColor: "transparent",
+              color: "transparent",
+              paddingRight: 20,
+              zIndex: 1,
+            }),
+            textAlign: centered ? "center" : "left",
+          }}
+          pointerEvents={inputSuffixDisplay ? "auto" : undefined}
+        />
+      </>
+    );
+
+    const inputContainer = inputSuffixDisplay ? (
+      <View
+        className="flex-1 flex-row items-center relative"
+        style={{
+          justifyContent: centered ? "center" : "flex-start",
+          minHeight: (() => {
+            switch (fieldSize) {
+              case "sm":
+                return 32;
+              case "md":
+                return 40;
+              default:
+                return 48;
+            }
+          })(),
+        }}
+      >
+        {inputContent}
+      </View>
+    ) : (
+      inputContent
+    );
+
     return (
       <Container $fieldSize={fieldSize}>
         {label && (
@@ -389,72 +464,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(
           {leftElement && (
             <SideElement marginSide="right">{leftElement}</SideElement>
           )}
-
-          <View
-            className="flex-1 flex-row items-center relative"
-            style={{
-              justifyContent: centered ? "center" : "flex-start",
-              minHeight: (() => {
-                switch (fieldSize) {
-                  case "sm":
-                    return 32;
-                  case "md":
-                    return 40;
-                  default:
-                    return 48;
-                }
-              })(),
-            }}
-          >
-            {inputSuffixDisplay && (
-              <View
-                className="absolute left-0 right-0 top-0 bottom-0 flex-row items-center"
-                style={{
-                  justifyContent: centered ? "center" : "flex-start",
-                  display: value ? "flex" : "none",
-                }}
-                pointerEvents="none"
-              >
-                <TextWithSuffixDisplay $fieldSize={fieldSize}>
-                  {value || ""}
-                </TextWithSuffixDisplay>
-                <TextWithSuffixDisplay $fieldSize={fieldSize}>
-                  {inputSuffixDisplay}
-                </TextWithSuffixDisplay>
-              </View>
-            )}
-            <StyledTextInputComponent
-              {...commonTextInputProps}
-              $hasLeftElement={
-                inputSuffixDisplay
-                  ? false
-                  : leftElement || copyButton?.position === "left"
-              }
-              $hasRightElement={
-                inputSuffixDisplay
-                  ? false
-                  : rightElement ||
-                    copyButton?.position === "right" ||
-                    (isPassword && !endButton)
-              }
-              style={{
-                ...(inputSuffixDisplay && {
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  backgroundColor: "transparent",
-                  color: "transparent",
-                  paddingRight: 20,
-                  zIndex: 1,
-                }),
-                textAlign: centered ? "center" : "left",
-              }}
-              pointerEvents={inputSuffixDisplay ? "auto" : undefined}
-            />
-          </View>
-
+          {inputContainer}
           {rightElement && (
             <SideElement marginSide="left">{rightElement}</SideElement>
           )}

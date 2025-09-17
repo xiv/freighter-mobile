@@ -65,6 +65,14 @@ const SwapProcessingScreen: React.FC<SwapProcessingScreenProps> = ({
     });
   }, [navigation]);
 
+  useEffect(
+    () => () =>
+      navigation.setOptions({
+        headerShown: true,
+      }),
+    [navigation],
+  );
+
   useEffect(() => {
     if (transactionError) {
       setStatus(SwapStatus.FAILED);
