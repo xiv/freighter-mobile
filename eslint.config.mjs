@@ -46,7 +46,6 @@ export default [
       "tsconfig.json",
       "shim.js",
       "src/eslint-plugin-translations/**/*",
-      "src/polyfills/**/*",
     ],
   },
   {
