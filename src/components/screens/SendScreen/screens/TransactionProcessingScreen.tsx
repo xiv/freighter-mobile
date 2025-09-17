@@ -81,6 +81,15 @@ const TransactionProcessingScreen: React.FC<
     });
   }, [navigation]);
 
+  useEffect(
+    () => () => {
+      navigation.setOptions({
+        headerShown: true,
+      });
+    },
+    [navigation],
+  );
+
   useEffect(() => {
     if (transactionError) {
       setStatus(TransactionStatus.FAILED);
