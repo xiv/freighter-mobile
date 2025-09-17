@@ -67,8 +67,6 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
   // Convert locale-formatted amounts back to standard format for display
   const normalizedSourceAmount = parseLocaleNumberToBigNumber(sourceAmount);
-  const normalizedDestinationAmount =
-    parseLocaleNumberToBigNumber(destinationAmount);
 
   const currentConversionRate =
     pathResult?.conversionRate ||
@@ -141,7 +139,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
   const sourceTokenFiatAmountValue = calculateTokenFiatAmount({
     token: sourceToken,
-    amount: pathResult?.sourceAmount || normalizedSourceAmount.toString(),
+    amount: pathResult?.sourceAmount || sourceAmount,
     balanceItems,
   });
 
@@ -152,8 +150,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
   const destinationTokenFiatAmountValue = calculateTokenFiatAmount({
     token: destinationToken,
-    amount:
-      pathResult?.destinationAmount || normalizedDestinationAmount.toString(),
+    amount: pathResult?.destinationAmount || destinationAmount,
     balanceItems,
   });
   const destinationTokenFiatAmount =
@@ -181,7 +178,10 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             <TokenIcon token={sourceToken} />
             <View className="flex-1">
               <Text xl medium>
-                {`${pathResult?.sourceAmount || sourceAmount} ${sourceTokenSymbol}`}
+                {formatTokenAmount(
+                  normalizedSourceAmount.toString(),
+                  sourceTokenSymbol,
+                )}
               </Text>
               <Text md medium secondary>
                 {sourceTokenFiatAmount}
@@ -200,7 +200,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             <TokenIcon token={destinationToken} />
             <View className="flex-1">
               <Text xl medium>
-                {`${destinationAmount} ${destinationTokenSymbol}`}
+                {formatTokenAmount(destinationAmount, destinationTokenSymbol)}
               </Text>
               <Text md medium secondary>
                 {destinationTokenFiatAmount}

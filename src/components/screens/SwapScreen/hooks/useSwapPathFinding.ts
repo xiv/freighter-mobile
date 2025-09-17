@@ -1,6 +1,7 @@
 import { DEFAULT_DEBOUNCE_DELAY, NETWORKS } from "config/constants";
 import { TokenTypeWithCustomToken, PricedBalance } from "config/types";
 import { useSwapStore } from "ducks/swap";
+import { parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 import useDebounce from "hooks/useDebounce";
 import { useEffect } from "react";
 
@@ -30,19 +31,21 @@ export const useSwapPathFinding = ({
 }: UseSwapPathFindingParams) => {
   const { findSwapPath, clearPath } = useSwapStore();
 
+  const sourceAmountBN = parseLocaleNumberToBigNumber(sourceAmount);
+
   const debouncedFindSwapPath = useDebounce(() => {
     if (
       sourceBalance &&
       destinationBalance &&
       sourceAmount &&
-      Number(sourceAmount) > 0 &&
+      sourceAmountBN.isGreaterThan(0) &&
       !amountError &&
       publicKey
     ) {
       findSwapPath({
         sourceBalance,
         destinationBalance,
-        sourceAmount,
+        sourceAmount: sourceAmountBN.toString(),
         slippage: swapSlippage,
         network,
         publicKey,

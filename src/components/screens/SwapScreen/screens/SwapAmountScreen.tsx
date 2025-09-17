@@ -32,7 +32,10 @@ import {
 } from "helpers/balances";
 import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
 import { pxValue } from "helpers/dimensions";
-import { formatBigNumberForLocale } from "helpers/formatAmount";
+import {
+  formatBigNumberForLocale,
+  parseLocaleNumberToBigNumber,
+} from "helpers/formatAmount";
 import { formatNumericInput } from "helpers/numericInput";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
@@ -201,7 +204,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     ? isBuilding ||
       !!amountError ||
       !!pathError ||
-      Number(sourceAmount) <= 0 ||
+      parseLocaleNumberToBigNumber(sourceAmount).isLessThanOrEqualTo(0) ||
       !pathResult
     : false;
 

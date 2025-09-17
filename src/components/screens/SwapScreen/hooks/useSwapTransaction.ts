@@ -68,20 +68,14 @@ export const useSwapTransaction = ({
     // Convert locale-formatted amounts back to dot notation for transaction building
     const normalizedSourceAmount =
       parseLocaleNumberToBigNumber(sourceAmount).toString();
-    const normalizedDestinationAmount = parseLocaleNumberToBigNumber(
-      pathResult.destinationAmount,
-    ).toString();
-    const normalizedDestinationAmountMin = parseLocaleNumberToBigNumber(
-      pathResult.destinationAmountMin,
-    ).toString();
 
     const transactionXDR = await buildSwapTransaction({
       sourceAmount: normalizedSourceAmount,
       sourceBalance,
       destinationBalance,
       path: pathResult.path,
-      destinationAmount: normalizedDestinationAmount,
-      destinationAmountMin: normalizedDestinationAmountMin,
+      destinationAmount: pathResult.destinationAmount,
+      destinationAmountMin: pathResult.destinationAmountMin,
       transactionFee: swapFee,
       transactionTimeout: swapTimeout,
       network,
