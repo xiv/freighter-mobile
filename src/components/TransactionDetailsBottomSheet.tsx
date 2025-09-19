@@ -69,7 +69,6 @@ const TransactionDetailsBottomSheet: React.FC<
   const { balanceItems } = useBalancesList({
     publicKey: account?.publicKey ?? "",
     network,
-    shouldPoll: false,
   });
 
   const selectedBalance = balanceItems.find(
