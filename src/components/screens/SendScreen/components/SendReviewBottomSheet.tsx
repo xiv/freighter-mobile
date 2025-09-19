@@ -14,7 +14,6 @@ import { PricedBalance } from "config/types";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { isLiquidityPool } from "helpers/balances";
-import { pxValue } from "helpers/dimensions";
 import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import useAppTranslation from "hooks/useAppTranslation";
@@ -267,10 +266,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
     () => [
       {
         icon: (
-          <Icon.Wallet01
-            size={pxValue(16)}
-            color={themeColors.foreground.primary}
-          />
+          <Icon.Wallet01 size={16} color={themeColors.foreground.primary} />
         ),
         title: t("common.wallet"),
         titleColor: themeColors.text.secondary,
@@ -288,12 +284,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         ),
       },
       {
-        icon: (
-          <Icon.File02
-            size={pxValue(16)}
-            color={themeColors.foreground.primary}
-          />
-        ),
+        icon: <Icon.File02 size={16} color={themeColors.foreground.primary} />,
         titleComponent: renderMemoTitle(),
         trailingContent: (
           <Text md secondary={!transactionMemo}>
@@ -302,12 +293,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         ),
       },
       {
-        icon: (
-          <Icon.Route
-            size={pxValue(16)}
-            color={themeColors.foreground.primary}
-          />
-        ),
+        icon: <Icon.Route size={16} color={themeColors.foreground.primary} />,
         title: t("transactionAmountScreen.details.fee"),
         titleColor: themeColors.text.secondary,
         trailingContent: (
@@ -318,10 +304,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
       },
       {
         icon: (
-          <Icon.FileCode02
-            size={pxValue(16)}
-            color={themeColors.foreground.primary}
-          />
+          <Icon.FileCode02 size={16} color={themeColors.foreground.primary} />
         ),
         title: t("transactionAmountScreen.details.xdr"),
         titleColor: themeColors.text.secondary,
@@ -331,10 +314,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
             disabled={isBuilding || !transactionXDR}
             className="flex-row items-center gap-[8px]"
           >
-            <Icon.Copy01
-              size={pxValue(16)}
-              color={themeColors.foreground.primary}
-            />
+            <Icon.Copy01 size={16} color={themeColors.foreground.primary} />
             <Text md medium secondary={isBuilding}>
               {renderXdrContent()}
             </Text>
@@ -357,8 +337,6 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
       transactionXDR,
     ],
   );
-
-  // Use the tokenAmount as-is since it's already in the correct format for display
 
   return (
     <View className="flex-1 gap-[12px]">
@@ -389,7 +367,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
           )}
           <View className="w-[40px] flex items-center">
             <Icon.ChevronDownDouble
-              size={pxValue(16)}
+              size={16}
               color={themeColors.foreground.secondary}
             />
           </View>
@@ -419,7 +397,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         {onSettingsPress && (
           <TouchableOpacity
             onPress={onSettingsPress}
-            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
+            className="w-[46px] h-[46px] rounded-full border border-gray-6 items-center justify-center"
           >
             <Icon.Settings04 size={24} themeColor="gray" />
           </TouchableOpacity>

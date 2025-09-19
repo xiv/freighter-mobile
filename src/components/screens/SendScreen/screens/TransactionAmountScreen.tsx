@@ -42,6 +42,7 @@ import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
 import {
   formatFiatAmount,
   formatBigNumberForLocale,
+  formatTokenAmount,
 } from "helpers/formatAmount";
 import { useBlockaidTransaction } from "hooks/blockaid/useBlockaidTransaction";
 import useAppTranslation from "hooks/useAppTranslation";
@@ -590,7 +591,10 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
             <View className="flex-row items-center justify-center">
               <Text lg medium secondary>
                 {showFiatAmount
-                  ? `${tokenAmount} ${selectedBalance?.tokenCode}`
+                  ? formatTokenAmount(
+                      tokenAmountInternal,
+                      selectedBalance?.tokenCode,
+                    )
                   : formatFiatAmount(fiatAmount)}
               </Text>
               <TouchableOpacity

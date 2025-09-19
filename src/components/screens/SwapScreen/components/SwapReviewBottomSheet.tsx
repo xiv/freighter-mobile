@@ -308,7 +308,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
         {onSettingsPress && (
           <TouchableOpacity
             onPress={onSettingsPress}
-            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
+            className="w-[46px] h-[46px] rounded-full border border-gray-6 items-center justify-center"
           >
             <Icon.Settings04 size={24} themeColor="gray" />
           </TouchableOpacity>

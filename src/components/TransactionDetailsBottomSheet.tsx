@@ -184,7 +184,7 @@ const TransactionDetailsBottomSheet: React.FC<
         <View className="flex-row items-center justify-between">
           <View>
             <Text xl medium primary>
-              {`${transactionAmount} ${selectedBalance?.tokenCode}`}
+              {formatTokenAmount(transactionAmount, selectedBalance?.tokenCode)}
             </Text>
             <Text md medium secondary>
               {selectedBalance?.currentPrice

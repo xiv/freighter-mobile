@@ -18,7 +18,6 @@ import {
 import { NetworkCongestion } from "config/types";
 import { useSwapSettingsStore } from "ducks/swapSettings";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
-import { pxValue } from "helpers/dimensions";
 import {
   parseLocaleNumber,
   getLocaleDecimalSeparator,
@@ -378,7 +377,7 @@ const TransactionSettingsBottomSheet: React.FC<
               <View className="flex-row items-center gap-2 mt-2">
                 <NetworkCongestionIndicator
                   level={networkCongestion}
-                  size={pxValue(16)}
+                  size={16}
                 />
                 <Text sm secondary>
                   {t("transactionSettings.congestion", {
