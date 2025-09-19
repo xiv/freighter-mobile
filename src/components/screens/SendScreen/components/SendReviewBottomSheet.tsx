@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import { List, ListItemProps } from "components/List";
 import { TokenIcon } from "components/TokenIcon";
 import SignTransactionDetails from "components/screens/SignTransactionDetails";
@@ -14,11 +15,7 @@ import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { isLiquidityPool } from "helpers/balances";
 import { pxValue } from "helpers/dimensions";
-import {
-  formatTokenAmount,
-  formatFiatAmount,
-  parseLocaleNumberToBigNumber,
-} from "helpers/formatAmount";
+import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useClipboard } from "hooks/useClipboard";
@@ -381,7 +378,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
                 <Text md medium secondary>
                   {selectedBalance.currentPrice
                     ? formatFiatAmount(
-                        parseLocaleNumberToBigNumber(tokenAmountInternal).times(
+                        new BigNumber(tokenAmountInternal).times(
                           selectedBalance.currentPrice,
                         ),
                       )
