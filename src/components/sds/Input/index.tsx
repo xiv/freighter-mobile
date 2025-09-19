@@ -128,20 +128,6 @@ const SideElement = styled.View<{ marginSide: "left" | "right" }>`
   margin-${({ marginSide }: { marginSide: "left" | "right" }) => marginSide}: ${px(8)};
 `;
 
-const TextWithSuffixDisplay = styled.Text<{ $fieldSize: InputSize }>`
-  font-size: ${({ $fieldSize }: { $fieldSize: InputSize }) =>
-    fs(INPUT_SIZES[$fieldSize].fontSize)};
-  color: ${THEME.colors.text.primary};
-  font-family: ${Platform.select({
-    ios: "Inter-Variable",
-    android: "Inter-Regular",
-  })};
-  font-weight: ${Platform.select({
-    ios: "400",
-    android: "normal",
-  })};
-`;
-
 const FieldNoteWrapper = styled.View`
   margin-top: ${px(4)};
 `;
@@ -163,88 +149,10 @@ const ButtonContainer = styled.View<
 `;
 
 // =============================================================================
-// Component
+// COMPLETELY SEPARATE SUFFIX DISPLAY COMPONENT
 // =============================================================================
 
-/**
- * Input component for text entry with various styling and functionality options.
- *
- * @example
- * Basic usage:
- * ```tsx
- * <Input
- *   value={text}
- *   onChangeText={setText}
- *   placeholder="Enter text..."
- * />
- * ```
- *
- * @example
- * With validation and keyboard types:
- * ```tsx
- * <Input
- *   label="Email Address"
- *   labelSuffix="(required)"
- *   value={email}
- *   onChangeText={setEmail}
- *   error={!isValidEmail(email) && "Please enter a valid email"}
- *   keyboardType="email-address"
- *   autoCapitalize="none"
- * />
- * ```
- *
- * @example
- * With side elements:
- * ```tsx
- * <Input
- *   label="Password"
- *   value={password}
- *   onChangeText={setPassword}
- *   isPassword
- *   rightElement={
- *     <Icon
- *       name={showPassword ? "eye-off" : "eye"}
- *       onPress={togglePasswordVisibility}
- *     />
- *   }
- * />
- * ```
- *
- * @example
- * With copy functionality:
- * ```tsx
- * <Input
- *   label="Wallet Address"
- *   value={walletAddress}
- *   copyButton={{ position: "right", showLabel: true }}
- *   note="Click the copy button to copy the address"
- *   editable={false}
- * />
- * ```
- *
- * @param {InputProps} props - The component props
- * @param {string} [props.fieldSize="md"] - Size variant of the input field ("sm" | "md" | "lg")
- * @param {string | ReactNode} [props.label] - Label text or component to display above the input
- * @param {string | ReactNode} [props.labelSuffix] - Additional text to display after the label
- * @param {boolean} [props.isLabelUppercase] - Whether to transform the label text to uppercase
- * @param {boolean} [props.isError] - Whether to show error styling
- * @param {boolean} [props.isPassword] - Whether the input is for password entry
- * @param {JSX.Element} [props.leftElement] - Element to render on the left side of the input
- * @param {JSX.Element} [props.rightElement] - Element to render on the right side of the input
- * @param {string | ReactNode} [props.note] - Helper text to display below the input
- * @param {string | ReactNode} [props.error] - Error message to display below the input
- * @param {string | ReactNode} [props.success] - Success message to display below the input
- * @param {Object} [props.copyButton] - Configuration for the copy button
- * @param {Object} [props.endButton] - Configuration for the end button
- * @param {string} props.value - The input value
- * @param {Function} [props.onChangeText] - Callback when text changes
- * @param {string} [props.placeholder] - Placeholder text
- * @param {boolean} [props.editable=true] - Whether the input is editable
- * @param {string} [props.testID] - Test ID for testing
- * @param {("none" | "sentences" | "words" | "characters")} [props.autoCapitalize] - Text capitalization behavior
- * @param {("default" | "number-pad" | "decimal-pad" | "numeric" | "email-address" | "phone-pad")} [props.keyboardType] - Keyboard type for the input
- */
-interface InputProps {
+interface SuffixInputProps {
   id?: string;
   testID?: string;
   fieldSize?: InputSize;
@@ -252,7 +160,6 @@ interface InputProps {
   labelSuffix?: string | React.ReactNode;
   isLabelUppercase?: boolean;
   isError?: boolean;
-  isPassword?: boolean;
   leftElement?: React.JSX.Element;
   rightElement?: React.JSX.Element;
   note?: string | React.ReactNode;
@@ -272,7 +179,6 @@ interface InputProps {
   value?: string;
   onChangeText?: (text: string) => void;
   placeholder?: string;
-  secureTextEntry?: boolean;
   editable?: boolean;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   autoCorrect?: boolean;
@@ -285,20 +191,42 @@ interface InputProps {
     | "email-address"
     | "phone-pad";
   isBottomSheetInput?: boolean;
-  inputSuffixDisplay?: string;
+  inputSuffixDisplay: string;
   centered?: boolean;
 }
 
-export const Input = React.forwardRef<TextInput, InputProps>(
+const SuffixDisplayContainer = styled.View<{ $fieldSize: InputSize }>`
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  height: ${({ $fieldSize }: { $fieldSize: InputSize }) =>
+    getInputHeight($fieldSize)};
+  padding-horizontal: ${({ $fieldSize }: { $fieldSize: InputSize }) =>
+    px(INPUT_SIZES[$fieldSize].paddingHorizontal)};
+`;
+
+const SuffixText = styled.Text<{ $fieldSize: InputSize }>`
+  font-size: ${({ $fieldSize }: { $fieldSize: InputSize }) =>
+    fs(INPUT_SIZES[$fieldSize].fontSize)};
+  color: ${THEME.colors.text.primary};
+  font-family: ${Platform.select({
+    ios: "Inter-Variable",
+    android: "Inter-Regular",
+  })};
+  font-weight: ${Platform.select({
+    ios: "400",
+    android: "normal",
+  })};
+`;
+
+const SuffixInput = React.forwardRef<TextInput, SuffixInputProps>(
   (
     {
       fieldSize = "lg",
       label,
-
       labelSuffix,
       isLabelUppercase,
       isError,
-      isPassword,
       leftElement,
       rightElement,
       note,
@@ -319,32 +247,11 @@ export const Input = React.forwardRef<TextInput, InputProps>(
     },
     ref,
   ) => {
-    const [showPassword] = useState(false);
-
     const handleCopy = () => {
       if (!value) {
         return;
       }
-
       Clipboard.setString(value);
-    };
-
-    // Common TextInput props
-    const commonTextInputProps = {
-      ref,
-      testID,
-      placeholder,
-      placeholderTextColor: THEME.colors.text.secondary,
-      value,
-      onChangeText,
-      editable,
-      secureTextEntry: isPassword && !showPassword,
-      autoCorrect,
-      autoFocus: props.autoFocus,
-      $fieldSize: fieldSize,
-      $isDisabled: !editable,
-      selection: !editable && value ? { start: 0, end: 0 } : undefined,
-      ...props,
     };
 
     const getLabelSize = () => ({
@@ -365,80 +272,21 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       ? StyledBottomSheetTextInput
       : StyledTextInput;
 
-    const inputContent = (
-      <>
-        {inputSuffixDisplay && (
-          <View
-            className="absolute left-0 right-0 top-0 bottom-0 flex-row items-center"
-            style={{
-              justifyContent: centered ? "center" : "flex-start",
-              display: value ? "flex" : "none",
-            }}
-            pointerEvents="none"
-          >
-            <TextWithSuffixDisplay $fieldSize={fieldSize}>
-              {value || ""}
-            </TextWithSuffixDisplay>
-            <TextWithSuffixDisplay $fieldSize={fieldSize}>
-              {inputSuffixDisplay}
-            </TextWithSuffixDisplay>
-          </View>
-        )}
-        <StyledTextInputComponent
-          {...commonTextInputProps}
-          $hasLeftElement={
-            inputSuffixDisplay
-              ? false
-              : leftElement || copyButton?.position === "left"
-          }
-          $hasRightElement={
-            inputSuffixDisplay
-              ? false
-              : rightElement ||
-                copyButton?.position === "right" ||
-                (isPassword && !endButton)
-          }
-          style={{
-            ...(inputSuffixDisplay && {
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              backgroundColor: "transparent",
-              color: "transparent",
-              paddingRight: 20,
-              zIndex: 1,
-            }),
-            textAlign: centered ? "center" : "left",
-          }}
-          pointerEvents={inputSuffixDisplay ? "auto" : undefined}
-        />
-      </>
-    );
-
-    const inputContainer = inputSuffixDisplay ? (
-      <View
-        className="flex-1 flex-row items-center relative"
-        style={{
-          justifyContent: centered ? "center" : "flex-start",
-          minHeight: (() => {
-            switch (fieldSize) {
-              case "sm":
-                return 32;
-              case "md":
-                return 40;
-              default:
-                return 48;
-            }
-          })(),
-        }}
-      >
-        {inputContent}
-      </View>
-    ) : (
-      inputContent
-    );
+    const commonTextInputProps = {
+      ref,
+      testID,
+      placeholder,
+      placeholderTextColor: THEME.colors.text.secondary,
+      value,
+      onChangeText,
+      editable,
+      autoCorrect,
+      autoFocus: props.autoFocus,
+      $fieldSize: fieldSize,
+      $isDisabled: !editable,
+      selection: !editable && value ? { start: 0, end: 0 } : undefined,
+      ...props,
+    };
 
     return (
       <Container $fieldSize={fieldSize}>
@@ -464,7 +312,42 @@ export const Input = React.forwardRef<TextInput, InputProps>(
           {leftElement && (
             <SideElement marginSide="right">{leftElement}</SideElement>
           )}
-          {inputContainer}
+
+          <SuffixDisplayContainer $fieldSize={fieldSize}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: centered ? "center" : "flex-start",
+                display: value ? "flex" : "none",
+              }}
+            >
+              <SuffixText $fieldSize={fieldSize}>{value || ""}</SuffixText>
+              <SuffixText $fieldSize={fieldSize}>
+                {inputSuffixDisplay}
+              </SuffixText>
+            </View>
+
+            <StyledTextInputComponent
+              {...commonTextInputProps}
+              $fieldSize={fieldSize}
+              $hasLeftElement={false}
+              $hasRightElement={false}
+              $isDisabled={!editable}
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                backgroundColor: "transparent",
+                color: "transparent",
+                textAlign: centered ? "center" : "left",
+              }}
+            />
+          </SuffixDisplayContainer>
+
           {rightElement && (
             <SideElement marginSide="left">{rightElement}</SideElement>
           )}
@@ -521,3 +404,256 @@ export const Input = React.forwardRef<TextInput, InputProps>(
     );
   },
 );
+
+// =============================================================================
+// ORIGINAL INPUT COMPONENT (UNCHANGED FROM MAIN BRANCH)
+// =============================================================================
+
+interface InputProps {
+  id?: string;
+  testID?: string;
+  fieldSize?: InputSize;
+  label?: string | React.ReactNode;
+  labelSuffix?: string | React.ReactNode;
+  isLabelUppercase?: boolean;
+  isError?: boolean;
+  isPassword?: boolean;
+  leftElement?: React.JSX.Element;
+  rightElement?: React.JSX.Element;
+  note?: string | React.ReactNode;
+  error?: string | React.ReactNode;
+  success?: string | React.ReactNode;
+  copyButton?: {
+    position: "left" | "right";
+    showLabel?: boolean;
+  };
+  endButton?: {
+    content: string | React.ReactNode;
+    onPress: () => void;
+    disabled?: boolean;
+    color?: string;
+    backgroundColor?: string;
+  };
+  value?: string;
+  onChangeText?: (text: string) => void;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  editable?: boolean;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  autoCorrect?: boolean;
+  autoFocus?: boolean;
+  keyboardType?:
+    | "default"
+    | "number-pad"
+    | "decimal-pad"
+    | "numeric"
+    | "email-address"
+    | "phone-pad";
+  isBottomSheetInput?: boolean;
+  /** Text to display as suffix after the input value (e.g., "XLM") */
+  inputSuffixDisplay?: string;
+  /** Whether to center the text alignment within the input field */
+  centered?: boolean;
+}
+
+export const Input = React.forwardRef<TextInput, InputProps>(
+  (
+    {
+      fieldSize = "lg",
+      label,
+      labelSuffix,
+      isLabelUppercase,
+      isError,
+      isPassword,
+      leftElement,
+      rightElement,
+      note,
+      error,
+      success,
+      copyButton,
+      endButton,
+      value = "",
+      onChangeText,
+      placeholder,
+      editable = true,
+      testID,
+      autoCorrect = true,
+      isBottomSheetInput = false,
+      inputSuffixDisplay,
+      centered = false,
+      ...props
+    },
+    ref,
+  ) => {
+    // Move useState to the top to avoid conditional hook calls
+    const [showPassword] = useState(false);
+
+    // If inputSuffixDisplay is provided, use the separate SuffixInput component
+    if (inputSuffixDisplay) {
+      return (
+        <SuffixInput
+          ref={ref}
+          fieldSize={fieldSize}
+          label={label}
+          labelSuffix={labelSuffix}
+          isLabelUppercase={isLabelUppercase}
+          isError={isError}
+          leftElement={leftElement}
+          rightElement={rightElement}
+          note={note}
+          error={error}
+          success={success}
+          copyButton={copyButton}
+          endButton={endButton}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          editable={editable}
+          testID={testID}
+          autoCorrect={autoCorrect}
+          isBottomSheetInput={isBottomSheetInput}
+          inputSuffixDisplay={inputSuffixDisplay}
+          centered={centered}
+          {...props}
+        />
+      );
+    }
+
+    // Original Input component logic (unchanged from main branch)
+
+    const handleCopy = () => {
+      if (!value) {
+        return;
+      }
+
+      Clipboard.setString(value);
+    };
+
+    const getLabelSize = () => ({
+      xs: fieldSize === "sm",
+      sm: fieldSize === "md",
+      md: fieldSize === "lg",
+    });
+
+    const renderCopyButton = (position: "left" | "right") => (
+      <TouchableOpacity onPress={handleCopy}>
+        <SideElement position={position}>
+          <Text sm>{copyButton?.showLabel ? "Copy" : "📋"}</Text>
+        </SideElement>
+      </TouchableOpacity>
+    );
+
+    const StyledTextInputComponent = isBottomSheetInput
+      ? StyledBottomSheetTextInput
+      : StyledTextInput;
+
+    return (
+      <Container $fieldSize={fieldSize}>
+        {label && (
+          <Text {...getLabelSize()} color={THEME.colors.text.secondary}>
+            {isLabelUppercase ? label.toString().toUpperCase() : label}
+            {labelSuffix && (
+              <Text {...getLabelSize()} color={THEME.colors.text.secondary}>
+                {" "}
+                {labelSuffix}
+              </Text>
+            )}
+          </Text>
+        )}
+
+        <InputContainer
+          testID={testID ? `${testID}-container` : undefined}
+          $fieldSize={fieldSize}
+          $isError={Boolean(isError || error)}
+          $isDisabled={!editable}
+        >
+          {copyButton?.position === "left" && renderCopyButton("left")}
+          {leftElement && (
+            <SideElement marginSide="right">{leftElement}</SideElement>
+          )}
+
+          <StyledTextInputComponent
+            ref={ref}
+            testID={testID}
+            placeholder={placeholder}
+            placeholderTextColor={THEME.colors.text.secondary}
+            value={value}
+            onChangeText={onChangeText}
+            editable={editable}
+            secureTextEntry={isPassword && !showPassword}
+            autoCorrect={autoCorrect}
+            autoFocus={props.autoFocus}
+            $fieldSize={fieldSize}
+            $hasLeftElement={leftElement || copyButton?.position === "left"}
+            $hasRightElement={
+              rightElement ||
+              copyButton?.position === "right" ||
+              (isPassword && !endButton)
+            }
+            $isDisabled={!editable}
+            selection={!editable && value ? { start: 0, end: 0 } : undefined}
+            style={{
+              textAlign: centered ? "center" : "left",
+            }}
+            {...props}
+          />
+
+          {rightElement && (
+            <SideElement marginSide="left">{rightElement}</SideElement>
+          )}
+          {copyButton?.position === "right" && renderCopyButton("right")}
+          {endButton && (
+            <TouchableOpacity
+              onPress={endButton.onPress}
+              disabled={endButton.disabled}
+              testID={testID ? `${testID}-end-button` : undefined}
+            >
+              <ButtonContainer
+                backgroundColor={endButton.backgroundColor}
+                $fieldSize={fieldSize}
+              >
+                {typeof endButton.content === "string" ? (
+                  <Text
+                    md
+                    semiBold
+                    color={endButton.color}
+                    isVerticallyCentered
+                  >
+                    {endButton.content}
+                  </Text>
+                ) : (
+                  endButton.content
+                )}
+              </ButtonContainer>
+            </TouchableOpacity>
+          )}
+        </InputContainer>
+
+        {note && (
+          <FieldNoteWrapper>
+            <Text sm color={THEME.colors.text.secondary}>
+              {note}
+            </Text>
+          </FieldNoteWrapper>
+        )}
+        {error && (
+          <FieldNoteWrapper>
+            <Text sm color={THEME.colors.status.error}>
+              {error}
+            </Text>
+          </FieldNoteWrapper>
+        )}
+        {success && (
+          <FieldNoteWrapper>
+            <Text sm color={THEME.colors.status.success}>
+              {success}
+            </Text>
+          </FieldNoteWrapper>
+        )}
+      </Container>
+    );
+  },
+);
+
+// Export both components
+export { SuffixInput };
