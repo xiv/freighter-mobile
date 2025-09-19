@@ -8,7 +8,7 @@ import { Button } from "components/sds/Button";
 import Icon from "components/sds/Icon";
 import { TextButton } from "components/sds/TextButton";
 import { Text } from "components/sds/Typography";
-import { MIN_TRANSACTION_FEE, NATIVE_TOKEN_CODE } from "config/constants";
+import { NATIVE_TOKEN_CODE } from "config/constants";
 import { PricedBalance } from "config/types";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
@@ -29,7 +29,7 @@ import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 
 type SendReviewBottomSheetProps = {
   selectedBalance?: PricedBalance;
-  tokenAmount: string;
+  tokenAmountInternal: string;
   onCancel?: () => void;
   onConfirm?: () => void;
   onSettingsPress?: () => void;
@@ -71,7 +71,7 @@ type SendReviewBottomSheetProps = {
  */
 const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
   selectedBalance,
-  tokenAmount,
+  tokenAmountInternal,
   onCancel,
   onConfirm,
   onSettingsPress,
@@ -315,10 +315,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         titleColor: themeColors.text.secondary,
         trailingContent: (
           <Text md primary>
-            {formatTokenAmount(
-              transactionFee || MIN_TRANSACTION_FEE,
-              NATIVE_TOKEN_CODE,
-            )}
+            {formatTokenAmount(transactionFee, NATIVE_TOKEN_CODE)}
           </Text>
         ),
       },
@@ -376,12 +373,15 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
               <TokenIcon token={selectedBalance} />
               <View className="flex-1">
                 <Text xl medium>
-                  {formatTokenAmount(tokenAmount, selectedBalance.tokenCode)}
+                  {formatTokenAmount(
+                    tokenAmountInternal,
+                    selectedBalance.tokenCode,
+                  )}
                 </Text>
                 <Text md medium secondary>
                   {selectedBalance.currentPrice
                     ? formatFiatAmount(
-                        parseLocaleNumberToBigNumber(tokenAmount).times(
+                        parseLocaleNumberToBigNumber(tokenAmountInternal).times(
                           selectedBalance.currentPrice,
                         ),
                       )

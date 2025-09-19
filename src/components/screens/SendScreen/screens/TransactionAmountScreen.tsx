@@ -42,7 +42,6 @@ import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
 import {
   formatFiatAmount,
   formatBigNumberForLocale,
-  parseLocaleNumberToBigNumber,
 } from "helpers/formatAmount";
 import { useBlockaidTransaction } from "hooks/blockaid/useBlockaidTransaction";
 import useAppTranslation from "hooks/useAppTranslation";
@@ -207,6 +206,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
 
   const {
     tokenAmount,
+    tokenAmountInternal,
     fiatAmount,
     showFiatAmount,
     setShowFiatAmount,
@@ -328,9 +328,8 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
           recipientAddress: storeRecipientAddress,
         } = useTransactionSettingsStore.getState();
 
-        // Convert locale-formatted amount back to dot notation for transaction building
-        const normalizedTokenAmount =
-          parseLocaleNumberToBigNumber(tokenAmount).toString();
+        // Use internal value (already in dot notation) for transaction building
+        const normalizedTokenAmount = tokenAmountInternal;
 
         const finalXDR = await buildTransaction({
           tokenAmount: normalizedTokenAmount,
@@ -367,7 +366,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
       }
     },
     [
-      tokenAmount,
+      tokenAmountInternal,
       selectedBalance,
       network,
       publicKey,
@@ -682,7 +681,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
         customContent={
           <SendReviewBottomSheet
             selectedBalance={selectedBalance}
-            tokenAmount={tokenAmount}
+            tokenAmountInternal={tokenAmountInternal}
             onBannerPress={onBannerPress}
             onCancel={() => reviewBottomSheetModalRef.current?.dismiss()}
             onConfirm={
