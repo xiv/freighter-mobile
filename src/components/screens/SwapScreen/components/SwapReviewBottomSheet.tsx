@@ -19,11 +19,7 @@ import { useSwapSettingsStore } from "ducks/swapSettings";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { calculateSwapRate } from "helpers/balances";
 import { pxValue } from "helpers/dimensions";
-import {
-  formatTokenAmount,
-  formatFiatAmount,
-  parseLocaleNumberToBigNumber,
-} from "helpers/formatAmount";
+import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
@@ -51,7 +47,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
   const { copyToClipboard } = useClipboard();
 
   const {
-    sourceAmount,
+    sourceAmountInternal,
     destinationAmount,
     pathResult,
     sourceTokenSymbol,
@@ -65,8 +61,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
   const [stableMinimumReceived, setStableMinimumReceived] =
     useState<string>("");
 
-  // Convert locale-formatted amounts back to standard format for display
-  const normalizedSourceAmount = parseLocaleNumberToBigNumber(sourceAmount);
+  // Use sourceAmount as-is since it's already in the correct format for display
 
   const currentConversionRate =
     pathResult?.conversionRate ||
@@ -138,7 +133,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
   const sourceTokenFiatAmountValue = calculateTokenFiatAmount({
     token: sourceToken,
-    amount: pathResult?.sourceAmount || sourceAmount,
+    amount: pathResult?.sourceAmount || sourceAmountInternal,
     balanceItems,
   });
 
@@ -177,10 +172,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             <TokenIcon token={sourceToken} />
             <View className="flex-1">
               <Text xl medium>
-                {formatTokenAmount(
-                  normalizedSourceAmount.toString(),
-                  sourceTokenSymbol,
-                )}
+                {formatTokenAmount(sourceAmountInternal, sourceTokenSymbol)}
               </Text>
               <Text md medium secondary>
                 {sourceTokenFiatAmount}
@@ -314,12 +306,12 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
       <View className="mt-[24px] gap-[12px] flex-row">
         {onSettingsPress && (
-          <Icon.Settings04
-            size={24}
-            themeColor="gray"
-            circle
+          <TouchableOpacity
             onPress={onSettingsPress}
-          />
+            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
+          >
+            <Icon.Settings04 size={24} themeColor="gray" />
+          </TouchableOpacity>
         )}
         <View className="flex-1">
           <Button onPress={onCancel} secondary xl>

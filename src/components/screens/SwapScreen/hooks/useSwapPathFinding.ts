@@ -1,7 +1,7 @@
+import { BigNumber } from "bignumber.js";
 import { DEFAULT_DEBOUNCE_DELAY, NETWORKS } from "config/constants";
 import { TokenTypeWithCustomToken, PricedBalance } from "config/types";
 import { useSwapStore } from "ducks/swap";
-import { parseLocaleNumberToBigNumber } from "helpers/formatAmount";
 import useDebounce from "hooks/useDebounce";
 import { useEffect } from "react";
 
@@ -31,7 +31,7 @@ export const useSwapPathFinding = ({
 }: UseSwapPathFindingParams) => {
   const { findSwapPath, clearPath } = useSwapStore();
 
-  const sourceAmountBN = parseLocaleNumberToBigNumber(sourceAmount);
+  const sourceAmountBN = new BigNumber(sourceAmount);
 
   const debouncedFindSwapPath = useDebounce(() => {
     if (

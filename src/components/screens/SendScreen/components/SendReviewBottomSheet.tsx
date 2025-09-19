@@ -1,4 +1,3 @@
-import { BigNumber } from "bignumber.js";
 import { List, ListItemProps } from "components/List";
 import { TokenIcon } from "components/TokenIcon";
 import SignTransactionDetails from "components/screens/SignTransactionDetails";
@@ -9,7 +8,7 @@ import { Button } from "components/sds/Button";
 import Icon from "components/sds/Icon";
 import { TextButton } from "components/sds/TextButton";
 import { Text } from "components/sds/Typography";
-import { NATIVE_TOKEN_CODE } from "config/constants";
+import { MIN_TRANSACTION_FEE, NATIVE_TOKEN_CODE } from "config/constants";
 import { PricedBalance } from "config/types";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
@@ -316,7 +315,10 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         titleColor: themeColors.text.secondary,
         trailingContent: (
           <Text md primary>
-            {formatTokenAmount(transactionFee, NATIVE_TOKEN_CODE)}
+            {formatTokenAmount(
+              transactionFee || MIN_TRANSACTION_FEE,
+              NATIVE_TOKEN_CODE,
+            )}
           </Text>
         ),
       },
@@ -362,9 +364,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
     ],
   );
 
-  // Convert locale-formatted tokenAmount back to standard format for display
-  const normalizedTokenAmount =
-    parseLocaleNumberToBigNumber(tokenAmount).toString();
+  // Use the tokenAmount as-is since it's already in the correct format for display
 
   return (
     <View className="flex-1 gap-[12px]">
@@ -376,12 +376,12 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
               <TokenIcon token={selectedBalance} />
               <View className="flex-1">
                 <Text xl medium>
-                  {`${tokenAmount} ${selectedBalance.tokenCode}`}
+                  {formatTokenAmount(tokenAmount, selectedBalance.tokenCode)}
                 </Text>
                 <Text md medium secondary>
                   {selectedBalance.currentPrice
                     ? formatFiatAmount(
-                        new BigNumber(normalizedTokenAmount).times(
+                        parseLocaleNumberToBigNumber(tokenAmount).times(
                           selectedBalance.currentPrice,
                         ),
                       )
@@ -420,12 +420,12 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         className={`${!isMalicious && !isSuspicious ? "flex-row" : "flex-col"} w-full gap-[12px] mt-[4px]`}
       >
         {onSettingsPress && (
-          <Icon.Settings04
-            size={24}
-            themeColor="gray"
-            circle
+          <TouchableOpacity
             onPress={onSettingsPress}
-          />
+            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
+          >
+            <Icon.Settings04 size={24} themeColor="gray" />
+          </TouchableOpacity>
         )}
         {renderButtons()}
       </View>

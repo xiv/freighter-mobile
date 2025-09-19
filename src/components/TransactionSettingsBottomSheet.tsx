@@ -353,7 +353,11 @@ const TransactionSettingsBottomSheet: React.FC<
             </TouchableOpacity>
           </View>
           <TouchableOpacity
-            onPress={() => setLocalFee(formatNumberForLocale(recommendedFee))}
+            onPress={() =>
+              setLocalFee(
+                formatNumberForLocale(recommendedFee || MIN_TRANSACTION_FEE),
+              )
+            }
           >
             <Text sm medium color={themeColors.lilac[11]}>
               {t("transactionSettings.resetFee")}

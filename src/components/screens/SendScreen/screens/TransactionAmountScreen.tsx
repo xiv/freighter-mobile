@@ -315,6 +315,10 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
 
   const prepareTransaction = useCallback(
     async (shouldOpenReview = false) => {
+      if (!recipientAddress || !selectedBalance) {
+        return;
+      }
+
       try {
         // Get fresh settings values each time the function is called
         const {
@@ -369,6 +373,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
       publicKey,
       buildTransaction,
       scanTransaction,
+      recipientAddress,
     ],
   );
 
@@ -383,7 +388,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
 
     const processTransaction = async () => {
       try {
-        if (!account?.privateKey || !selectedBalance) {
+        if (!account?.privateKey || !selectedBalance || !recipientAddress) {
           throw new Error("Missing account or balance information");
         }
 

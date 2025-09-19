@@ -30,7 +30,7 @@
     "token": "Token",
     "hash": "Hash",
     "salt": "Salt",
-    "addMemo": "Adicionar memo",
+    "addMemo": "Add. memo",
     "wallet": "Carteira"
   },
   "home": {
