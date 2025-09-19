@@ -314,12 +314,12 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
       <View className="mt-[24px] gap-[12px] flex-row">
         {onSettingsPress && (
-          <TouchableOpacity
+          <Icon.Settings04
+            size={24}
+            themeColor="gray"
+            circle
             onPress={onSettingsPress}
-            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
-          >
-            <Icon.Settings04 size={24} themeColor="gray" />
-          </TouchableOpacity>
+          />
         )}
         <View className="flex-1">
           <Button onPress={onCancel} secondary xl>

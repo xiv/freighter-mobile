@@ -370,23 +370,26 @@ const TransactionSettingsBottomSheet: React.FC<
             keyboardType="numeric"
             placeholder={formatNumberForLocale(MIN_TRANSACTION_FEE)}
             error={feeError}
+            note={
+              <View className="flex-row items-center gap-2 mt-2">
+                <NetworkCongestionIndicator
+                  level={networkCongestion}
+                  size={pxValue(16)}
+                />
+                <Text sm secondary>
+                  {t("transactionSettings.congestion", {
+                    networkCongestion:
+                      getLocalizedCongestionLevel(networkCongestion),
+                  })}
+                </Text>
+              </View>
+            }
             rightElement={
               <Text md secondary>
                 {NATIVE_TOKEN_CODE}
               </Text>
             }
           />
-        </View>
-        <View className="flex-row items-center gap-2 mt-2">
-          <NetworkCongestionIndicator
-            level={networkCongestion}
-            size={pxValue(16)}
-          />
-          <Text sm secondary>
-            {t("transactionSettings.congestion", {
-              networkCongestion: getLocalizedCongestionLevel(networkCongestion),
-            })}
-          </Text>
         </View>
       </View>
     ),

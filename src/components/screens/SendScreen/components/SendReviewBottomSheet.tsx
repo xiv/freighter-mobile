@@ -420,15 +420,12 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         className={`${!isMalicious && !isSuspicious ? "flex-row" : "flex-col"} w-full gap-[12px] mt-[4px]`}
       >
         {onSettingsPress && (
-          <TouchableOpacity
+          <Icon.Settings04
+            size={24}
+            themeColor="gray"
+            circle
             onPress={onSettingsPress}
-            className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
-          >
-            <Icon.Settings04
-              size={pxValue(24)}
-              color={themeColors.foreground.primary}
-            />
-          </TouchableOpacity>
+          />
         )}
         {renderButtons()}
       </View>
