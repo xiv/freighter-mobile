@@ -190,7 +190,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
 
           <View className="w-[40px] flex items-center">
             <Icon.ChevronDownDouble
-              size={pxValue(16)}
+              size={16}
               color={themeColors.foreground.secondary}
             />
           </View>
@@ -214,12 +214,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
         className="mt-[24px]"
         items={[
           {
-            icon: (
-              <Icon.Wallet01
-                size={pxValue(16)}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.Wallet01 size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.wallet")}
@@ -240,12 +235,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             ),
           },
           {
-            icon: (
-              <Icon.BarChart05
-                size={pxValue(16)}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.BarChart05 size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.minimum")}
@@ -263,12 +253,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             ),
           },
           {
-            icon: (
-              <Icon.InfoCircle
-                size={pxValue(16)}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.InfoCircle size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.rate")}
@@ -281,12 +266,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             ),
           },
           {
-            icon: (
-              <Icon.Route
-                size={pxValue(16)}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.Route size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.fee")}
@@ -302,12 +282,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             ),
           },
           {
-            icon: (
-              <Icon.FileCode02
-                size={pxValue(16)}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.FileCode02 size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.xdr")}
@@ -319,10 +294,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
                 disabled={!transactionXDR}
                 className="flex-row items-center gap-[8px]"
               >
-                <Icon.Copy01
-                  size={pxValue(16)}
-                  color={themeColors.foreground.primary}
-                />
+                <Icon.Copy01 size={16} themeColor="gray" />
                 <Text md medium>
                   {transactionXDR
                     ? truncateAddress(transactionXDR, 10, 4)
@@ -346,10 +318,7 @@ const SwapReviewBottomSheet: React.FC<SwapReviewBottomSheetProps> = ({
             onPress={onSettingsPress}
             className="w-14 h-14 rounded-full border border-gray-6 items-center justify-center"
           >
-            <Icon.Settings04
-              size={pxValue(24)}
-              color={themeColors.foreground.primary}
-            />
+            <Icon.Settings04 size={24} themeColor="gray" />
           </TouchableOpacity>
         )}
         <View className="flex-1">

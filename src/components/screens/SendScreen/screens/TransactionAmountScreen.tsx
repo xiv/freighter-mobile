@@ -39,7 +39,6 @@ import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { calculateSpendableAmount, hasXLMForFees } from "helpers/balances";
 import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
-import { pxValue } from "helpers/dimensions";
 import {
   formatFiatAmount,
   formatBigNumberForLocale,
@@ -332,7 +331,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
         const finalXDR = await buildTransaction({
           tokenAmount: normalizedTokenAmount,
           selectedBalance,
-          recipientAddress: recipientAddress || storeRecipientAddress,
+          recipientAddress: storeRecipientAddress,
           transactionMemo,
           transactionFee: freshTransactionFee,
           transactionTimeout,
@@ -366,7 +365,6 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     [
       tokenAmount,
       selectedBalance,
-      recipientAddress,
       network,
       publicKey,
       buildTransaction,
@@ -596,7 +594,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
                 onPress={() => setShowFiatAmount(!showFiatAmount)}
               >
                 <Icon.RefreshCcw03
-                  size={pxValue(16)}
+                  size={16}
                   color={themeColors.text.secondary}
                 />
               </TouchableOpacity>
@@ -709,7 +707,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
               <View className="bg-red-3 p-2 rounded-[8px]">
                 <Icon.InfoOctagon
                   color={themeColors.status.error}
-                  size={pxValue(28)}
+                  size={28}
                   withBackground
                 />
               </View>

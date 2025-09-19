@@ -31,7 +31,6 @@ import {
   hasXLMForFees,
 } from "helpers/balances";
 import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
-import { pxValue } from "helpers/dimensions";
 import {
   formatBigNumberForLocale,
   formatNumberForLocale,
@@ -437,7 +436,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
                 <View className="flex-row items-center flex-1 mr-4">
                   <View className="flex-row items-center gap-16px">
                     <View className="w-[40px] h-[40px] rounded-full border justify-center items-center mr-4 bg-gray-3 border-gray-6 p-[7.5px]">
-                      <Icon.Plus size={pxValue(25)} themeColor="gray" />
+                      <Icon.Plus size={25} themeColor="gray" />
                     </View>
                     <View className="flex-col flex-1">
                       <Text>{t("swapScreen.receive")}</Text>

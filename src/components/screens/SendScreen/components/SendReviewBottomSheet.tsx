@@ -149,20 +149,11 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
           {t("transactionAmountScreen.details.memo")}
         </Text>
         {isRequiredMemoMissing && (
-          <Icon.AlertTriangle
-            size={pxValue(16)}
-            color={themeColors.status.error}
-          />
+          <Icon.AlertTriangle size={16} themeColor="red" />
         )}
       </View>
     );
-  }, [
-    isBuilding,
-    isRequiredMemoMissing,
-    t,
-    themeColors.status.error,
-    themeColors.text.secondary,
-  ]);
+  }, [isBuilding, isRequiredMemoMissing, t, themeColors.text.secondary]);
 
   /**
    * Renders a warning banner for the following cases:

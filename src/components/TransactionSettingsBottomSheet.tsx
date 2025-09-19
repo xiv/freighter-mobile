@@ -252,18 +252,13 @@ const TransactionSettingsBottomSheet: React.FC<
           <TouchableOpacity
             onPress={() => memoInfoBottomSheetModalRef.current?.present()}
           >
-            <Icon.InfoCircle color={themeColors.gray[8]} size={pxValue(16)} />
+            <Icon.InfoCircle themeColor="gray" size={16} />
           </TouchableOpacity>
         </View>
         <Input
           isBottomSheetInput
           fieldSize="lg"
-          leftElement={
-            <Icon.File02
-              size={pxValue(16)}
-              color={themeColors.foreground.primary}
-            />
-          }
+          leftElement={<Icon.File02 size={16} themeColor="gray" />}
           placeholder={t("transactionSettings.memoPlaceholder")}
           value={localMemo}
           onChangeText={handleMemoChange}
@@ -271,14 +266,7 @@ const TransactionSettingsBottomSheet: React.FC<
         />
       </View>
     ),
-    [
-      localMemo,
-      memoError,
-      t,
-      themeColors.foreground.primary,
-      themeColors.gray,
-      handleMemoChange,
-    ],
+    [localMemo, memoError, t, handleMemoChange],
   );
 
   const getSlippageRow = useCallback(
@@ -292,7 +280,7 @@ const TransactionSettingsBottomSheet: React.FC<
             <TouchableOpacity
               onPress={() => slippageInfoBottomSheetModalRef.current?.present()}
             >
-              <Icon.InfoCircle color={themeColors.gray[8]} size={pxValue(16)} />
+              <Icon.InfoCircle themeColor="gray" size={16} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={() => updateSlippage("1")}>
@@ -346,7 +334,6 @@ const TransactionSettingsBottomSheet: React.FC<
       handleUpdateSlippage,
       handleSlippageTextChange,
       STEP_SIZE_PERCENT,
-      themeColors.gray,
       updateSlippage,
     ],
   );
@@ -362,7 +349,7 @@ const TransactionSettingsBottomSheet: React.FC<
             <TouchableOpacity
               onPress={() => feeInfoBottomSheetModalRef.current?.present()}
             >
-              <Icon.InfoCircle color={themeColors.gray[8]} size={pxValue(16)} />
+              <Icon.InfoCircle themeColor="gray" size={16} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity
@@ -378,12 +365,7 @@ const TransactionSettingsBottomSheet: React.FC<
             isBottomSheetInput
             fieldSize="lg"
             value={localFee}
-            leftElement={
-              <Icon.Route
-                size={pxValue(16)}
-                color={themeColors.foreground.primary}
-              />
-            }
+            leftElement={<Icon.Route size={16} themeColor="gray" />}
             onChangeText={handleFeeChange}
             keyboardType="numeric"
             placeholder={formatNumberForLocale(MIN_TRANSACTION_FEE)}
@@ -412,12 +394,10 @@ const TransactionSettingsBottomSheet: React.FC<
       localFee,
       feeError,
       t,
-      themeColors.foreground.primary,
       themeColors.lilac,
       networkCongestion,
       getLocalizedCongestionLevel,
       handleFeeChange,
-      themeColors.gray,
       recommendedFee,
     ],
   );
@@ -432,18 +412,13 @@ const TransactionSettingsBottomSheet: React.FC<
           <TouchableOpacity
             onPress={() => timeoutInfoBottomSheetModalRef.current?.present()}
           >
-            <Icon.InfoCircle color={themeColors.gray[8]} size={pxValue(16)} />
+            <Icon.InfoCircle themeColor="gray" size={16} />
           </TouchableOpacity>
         </View>
         <Input
           isBottomSheetInput
           fieldSize="lg"
-          leftElement={
-            <Icon.ClockRefresh
-              size={pxValue(16)}
-              color={themeColors.foreground.primary}
-            />
-          }
+          leftElement={<Icon.ClockRefresh size={16} themeColor="gray" />}
           placeholder={t("transactionSettings.timeoutPlaceholder")}
           value={localTimeout}
           onChangeText={handleTimeoutChange}
@@ -457,14 +432,7 @@ const TransactionSettingsBottomSheet: React.FC<
         />
       </View>
     ),
-    [
-      localTimeout,
-      timeoutError,
-      t,
-      themeColors.foreground.primary,
-      themeColors.gray,
-      handleTimeoutChange,
-    ],
+    [localTimeout, timeoutError, t, handleTimeoutChange],
   );
 
   const bottomSheetsConfig = [
@@ -576,10 +544,7 @@ const TransactionSettingsBottomSheet: React.FC<
                 onClose={onClose}
                 headerElement={
                   <View className="bg-lilac-3 p-2 rounded-[8px]">
-                    <IconComponent
-                      color={themeColors.lilac[9]}
-                      size={pxValue(28)}
-                    />
+                    <IconComponent color={themeColors.lilac[9]} size={28} />
                   </View>
                 }
                 texts={texts}
