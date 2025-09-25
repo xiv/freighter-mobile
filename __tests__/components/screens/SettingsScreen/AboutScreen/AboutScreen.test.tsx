@@ -10,6 +10,7 @@ import {
 import { SETTINGS_ROUTES, SettingsStackParamList } from "config/routes";
 import { renderWithProviders } from "helpers/testUtils";
 import React from "react";
+import { Linking } from "react-native";
 
 jest.mock("react-native-device-info", () => ({
   getVersion: () => "1.2.3",
@@ -32,14 +33,6 @@ jest.mock("hooks/useAppTranslation", () => () => ({
   },
 }));
 
-const mockOpenURL = jest.fn();
-jest.mock("react-native/Libraries/Linking/Linking", () => ({
-  openURL: mockOpenURL,
-  canOpenURL: jest.fn().mockResolvedValue(true),
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-}));
-
 type AboutScreenProps = NativeStackScreenProps<
   SettingsStackParamList,
   typeof SETTINGS_ROUTES.ABOUT_SCREEN
@@ -57,10 +50,6 @@ const mockRoute = {
 } as unknown as AboutScreenProps["route"];
 
 describe("AboutScreen", () => {
-  beforeEach(() => {
-    mockOpenURL.mockClear();
-  });
-
   it("renders correctly with all information", () => {
     renderWithProviders(
       <AboutScreen navigation={mockNavigation} route={mockRoute} />,
@@ -85,7 +74,7 @@ describe("AboutScreen", () => {
       <AboutScreen navigation={mockNavigation} route={mockRoute} />,
     );
     fireEvent.press(screen.getByText("Freighter Website"));
-    expect(mockOpenURL).toHaveBeenCalledWith(FREIGHTER_BASE_URL);
+    expect(Linking.openURL).toHaveBeenCalledWith(FREIGHTER_BASE_URL);
   });
 
   it("opens Stellar Foundation link when pressed", () => {
@@ -93,7 +82,7 @@ describe("AboutScreen", () => {
       <AboutScreen navigation={mockNavigation} route={mockRoute} />,
     );
     fireEvent.press(screen.getByText("Stellar Foundation"));
-    expect(mockOpenURL).toHaveBeenCalledWith(STELLAR_FOUNDATION_BASE_URL);
+    expect(Linking.openURL).toHaveBeenCalledWith(STELLAR_FOUNDATION_BASE_URL);
   });
 
   it("opens Privacy Policy link when pressed", () => {
@@ -101,7 +90,9 @@ describe("AboutScreen", () => {
       <AboutScreen navigation={mockNavigation} route={mockRoute} />,
     );
     fireEvent.press(screen.getByText("Privacy Policy"));
-    expect(mockOpenURL).toHaveBeenCalledWith(STELLAR_FOUNDATION_PRIVACY_URL);
+    expect(Linking.openURL).toHaveBeenCalledWith(
+      STELLAR_FOUNDATION_PRIVACY_URL,
+    );
   });
 
   it("opens Terms of Service link when pressed", () => {
@@ -109,6 +100,6 @@ describe("AboutScreen", () => {
       <AboutScreen navigation={mockNavigation} route={mockRoute} />,
     );
     fireEvent.press(screen.getByText("Terms of Service"));
-    expect(mockOpenURL).toHaveBeenCalledWith(STELLAR_FOUNDATION_TERMS_URL);
+    expect(Linking.openURL).toHaveBeenCalledWith(STELLAR_FOUNDATION_TERMS_URL);
   });
 });

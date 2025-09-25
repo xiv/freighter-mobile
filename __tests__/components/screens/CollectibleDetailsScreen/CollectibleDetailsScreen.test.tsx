@@ -4,11 +4,6 @@ import { renderWithProviders } from "helpers/testUtils";
 import React from "react";
 import { Linking } from "react-native";
 
-// Mock the Linking module
-jest.mock("react-native/Libraries/Linking/Linking", () => ({
-  openURL: jest.fn(),
-}));
-
 // Mock the useAppTranslation hook
 jest.mock("hooks/useAppTranslation", () => ({
   __esModule: true,
@@ -163,11 +158,6 @@ describe("CollectibleDetailsScreen", () => {
   });
 
   it("opens external URL when view button is pressed", () => {
-    const mockOpenURL = Linking.openURL as jest.MockedFunction<
-      typeof Linking.openURL
-    >;
-    mockOpenURL.mockResolvedValue(undefined);
-
     const { getByText } = renderWithProviders(
       <CollectibleDetailsScreen
         route={mockRoute as any}
@@ -178,7 +168,7 @@ describe("CollectibleDetailsScreen", () => {
     const viewButton = getByText("collectibleDetails.view");
     fireEvent.press(viewButton);
 
-    expect(mockOpenURL).toHaveBeenCalledWith("https://example.com");
+    expect(Linking.openURL).toHaveBeenCalledWith("https://example.com");
   });
 
   it("sets navigation title to collectible name", () => {

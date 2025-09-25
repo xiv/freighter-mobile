@@ -33,6 +33,18 @@ jest.mock("helpers/balances", () => ({
   isLiquidityPool: (balance: Balance) => "liquidityPoolId" in balance,
 }));
 
+// Mock react-i18next
+jest.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: { code?: string }) => {
+      if (key === "tokenIconAlt" && options?.code) {
+        return `${options.code} token icon`;
+      }
+      return key;
+    },
+  }),
+}));
+
 // Mock the Token component
 jest.mock("components/sds/Token", () => {
   const React = require("react");

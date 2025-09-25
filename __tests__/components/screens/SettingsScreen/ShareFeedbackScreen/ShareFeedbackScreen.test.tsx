@@ -8,6 +8,7 @@ import {
 import { SETTINGS_ROUTES, SettingsStackParamList } from "config/routes";
 import { renderWithProviders } from "helpers/testUtils";
 import React from "react";
+import { Linking } from "react-native";
 
 jest.mock("hooks/useAppTranslation", () => () => ({
   t: (key: string) => {
@@ -17,14 +18,6 @@ jest.mock("hooks/useAppTranslation", () => () => ({
     };
     return translations[key] || key;
   },
-}));
-
-const mockOpenURL = jest.fn();
-jest.mock("react-native/Libraries/Linking/Linking", () => ({
-  openURL: mockOpenURL,
-  canOpenURL: jest.fn().mockResolvedValue(true),
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
 }));
 
 type ShareFeedbackScreenProps = NativeStackScreenProps<
@@ -44,10 +37,6 @@ const mockRoute = {
 } as unknown as ShareFeedbackScreenProps["route"];
 
 describe("ShareFeedbackScreen", () => {
-  beforeEach(() => {
-    mockOpenURL.mockClear();
-  });
-
   it("renders correctly with Discord and GitHub options", () => {
     renderWithProviders(
       <ShareFeedbackScreen navigation={mockNavigation} route={mockRoute} />,
@@ -65,8 +54,7 @@ describe("ShareFeedbackScreen", () => {
     const discordOption = screen.getByText("Discord");
     await userEvent.press(discordOption);
 
-    expect(mockOpenURL).toHaveBeenCalledTimes(1);
-    expect(mockOpenURL).toHaveBeenCalledWith(FREIGHTER_DISCORD_URL);
+    expect(Linking.openURL).toHaveBeenCalledWith(FREIGHTER_DISCORD_URL);
   }, 10000);
 
   it("calls Linking.openURL with GitHub URL when GitHub option is pressed", async () => {
@@ -77,7 +65,6 @@ describe("ShareFeedbackScreen", () => {
     const githubOption = screen.getByText("GitHub");
     await userEvent.press(githubOption);
 
-    expect(mockOpenURL).toHaveBeenCalledTimes(1);
-    expect(mockOpenURL).toHaveBeenCalledWith(FREIGHTER_GITHUB_ISSUE_URL);
+    expect(Linking.openURL).toHaveBeenCalledWith(FREIGHTER_GITHUB_ISSUE_URL);
   }, 10000);
 });
