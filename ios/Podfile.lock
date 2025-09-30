@@ -3062,7 +3062,7 @@ PODS:
     - Yoga
   - RNScrypt (1.2.1):
     - React
-  - RNSentry (7.1.0):
+  - RNSentry (7.2.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3089,7 +3089,7 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - Sentry/HybridSDK (= 8.56.0)
+    - Sentry/HybridSDK (= 8.56.1)
     - SocketRocket
     - Yoga
   - RNSVG (15.13.0):
@@ -3151,7 +3151,7 @@ PODS:
     - Yoga
   - SecureClipboard (0.0.1):
     - React-Core
-  - Sentry/HybridSDK (8.56.0)
+  - Sentry/HybridSDK (8.56.1)
   - SocketRocket (0.7.1)
   - VisionCamera (4.7.2):
     - VisionCamera/Core (= 4.7.2)
@@ -3597,14 +3597,14 @@ SPEC CHECKSUMS:
   RNReanimated: d39bf1990c5f3e9efee9ec54c0470622c09a5b82
   RNScreens: 0bbf16c074ae6bb1058a7bf2d1ae017f4306797c
   RNScrypt: 3e8612600c93aaa3bfa7849b6d1a4ab61613e2af
-  RNSentry: 60919c9cdac7e4b35e9f5dd0149f551ec12f35cb
+  RNSentry: bca90d41b7e8423262c5fcfccfb12328a3aa6701
   RNSVG: 6c39befcfad06eec55b40c19a030b2d9eca63334
   SecureClipboard: d70b94194e1ca2a2b70accae112881295b8d5032
-  Sentry: 3d82977434c80381cae856c40b99c39e4be6bc11
+  Sentry: b3ec44d01708fce73f99b544beb57e890eca4406
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   VisionCamera: 891edb31806dd3a239c8a9d6090d6ec78e11ee80
   Yoga: a3ed390a19db0459bd6839823a6ac6d9c6db198d
 
-PODFILE CHECKSUM: 428cf5dce9f6ce2832ba5d68db705ab05200adf4
+PODFILE CHECKSUM: 947d6d39ba29bcc0865ea496303737f2da6091fa
 
 COCOAPODS: 1.15.2
