@@ -14,8 +14,9 @@ import { pxValue } from "helpers/dimensions";
 import { getAppVersionAndBuildNumber } from "helpers/version";
 import useAppTranslation from "hooks/useAppTranslation";
 import useColors from "hooks/useColors";
+import { useInAppBrowser } from "hooks/useInAppBrowser";
 import React, { useRef } from "react";
-import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SettingsScreenProps = NativeStackScreenProps<
@@ -29,6 +30,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
   const appVersion = getAppVersionAndBuildNumber();
   const { themeColors } = useColors();
   const deleteAccountModalRef = useRef<BottomSheetModal>(null);
+  const { open: openInAppBrowser } = useInAppBrowser();
   const insets = useSafeAreaInsets();
 
   const handleLogout = React.useCallback(() => {
@@ -87,7 +89,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
       icon: <Icon.LifeBuoy01 color={themeColors.foreground.primary} />,
       title: t("settings.help"),
       titleColor: themeColors.text.primary,
-      onPress: () => Linking.openURL(`${FREIGHTER_BASE_URL}/faq`),
+      onPress: () => openInAppBrowser(`${FREIGHTER_BASE_URL}/faq`),
       trailingContent: (
         <Icon.ChevronRight color={themeColors.foreground.primary} />
       ),
