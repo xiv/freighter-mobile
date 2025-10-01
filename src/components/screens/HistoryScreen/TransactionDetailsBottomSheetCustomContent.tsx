@@ -43,6 +43,7 @@ export const TransactionDetailsBottomSheetCustomContent: React.FC<
   const { open: openInAppBrowser } = useInAppBrowser();
 
   const fee = stroopToXlm(transactionDetails.fee).toString();
+
   const formattedDate = formatDate({
     date: transactionDetails?.operation.created_at ?? "",
     includeTime: true,

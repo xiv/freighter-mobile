@@ -1,5 +1,6 @@
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import TransactionSettingsBottomSheet from "components/TransactionSettingsBottomSheet";
+import { TransactionSettingsContext } from "config/constants";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import React from "react";
 
@@ -88,6 +89,7 @@ describe("TransactionSettingsBottomSheet - onSettingsChange Integration", () => 
       <TransactionSettingsBottomSheet
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
+        context={TransactionSettingsContext.Transaction}
         onSettingsChange={mockOnSettingsChange}
       />,
     );
@@ -115,6 +117,7 @@ describe("TransactionSettingsBottomSheet - onSettingsChange Integration", () => 
       <TransactionSettingsBottomSheet
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
+        context={TransactionSettingsContext.Transaction}
         onSettingsChange={asyncOnSettingsChange}
       />,
     );
@@ -136,11 +139,14 @@ describe("TransactionSettingsBottomSheet - onSettingsChange Integration", () => 
       <TransactionSettingsBottomSheet
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
+        context={TransactionSettingsContext.Transaction}
         onSettingsChange={mockOnSettingsChange}
       />,
     );
 
-    const memoInput = getByPlaceholderText("transactionMemoScreen.placeholder");
+    const memoInput = getByPlaceholderText(
+      "transactionSettings.memoPlaceholder",
+    );
     const confirmButton = getByText("common.save");
 
     // Update memo
@@ -178,11 +184,14 @@ describe("TransactionSettingsBottomSheet - onSettingsChange Integration", () => 
       <TransactionSettingsBottomSheet
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
+        context={TransactionSettingsContext.Transaction}
         onSettingsChange={mockOnSettingsChangeForMemo}
       />,
     );
 
-    const memoInput = getByPlaceholderText("transactionMemoScreen.placeholder");
+    const memoInput = getByPlaceholderText(
+      "transactionSettings.memoPlaceholder",
+    );
     const confirmButton = getByText("common.save");
 
     // Simulate user adding required memo for GA6SXIZIKLJHCZI2KEOBEUUOFMM4JUPPM2UTWX6STAWT25JWIEUFIMFF

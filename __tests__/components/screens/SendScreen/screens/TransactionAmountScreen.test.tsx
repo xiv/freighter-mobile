@@ -697,7 +697,7 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     expect(reviewButton).toBeTruthy();
   });
 
-  it("should disable continue button when memo-required address has no memo", () => {
+  it("should enable continue button even when memo-required address has no memo", () => {
     // Mock the memo validation hook to return memo missing for the memo-required address
     mockUseValidateTransactionMemo.mockReturnValue({
       isValidatingMemo: false,
@@ -731,10 +731,11 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     // Find the continue button by text content
     const continueButton = getByText("transactionAmountScreen.reviewButton");
 
-    // The continue button should be disabled for memo-required addresses without memo
-    // The button is a TouchableOpacity with disabled state in accessibilityState
-    const buttonElement = continueButton.parent?.parent?.parent?.parent; // Navigate up to the TouchableOpacity
-    expect(buttonElement?.props.accessibilityState?.disabled).toBe(true);
+    // The continue button should be enabled even for memo-required addresses without memo
+    // The memo validation only affects the review button inside the bottom sheet
+    const buttonElement =
+      continueButton.parent?.parent?.parent?.parent?.parent?.parent?.parent; // Navigate up to the TouchableOpacity
+    expect(buttonElement?.props.disabled).toBe(false);
   });
 
   it("should enable continue button when memo-required address has memo provided", () => {

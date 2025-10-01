@@ -52,6 +52,8 @@ const SwapReviewBottomSheet = () => {
   const [stableMinimumReceived, setStableMinimumReceived] =
     useState<string>("");
 
+  // Use sourceAmount as-is since it's already in the correct format for display
+
   const currentConversionRate =
     pathResult?.conversionRate ||
     calculateSwapRate(
@@ -155,10 +157,7 @@ const SwapReviewBottomSheet = () => {
             <TokenIcon token={sourceToken} />
             <View className="flex-1">
               <Text xl medium>
-                {formatTokenAmount(
-                  pathResult?.sourceAmount || sourceAmount,
-                  sourceTokenSymbol,
-                )}
+                {formatTokenAmount(sourceAmount, sourceTokenSymbol)}
               </Text>
               <Text md medium secondary>
                 {sourceTokenFiatAmount}
@@ -192,9 +191,7 @@ const SwapReviewBottomSheet = () => {
         className="mt-[24px]"
         items={[
           {
-            icon: (
-              <Icon.Wallet01 size={16} color={themeColors.foreground.primary} />
-            ),
+            icon: <Icon.Wallet01 size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.wallet")}
@@ -215,12 +212,7 @@ const SwapReviewBottomSheet = () => {
             ),
           },
           {
-            icon: (
-              <Icon.BarChart05
-                size={16}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.BarChart05 size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.minimum")}
@@ -238,12 +230,7 @@ const SwapReviewBottomSheet = () => {
             ),
           },
           {
-            icon: (
-              <Icon.InfoCircle
-                size={16}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.InfoCircle size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.rate")}
@@ -256,9 +243,7 @@ const SwapReviewBottomSheet = () => {
             ),
           },
           {
-            icon: (
-              <Icon.Route size={16} color={themeColors.foreground.primary} />
-            ),
+            icon: <Icon.Route size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.fee")}
@@ -274,12 +259,7 @@ const SwapReviewBottomSheet = () => {
             ),
           },
           {
-            icon: (
-              <Icon.FileCode02
-                size={16}
-                color={themeColors.foreground.primary}
-              />
-            ),
+            icon: <Icon.FileCode02 size={16} themeColor="gray" />,
             titleComponent: (
               <Text md secondary color={THEME.colors.text.secondary}>
                 {t("swapScreen.review.xdr")}
@@ -291,7 +271,7 @@ const SwapReviewBottomSheet = () => {
                 disabled={!transactionXDR}
                 className="flex-row items-center gap-[8px]"
               >
-                <Icon.Copy01 size={16} color={themeColors.foreground.primary} />
+                <Icon.Copy01 size={16} themeColor="gray" />
                 <Text md medium>
                   {transactionXDR
                     ? truncateAddress(transactionXDR, 10, 4)
@@ -316,6 +296,7 @@ type SwapReviewFooterProps = {
   onCancel?: () => void;
   onConfirm?: () => void;
   isBuilding?: boolean;
+  onSettingsPress?: () => void;
   transactionXDR?: string;
 };
 
@@ -324,7 +305,13 @@ export const SwapReviewFooter: React.FC<SwapReviewFooterProps> = React.memo(
     const { t } = useAppTranslation();
     const insets = useSafeAreaInsets();
 
-    const { onCancel, onConfirm, isBuilding = false, transactionXDR } = props;
+    const {
+      onCancel,
+      onConfirm,
+      isBuilding = false,
+      transactionXDR,
+      onSettingsPress,
+    } = props;
 
     const isDisabled = !transactionXDR || isBuilding;
 
@@ -367,6 +354,14 @@ export const SwapReviewFooter: React.FC<SwapReviewFooterProps> = React.memo(
           gap: pxValue(12),
         }}
       >
+        {onSettingsPress && (
+          <TouchableOpacity
+            onPress={onSettingsPress}
+            className="w-[46px] h-[46px] rounded-full border border-gray-6 items-center justify-center"
+          >
+            <Icon.Settings04 size={24} themeColor="gray" />
+          </TouchableOpacity>
+        )}
         {renderButtons()}
       </View>
     );

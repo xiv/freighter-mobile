@@ -21,7 +21,11 @@ import { Button } from "components/sds/Button";
 import Icon from "components/sds/Icon";
 import { Display, Text } from "components/sds/Typography";
 import { AnalyticsEvent } from "config/analyticsConfig";
-import { DEFAULT_DECIMALS, FIAT_DECIMALS } from "config/constants";
+import {
+  DEFAULT_DECIMALS,
+  FIAT_DECIMALS,
+  TransactionSettingsContext,
+} from "config/constants";
 import { logger } from "config/logger";
 import {
   SEND_PAYMENT_ROUTES,
@@ -36,13 +40,13 @@ import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { calculateSpendableAmount, hasXLMForFees } from "helpers/balances";
 import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
-import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
+import { formatFiatAmount, formatTokenAmount } from "helpers/formatAmount";
 import { useBlockaidTransaction } from "hooks/blockaid/useBlockaidTransaction";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
 import useColors from "hooks/useColors";
 import useGetActiveAccount from "hooks/useGetActiveAccount";
-import { useRightHeaderMenu } from "hooks/useRightHeader";
+import { useRightHeaderButton } from "hooks/useRightHeader";
 import { useTokenFiatConverter } from "hooks/useTokenFiatConverter";
 import { useValidateTransactionMemo } from "hooks/useValidateTransactionMemo";
 import { useToast } from "providers/ToastProvider";
@@ -85,9 +89,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
   const { account } = useGetActiveAccount();
   const { network } = useAuthenticationStore();
   const {
-    transactionMemo,
     transactionFee,
-    transactionTimeout,
     recipientAddress,
     selectedTokenId,
     saveSelectedTokenId,
@@ -153,6 +155,13 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     xdr: transactionXDR ?? "",
   });
 
+  useRightHeaderButton({
+    icon: Icon.Settings04,
+    onPress: () => {
+      transactionSettingsBottomSheetModalRef.current?.present();
+    },
+  });
+
   const onConfirmAddMemo = useCallback(() => {
     reviewBottomSheetModalRef.current?.dismiss();
     transactionSettingsBottomSheetModalRef.current?.present();
@@ -164,7 +173,10 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
 
   const handleConfirmTransactionSettings = () => {
     transactionSettingsBottomSheetModalRef.current?.dismiss();
-    reviewBottomSheetModalRef.current?.present();
+  };
+
+  const handleOpenSettingsFromReview = () => {
+    transactionSettingsBottomSheetModalRef.current?.present();
   };
 
   const handleCancelTransactionSettings = () => {
@@ -237,8 +249,10 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     if (showFiatAmount) {
       const tokenPrice = selectedBalance.currentPrice || BigNumber(0);
       const calculatedFiatAmount = targetAmount.multipliedBy(tokenPrice);
+      // Use standard formatting for fiat amount
       setFiatAmount(calculatedFiatAmount.toFixed(FIAT_DECIMALS));
     } else {
+      // Use standard formatting for token amount
       setTokenAmount(targetAmount.toFixed(DEFAULT_DECIMALS));
     }
   };
@@ -288,39 +302,6 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     t,
     showToast,
   ]);
-
-  const menuActions = useMemo(
-    () => [
-      {
-        title: t("transactionAmountScreen.menu.fee", { fee: transactionFee }),
-        systemIcon: "arrow.trianglehead.swap",
-        onPress: () => {
-          navigation.navigate(SEND_PAYMENT_ROUTES.TRANSACTION_FEE_SCREEN);
-        },
-      },
-      {
-        title: t("transactionAmountScreen.menu.timeout", {
-          timeout: transactionTimeout,
-        }),
-        systemIcon: "clock",
-        onPress: () => {
-          navigation.navigate(SEND_PAYMENT_ROUTES.TRANSACTION_TIMEOUT_SCREEN);
-        },
-      },
-      {
-        title: transactionMemo
-          ? t("transactionAmountScreen.menu.editMemo")
-          : t("common.addMemo"),
-        systemIcon: "text.page",
-        onPress: () => {
-          navigation.navigate(SEND_PAYMENT_ROUTES.TRANSACTION_MEMO_SCREEN);
-        },
-      },
-    ],
-    [t, navigation, transactionFee, transactionTimeout, transactionMemo],
-  );
-
-  useRightHeaderMenu({ actions: menuActions });
 
   const prepareTransaction = useCallback(
     async (shouldOpenReview = false) => {
@@ -382,13 +363,18 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     ],
   );
 
+  const handleSettingsChange = () => {
+    // Settings have changed, rebuild the transaction with new values
+    prepareTransaction(false);
+  };
+
   const handleTransactionConfirmation = useCallback(() => {
     setIsProcessing(true);
     reviewBottomSheetModalRef.current?.dismiss();
 
     const processTransaction = async () => {
       try {
-        if (!account?.privateKey || !selectedBalance) {
+        if (!account?.privateKey || !selectedBalance || !recipientAddress) {
           throw new Error("Missing account or balance information");
         }
 
@@ -428,7 +414,14 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     };
 
     processTransaction();
-  }, [account, selectedBalance, signTransaction, network, submitTransaction]);
+  }, [
+    account,
+    selectedBalance,
+    signTransaction,
+    network,
+    submitTransaction,
+    recipientAddress,
+  ]);
 
   const handleProcessingScreenClose = () => {
     setIsProcessing(false);
@@ -507,6 +500,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
       isMalicious: transactionSecurityAssessment.isMalicious,
       isSuspicious: transactionSecurityAssessment.isSuspicious,
       isValidatingMemo,
+      onSettingsPress: handleOpenSettingsFromReview,
     }),
     [
       handleCancelReview,
@@ -532,18 +526,9 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     return (
       !!amountError ||
       BigNumber(tokenAmount).isLessThanOrEqualTo(0) ||
-      isBuilding ||
-      isValidatingMemo ||
-      isMemoMissing
+      isBuilding
     );
-  }, [
-    amountError,
-    tokenAmount,
-    isBuilding,
-    recipientAddress,
-    isValidatingMemo,
-    isMemoMissing,
-  ]);
+  }, [amountError, tokenAmount, isBuilding, recipientAddress]);
 
   if (isProcessing) {
     return (
@@ -589,10 +574,6 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
     }
 
     return t("transactionAmountScreen.reviewButton");
-  };
-
-  const handleSettingsChange = async () => {
-    await prepareTransaction(false);
   };
 
   return (
@@ -778,6 +759,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
         }
         customContent={
           <TransactionSettingsBottomSheet
+            context={TransactionSettingsContext.Transaction}
             onCancel={handleCancelTransactionSettings}
             onConfirm={handleConfirmTransactionSettings}
             onSettingsChange={handleSettingsChange}

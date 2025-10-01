@@ -12,6 +12,7 @@ import { PricedBalance, NativeToken, NonNativeToken } from "config/types";
 import { ActiveAccount } from "ducks/auth";
 import { useHistoryStore } from "ducks/history";
 import { SwapPathResult } from "ducks/swap";
+import { useSwapSettingsStore } from "ducks/swapSettings";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useState, useCallback } from "react";
 import { analytics } from "services/analytics";
@@ -22,9 +23,6 @@ interface SwapTransactionParams {
   destinationBalance: PricedBalance | undefined;
   pathResult: SwapPathResult | null;
   account: ActiveAccount | null;
-  swapFee: string;
-  swapTimeout: number;
-  swapSlippage?: number;
   network: NETWORKS;
   navigation: NativeStackNavigationProp<
     SwapStackParamList,
@@ -47,9 +45,6 @@ export const useSwapTransaction = ({
   destinationBalance,
   pathResult,
   account,
-  swapFee,
-  swapTimeout,
-  swapSlippage,
   network,
   navigation,
 }: SwapTransactionParams): UseSwapTransactionResult => {
@@ -68,6 +63,10 @@ export const useSwapTransaction = ({
       return;
     }
 
+    // Get fresh settings values each time the function is called
+    const { swapFee: freshSwapFee, swapTimeout: freshSwapTimeout } =
+      useSwapSettingsStore.getState();
+
     const transactionXDR = await buildSwapTransaction({
       sourceAmount,
       sourceBalance,
@@ -75,8 +74,8 @@ export const useSwapTransaction = ({
       path: pathResult.path,
       destinationAmount: pathResult.destinationAmount,
       destinationAmountMin: pathResult.destinationAmountMin,
-      transactionFee: swapFee,
-      transactionTimeout: swapTimeout,
+      transactionFee: freshSwapFee,
+      transactionTimeout: freshSwapTimeout,
       network,
       senderAddress: account.publicKey,
     });
@@ -88,12 +87,10 @@ export const useSwapTransaction = ({
     sourceBalance,
     destinationBalance,
     pathResult,
+    buildSwapTransaction,
     account?.publicKey,
     sourceAmount,
-    swapFee,
-    swapTimeout,
     network,
-    buildSwapTransaction,
   ]);
 
   const executeSwap = useCallback(async () => {
@@ -128,10 +125,14 @@ export const useSwapTransaction = ({
         throw new Error("Failed to submit transaction");
       }
 
+      // Get fresh slippage value for analytics
+      const { swapSlippage: freshSwapSlippage } =
+        useSwapSettingsStore.getState();
+
       analytics.trackSwapSuccess({
         sourceToken: sourceBalance.tokenCode,
         destToken: destinationBalance.tokenCode,
-        allowedSlippage: swapSlippage?.toString(),
+        allowedSlippage: freshSwapSlippage?.toString(),
         isSwap: true,
       });
     } catch (error) {
@@ -152,7 +153,6 @@ export const useSwapTransaction = ({
     signTransaction,
     network,
     submitTransaction,
-    swapSlippage,
   ]);
 
   const handleProcessingScreenClose = () => {

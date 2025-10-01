@@ -1,4 +1,4 @@
-import { BigNumber } from "bignumber.js";
+import BigNumber from "bignumber.js";
 import { List, ListItemProps } from "components/List";
 import { TokenIcon } from "components/TokenIcon";
 import SignTransactionDetails from "components/screens/SignTransactionDetails";
@@ -134,17 +134,11 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
           {t("transactionAmountScreen.details.memo")}
         </Text>
         {isRequiredMemoMissing && (
-          <Icon.AlertTriangle size={16} color={themeColors.status.error} />
+          <Icon.AlertTriangle size={16} themeColor="red" />
         )}
       </View>
     );
-  }, [
-    isBuilding,
-    isRequiredMemoMissing,
-    t,
-    themeColors.status.error,
-    themeColors.text.secondary,
-  ]);
+  }, [isBuilding, isRequiredMemoMissing, t, themeColors.text.secondary]);
 
   /**
    * Renders a warning banner for the following cases:
@@ -326,6 +320,7 @@ type SendReviewFooterProps = {
   isMalicious?: boolean;
   isValidatingMemo?: boolean;
   isSuspicious?: boolean;
+  onSettingsPress?: () => void;
 };
 
 export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
@@ -341,6 +336,7 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
       isMalicious,
       isValidatingMemo,
       isSuspicious,
+      onSettingsPress,
     } = props;
 
     const isLoading = isBuilding;
@@ -439,6 +435,14 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
           gap: pxValue(12),
         }}
       >
+        {onSettingsPress && (
+          <TouchableOpacity
+            onPress={onSettingsPress}
+            className="w-[46px] h-[46px] rounded-full border border-gray-6 items-center justify-center"
+          >
+            <Icon.Settings04 size={24} themeColor="gray" />
+          </TouchableOpacity>
+        )}
         {renderButtons()}
       </View>
     );

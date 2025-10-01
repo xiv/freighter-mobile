@@ -116,7 +116,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
       testID: "about-button",
     },
     {
-      icon: <Icon.LogOut01 color={themeColors.status.error} />,
+      icon: <Icon.LogOut01 themeColor="red" />,
       title: t("settings.logout"),
       titleColor: themeColors.status.error,
       onPress: handleLogout,
@@ -138,7 +138,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
         className="flex-row items-center gap-3"
         onPress={onPress}
       >
-        <Icon.Trash01 color={themeColors.status.error} />
+        <Icon.Trash01 themeColor="red" />
         <Text md semiBold color={themeColors.status.error}>
           {t("settings.deleteAccount")}*
         </Text>
