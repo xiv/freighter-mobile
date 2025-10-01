@@ -1,4 +1,5 @@
 /* eslint-disable @fnando/consistent-import/consistent-import */
+/* eslint-disable @typescript-eslint/naming-convention */
 import { render } from "@testing-library/react-native";
 import { BigNumber } from "bignumber.js";
 import { BalanceRow, DefaultRightContent } from "components/BalanceRow";
