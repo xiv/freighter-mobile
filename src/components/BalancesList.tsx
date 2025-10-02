@@ -54,6 +54,7 @@ interface BalancesListProps {
   disableNavigation?: boolean;
   renderRightContent?: (balance: PricedBalance) => ReactNode;
   excludeTokenIds?: string[];
+  disableInnerScrolling?: boolean;
 }
 
 /**
@@ -78,6 +79,7 @@ export const BalancesList: React.FC<BalancesListProps> = ({
   disableNavigation = false,
   renderRightContent,
   excludeTokenIds = [],
+  disableInnerScrolling = false,
 }) => {
   const { t } = useAppTranslation();
   const { open: openInAppBrowser } = useInAppBrowser();
@@ -178,6 +180,25 @@ export const BalancesList: React.FC<BalancesListProps> = ({
         {isTestNetwork && (
           <FriendbotButton publicKey={publicKey} network={network} />
         )}
+      </ListWrapper>
+    );
+  }
+
+  // If scrolling is disabled, render items directly without FlatList
+  if (disableInnerScrolling) {
+    return (
+      <ListWrapper>
+        {balanceItems.map((item) => (
+          <BalanceRow
+            key={item.id}
+            balance={item}
+            scanResult={scanResults[item.id.replace(":", "-")]}
+            onPress={onTokenPress ? () => onTokenPress(item.id) : undefined}
+            rightContent={
+              renderRightContent ? renderRightContent(item) : undefined
+            }
+          />
+        ))}
       </ListWrapper>
     );
   }

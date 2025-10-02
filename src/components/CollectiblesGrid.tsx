@@ -33,6 +33,8 @@ interface CollectiblesGridProps {
     collectionAddress: string;
     tokenId: string;
   }) => void;
+  /** Whether to disable internal scrolling (for use in parent ScrollView) */
+  disableInnerScrolling?: boolean;
 }
 
 /**
@@ -56,7 +58,7 @@ interface CollectiblesGridProps {
  * @returns {JSX.Element} The collectibles grid component
  */
 export const CollectiblesGrid: React.FC<CollectiblesGridProps> = React.memo(
-  ({ onCollectiblePress }) => {
+  ({ onCollectiblePress, disableInnerScrolling = false }) => {
     const { t } = useAppTranslation();
     const { themeColors } = useColors();
     const { account } = useGetActiveAccount();
@@ -141,6 +143,17 @@ export const CollectiblesGrid: React.FC<CollectiblesGridProps> = React.memo(
             size="large"
             color={themeColors.secondary}
           />
+        </View>
+      );
+    }
+
+    // If scrolling is disabled, render collections directly without FlatList
+    if (disableInnerScrolling) {
+      return (
+        <View>
+          {collections.map((collection) =>
+            renderCollection({ item: collection }),
+          )}
         </View>
       );
     }
