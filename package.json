@@ -60,7 +60,7 @@
     "@react-navigation/native-stack": "^7.3.26",
     "@reown/walletkit": "^1.2.6",
     "@sentry/react-native": "^7.2.0",
-    "@shopify/react-native-skia": "^2.2.18",
+    "@shopify/react-native-skia": "^2.2.21",
     "@stablelib/base64": "^2.0.1",
     "@stablelib/utf8": "^2.0.1",
     "@stellar/stellar-sdk": "^14.0.0",

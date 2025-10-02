@@ -3891,9 +3891,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shopify/react-native-skia@npm:^2.2.18":
-  version: 2.2.18
-  resolution: "@shopify/react-native-skia@npm:2.2.18"
+"@shopify/react-native-skia@npm:^2.2.21":
+  version: 2.2.21
+  resolution: "@shopify/react-native-skia@npm:2.2.21"
   dependencies:
     canvaskit-wasm: "npm:0.40.0"
     react-reconciler: "npm:0.31.0"
@@ -3908,7 +3908,7 @@ __metadata:
       optional: true
   bin:
     setup-skia-web: scripts/setup-canvaskit.js
-  checksum: 10c0/00e08b333d628657f46c119a395f6f272aa713acdddc3a51953d671f64b772f33c14f9fdb02bb024b8d5e4d21325e10d61f61c981ebf923558f75244de9e59e4
+  checksum: 10c0/f193019b837b6576ef50f8a2f8836caf23bc3066dbeed997155a3a7f1be6440e4c7a907e15875853b2698193b71fb4f3fd113f54d6c71fa4c56a694900efc38e
   languageName: node
   linkType: hard
 
@@ -8844,7 +8844,7 @@ __metadata:
     "@react-navigation/native-stack": "npm:^7.3.26"
     "@reown/walletkit": "npm:^1.2.6"
     "@sentry/react-native": "npm:^7.2.0"
-    "@shopify/react-native-skia": "npm:^2.2.18"
+    "@shopify/react-native-skia": "npm:^2.2.21"
     "@stablelib/base64": "npm:^2.0.1"
     "@stablelib/utf8": "npm:^2.0.1"
     "@stellar/stellar-sdk": "npm:^14.0.0"
