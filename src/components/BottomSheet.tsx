@@ -15,6 +15,7 @@ import { AnalyticsEvent } from "config/analyticsConfig";
 import { DEFAULT_PADDING } from "config/constants";
 import { pxValue } from "helpers/dimensions";
 import useColors from "hooks/useColors";
+import { useKeyboardHeight } from "hooks/useKeyboardHeight";
 import React, { useCallback, useRef, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -85,7 +86,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   const IconData = icon ? Icons[icon] : null;
   const insets = useSafeAreaInsets();
   const [footerHeight, setFooterHeight] = useState(0);
-
+  const keyboardHeight = useKeyboardHeight();
   // Track bottom-sheet open exactly once per presentation
   const hasTrackedRef = useRef(false);
 
@@ -237,6 +238,9 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           {...bottomSheetViewProps}
         >
           {renderContent()}
+          {keyboardHeight > 0 && (
+            <View style={{ height: keyboardHeight - insets.bottom }} />
+          )}
         </BottomSheetView>
       )}
     </BottomSheetModal>

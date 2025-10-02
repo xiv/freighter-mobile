@@ -1,4 +1,3 @@
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { Text } from "components/sds/Typography";
 import { THEME } from "config/theme";
@@ -126,10 +125,6 @@ export const StyledTextInput = styled.TextInput<
   ${commonInputStyles}
 `;
 
-const StyledBottomSheetTextInput = styled(BottomSheetTextInput)`
-  ${commonInputStyles}
-`;
-
 const SideElement = styled.View<{ marginSide: "left" | "right" }>`
   justify-content: center;
   margin-${({ marginSide }: { marginSide: "left" | "right" }) => marginSide}: ${px(8)};
@@ -200,7 +195,6 @@ const SuffixInput = React.forwardRef<TextInput, InputProps>(
       editable = true,
       testID,
       autoCorrect = true,
-      isBottomSheetInput = false,
       inputSuffixDisplay,
       centered = false,
       ...props
@@ -228,9 +222,7 @@ const SuffixInput = React.forwardRef<TextInput, InputProps>(
       </TouchableOpacity>
     );
 
-    const StyledTextInputComponent = isBottomSheetInput
-      ? StyledBottomSheetTextInput
-      : StyledTextInput;
+    const StyledTextInputComponent = StyledTextInput;
 
     const commonTextInputProps = {
       ref,
@@ -442,7 +434,6 @@ const SuffixInput = React.forwardRef<TextInput, InputProps>(
  * @param {string} [props.testID] - Test ID for testing
  * @param {("none" | "sentences" | "words" | "characters")} [props.autoCapitalize] - Text capitalization behavior
  * @param {("default" | "number-pad" | "decimal-pad" | "numeric" | "email-address" | "phone-pad")} [props.keyboardType] - Keyboard type for the input
- * @param {boolean} [props.isBottomSheetInput] - Whether the input is a bottom sheet input
  * @param {string} [props.inputSuffixDisplay] - Text to display as suffix after the input value (e.g., "XLM")
  * @param {boolean} [props.centered] - Whether to center the text alignment within the input field
  */
@@ -487,7 +478,6 @@ interface InputProps {
     | "numeric"
     | "email-address"
     | "phone-pad";
-  isBottomSheetInput?: boolean;
   /** Text to display as suffix after the input value (e.g., "XLM") */
   inputSuffixDisplay?: string;
   /** Whether to center the text alignment within the input field */
@@ -516,7 +506,6 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       editable = true,
       testID,
       autoCorrect = true,
-      isBottomSheetInput = false,
       inputSuffixDisplay,
       centered = false,
       style,
@@ -549,7 +538,6 @@ export const Input = React.forwardRef<TextInput, InputProps>(
           editable={editable}
           testID={testID}
           autoCorrect={autoCorrect}
-          isBottomSheetInput={isBottomSheetInput}
           inputSuffixDisplay={inputSuffixDisplay}
           centered={centered}
           style={style}
@@ -582,10 +570,6 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       </TouchableOpacity>
     );
 
-    const StyledTextInputComponent = isBottomSheetInput
-      ? StyledBottomSheetTextInput
-      : StyledTextInput;
-
     return (
       <Container $fieldSize={fieldSize}>
         {label && (
@@ -611,7 +595,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(
             <SideElement marginSide="right">{leftElement}</SideElement>
           )}
 
-          <StyledTextInputComponent
+          <StyledTextInput
             ref={ref}
             testID={testID}
             placeholder={placeholder}
