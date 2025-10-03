@@ -32,10 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     return true
   }
-
-  func customize(_ rootView: RCTRootView!) {
-    RNBootSplash.initWithStoryboard("BootSplash", rootView: rootView)
-  }
   
   func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
     return RCTLinkingManager.application(app, open: url, options: options)
@@ -53,5 +49,10 @@ class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
 #else
     Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
+  }
+
+  override func customize(_ rootView: RCTRootView) {
+    super.customize(rootView)
+    RNBootSplash.initWithStoryboard("BootSplash", rootView: rootView)
   }
 }

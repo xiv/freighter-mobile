@@ -227,6 +227,8 @@ jest.mock("react-native-vision-camera", () => ({
   }),
 }));
 
+jest.mock("zeego/dropdown-menu");
+
 jest.mock("ducks/walletKit", () => ({
   WalletKitEventTypes: {
     SESSION_PROPOSAL: "SESSION_PROPOSAL",
