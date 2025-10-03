@@ -147,8 +147,43 @@ export const CollectiblesGrid: React.FC<CollectiblesGridProps> = React.memo(
       );
     }
 
+    const renderErrorView = () => (
+      <View className="flex-1">
+        <View
+          className="pt-4"
+          style={{ paddingHorizontal: pxValue(DEFAULT_PADDING) }}
+        >
+          <Text md secondary>
+            {t("collectiblesGrid.error")}
+          </Text>
+        </View>
+      </View>
+    );
+
+    const renderEmptyView = () => (
+      <View className="flex-1">
+        <View
+          className="flex-row items-center justify-center pt-5 gap-2"
+          style={{ paddingHorizontal: pxValue(DEFAULT_PADDING) }}
+        >
+          <Icon.Grid01 size={20} color={themeColors.text.secondary} />
+          <Text md medium secondary>
+            {t("collectiblesGrid.empty")}
+          </Text>
+        </View>
+      </View>
+    );
+
     // If scrolling is disabled, render collections directly without FlatList
     if (disableInnerScrolling) {
+      if (!collections.length || collections.length === 0) {
+        if (error) {
+          return renderErrorView();
+        }
+
+        return renderEmptyView();
+      }
+
       return (
         <View>
           {collections.map((collection) =>
@@ -174,30 +209,7 @@ export const CollectiblesGrid: React.FC<CollectiblesGridProps> = React.memo(
           />
         }
         ListFooterComponent={DefaultListFooter}
-        ListEmptyComponent={
-          <View className="flex-1">
-            {error ? (
-              <View
-                className="pt-4"
-                style={{ paddingHorizontal: pxValue(DEFAULT_PADDING) }}
-              >
-                <Text md secondary>
-                  {t("collectiblesGrid.error")}
-                </Text>
-              </View>
-            ) : (
-              <View
-                className="flex-row items-center justify-center pt-5 gap-2"
-                style={{ paddingHorizontal: pxValue(DEFAULT_PADDING) }}
-              >
-                <Icon.Grid01 size={20} color={themeColors.text.secondary} />
-                <Text md medium secondary>
-                  {t("collectiblesGrid.empty")}
-                </Text>
-              </View>
-            )}
-          </View>
-        }
+        ListEmptyComponent={error ? renderErrorView() : renderEmptyView()}
       />
     );
   },
