@@ -6,26 +6,22 @@
   "accountAddressCopied": "Account address copied!",
   "tokenAddress": "Token Address",
   "common": {
-    "edit": "Edit",
     "close": "Close",
     "paste": "Paste",
     "done": "Done",
     "none": "None",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "continue": "Continue",
     "save": "Save",
     "add": "Add",
     "remove": "Remove",
     "copied": "Copied to clipboard!",
     "loading": "Loading...",
-    "error": "Error: {{errorMessage}}",
     "unknownError": "Unknown error",
     "review": "Review",
     "and": " and ",
     "addMemo": "Add memo",
     "yes": "Yes",
-    "allow": "Allow",
     "skip": "Skip",
     "enable": "Enable",
     "token": "Token",
@@ -41,7 +37,6 @@
     "copy": "Copy",
     "actions": {
       "settings": "Settings",
-      "manageTokens": "Manage tokens",
       "myQRCode": "My QR code"
     },
     "manageAccount": {
@@ -65,7 +60,6 @@
     "logout": "Log Out",
     "network": "Network",
     "preferences": "Preferences",
-    "version": "Version {{version}}",
     "help": "Help",
     "feedback": "Share Feedback",
     "about": "About",
@@ -81,16 +75,6 @@
       "description": "Allow Freighter to collect limited information about usage. We will collect public keys, transaction amounts, and balances. This information will not be used for marketing or to identify you personally. We will not collect information such as name, address, email addresses, phone numbers, etc."
     },
     "permissionModal": {
-      "enable": {
-        "title": "Enable Analytics",
-        "description": "To enable anonymous data sharing, you'll need to allow tracking permissions in your device settings.",
-        "instruction": "Tap \"Open Settings\" below, then find Freighter and enable \"Allow Tracking\"."
-      },
-      "disable": {
-        "title": "Disable Analytics",
-        "description": "To disable anonymous data sharing, you'll need to change tracking permissions in your device settings.",
-        "instruction": "Tap \"Open Settings\" below, then find Freighter and disable \"Allow Tracking\"."
-      },
       "openSettings": "Open Settings",
       "notNow": "Not now"
     },
@@ -112,7 +96,6 @@
     "title": "About",
     "freighterDescription": "Freighter is a non-custodial wallet for the Stellar blockchain",
     "listTitle": "Links",
-    "stellarFoundation": "© {{year}} Stellar Development Foundation",
     "links": {
       "freighter": "freighter.app",
       "stellar": "stellar.org",
@@ -125,7 +108,6 @@
     "copyButton": "Copy address",
     "helperText": "Scan the QR code or \ncopy your address",
     "bottomSheet": {
-      "title": "QR Code",
       "description": "Have the sender scan the QR code on their Freighter app to retrieve your wallet address securely."
     }
   },
@@ -145,8 +127,7 @@
   "addFundsScreen": {
     "title": "Add funds",
     "bottomSheet": {
-      "description": "You need at least 1 XLM to have an account on Stellar. Buy Stellar Lumens (XLM) easily using one of our on-ramps or transfer XLM from another wallet to this wallet.",
-      "subDescription": "Buy easily with Coinbase, or send XLM from another wallet."
+      "description": "You need at least 1 XLM to have an account on Stellar. Buy Stellar Lumens (XLM) easily using one of our on-ramps or transfer XLM from another wallet to this wallet."
     },
     "transferFromAnotherAccount": {
       "title": "Transfer from another account",
@@ -158,7 +139,6 @@
     }
   },
   "changeNetworkScreen": {
-    "title": "Switch Network",
     "currentNetwork": "Current network",
     "networkSettings": "Network Settings"
   },
@@ -185,76 +165,41 @@
   "choosePasswordScreen": {
     "title": "Choose a Password",
     "passwordInputPlaceholder": "Type your password",
-    "defaultActionButtonText": "Continue",
     "footerNoteText": "We cannot recover your password for you.\nMake sure you keep this in a safe place.",
     "passwordTooLong": "Must be less than 2048 characters"
   },
   "confirmPasswordScreen": {
     "title": "Confirm Password",
     "passwordInputPlaceholder": "Confirm your password",
-    "defaultActionButtonText": "Continue",
     "footerNoteText": "We cannot recover your password for you.\nMake sure you keep this in a safe place."
   },
   "recoveryPhraseAlertScreen": {
     "title": "Recovery Phrase",
     "warningBlockOne": "Your recovery phrase gives you access to your account and is the only way to access it in a new app.",
-    "warningBlockTwo": "Keep it in a safe place.",
-    "defaultActionButtonText": "I understand, reveal my phrase"
+    "warningBlockTwo": "Keep it in a safe place."
   },
   "recoveryPhraseScreen": {
     "title": "Your Recovery Phrase",
     "warning": "This is for your eyes only. Never share this.",
     "copyButtonText": "Copy to clipboard",
-    "defaultActionButtonText": "Continue",
     "footerNoteText": "Make sure you keep this in a safe\nplace before continuing"
   },
   "validateRecoveryPhraseScreen": {
-    "title": "Enter Word #{{number}}",
     "instructionText": "Refer to the recovery phrase you just saved",
-    "errorText": "Incorrect word selected, try again",
-    "defaultActionButtonText": "Continue"
+    "errorText": "Incorrect word selected, try again"
   },
   "biometricsOnboardingScreen": {
     "faceId": {
-      "title": "Enable Face ID",
-      "description": "Add another layer of security by requiring Face ID to unlock your wallet or approve transactions.",
-      "promptTitle": "Enable Face ID?",
-      "promptDescription": "Use Face ID to securely log in and approve transactions.",
-      "footerNoteText": "You can change this later in Settings."
+      "title": "Enable Face ID"
     },
     "touchId": {
-      "title": "Enable Touch ID",
-      "description": "Add another layer of security by requiring Touch ID to unlock your wallet or approve transactions.",
-      "promptTitle": "Enable Touch ID?",
-      "promptDescription": "Use Touch ID to securely log in and approve transactions.",
-      "footerNoteText": "You can change this later in Settings."
-    },
-    "fingerprint": {
-      "title": "Enable Fingerprint",
-      "description": "Add another layer of security by requiring Fingerprint to unlock your wallet or approve transactions.",
-      "promptTitle": "Enable Fingerprint?",
-      "promptDescription": "Use Fingerprint to securely log in and approve transactions.",
-      "footerNoteText": "You can change this later in Settings."
-    },
-    "faceBiometrics": {
-      "title": "Enable Face Recognition",
-      "description": "Add another layer of security by requiring Face Recognition to unlock your wallet or approve transactions.",
-      "promptTitle": "Enable Face Recognition?",
-      "promptDescription": "Use Face Recognition to securely log in and approve transactions.",
-      "footerNoteText": "You can change this later in Settings."
+      "title": "Enable Touch ID"
     },
     "opticId": {
-      "title": "Enable Optic ID",
-      "description": "Add another layer of security by requiring Optic ID to unlock your wallet or approve transactions.",
-      "promptTitle": "Enable Optic ID?",
-      "promptDescription": "Use Optic ID to securely log in and approve transactions.",
-      "footerNoteText": "You can change this later in Settings."
+      "title": "Enable Optic ID"
     },
     "iris": {
       "title": "Enable Iris",
-      "description": "Add another layer of security by requiring Iris to unlock your wallet or approve transactions.",
-      "promptTitle": "Enable Iris?",
-      "promptDescription": "Use Iris to securely log in and approve transactions.",
       "footerNoteText": "You can change this later in Settings."
     }
   },
@@ -280,8 +225,6 @@
   },
   "onboarding": {
     "continue": "Continue",
-    "typePassword": "Type your password",
-    "typePasswordNote": "Must be at least 8 characters long",
     "pasteFromClipboard": "Paste from clipboard",
     "doThisLaterButtonText": "Do this later"
   },
@@ -298,7 +241,6 @@
     "trending": "Trending",
     "legalDisclaimer": "By connecting to these dapps, you acknowledge that you're interacting with them at your own risk. We cannot recover funds. Never share your recovery phrase or private key.",
     "oneTab": "1 Tab",
-    "tabs": "{{count}} Tabs",
     "urlBarPlaceholder": "Search or enter a website",
     "openInBrowser": "Open in Browser",
     "share": "Share",
@@ -307,31 +249,24 @@
     "closeThisTab": "Close tab"
   },
   "history": {
-    "title": "History",
     "emptyState": {
       "title": "No transactions to show"
     },
     "error": "Error loading history",
     "refresh": "Refresh",
-    "refreshing": "Refreshing...",
     "transactionHistory": {
       "transaction": "Transaction",
-      "createAccount": "Create account",
       "accountFunded": "Account funded",
       "addedTrustline": "Added trustline",
       "removedTrustline": "Removed trustline",
       "received": "Received",
       "sent": "Sent",
-      "swapTwoTokens": "{{srcTokenCode}} for {{destTokenCode}}",
-      "swappedTwoTokens": "Swapped {{srcTokenCode}} for {{destTokenCode}}",
       "swapped": "Swapped",
       "transactionFailed": "Transaction failed",
       "failed": "Failed",
       "contract": "Contract",
       "interacted": "Interacted",
       "minted": "Minted",
-      "mintedToSelf": "Minted {{tokenSymbol}} to self",
-      "unknown": "Unknown",
       "ops": "ops"
     },
     "transactionDetails": {
@@ -341,19 +276,13 @@
       "statusSuccess": "Success",
       "statusFailed": "Failed",
       "rate": "Rate",
-      "firstTimeSend": "First time send",
-      "addressCopied": "Address copied to clipboard",
-      "startingBalance": "Starting balance:",
-      "minter": "Minter",
-      "mintedTo": "Minted to"
+      "startingBalance": "Starting balance:"
     }
   },
   "tokenDetailsScreen": {
     "sorobanToken": "Soroban Token",
-    "priceChange": "{{percentage}}%",
     "balance": "Balance",
     "value": "Value",
-    "listHeader": "Your {{tokenName}} activity",
     "swap": "Swap",
     "send": "Send"
   },
@@ -385,48 +314,22 @@
       "accountAlreadyExists": "Account already exists",
       "failedToImportSecretKey": "Failed to import secret key"
     },
-    "account": "Account {{number}}",
     "faceId": {
-      "disableTitle": "Confirm to disable Face ID",
-      "disableSubtitle": "Disabling Face ID decreases security. You can re-enable it in Settings.",
-      "signInTitle": "Confirm to proceed",
-      "signInSubtitle": "Use Face ID to securely log in and approve transactions."
+      "signInTitle": "Confirm to proceed"
     },
     "touchId": {
-      "disableTitle": "Confirm to disable Touch ID",
-      "disableSubtitle": "Disabling Touch ID decreases security. You can re-enable it in Settings.",
-      "signInTitle": "Confirm to proceed",
-      "signInSubtitle": "Use Touch ID to securely log in and approve transactions."
-    },
-    "faceBiometrics": {
-      "disableTitle": "Confirm to disable Face Recognition",
-      "disableSubtitle": "Disabling Face Recognition decreases security. You can re-enable it in Settings.",
-      "signInTitle": "Confirm to proceed",
-      "signInSubtitle": "Use Face Recognition to securely log in and approve transactions."
-    },
-    "fingerprint": {
-      "disableTitle": "Confirm to disable Fingerprint",
-      "disableSubtitle": "Disabling Fingerprint decreases security. You can re-enable it in Settings.",
-      "signInTitle": "Confirm to proceed",
-      "signInSubtitle": "Use Fingerprint to securely log in and approve transactions."
+      "signInTitle": "Confirm to proceed"
     },
     "opticId": {
-      "signInTitle": "Confirm to proceed",
-      "signInSubtitle": "Use Optic ID to securely log in and approve transactions.",
-      "disableTitle": "Confirm to disable Optic ID",
-      "disableSubtitle": "Disabling Optic ID decreases security. You can re-enable it in Settings."
+      "signInTitle": "Confirm to proceed"
     },
     "iris": {
-      "signInTitle": "Confirm to proceed",
-      "signInSubtitle": "Use Iris to securely log in and approve transactions.",
-      "disableTitle": "Confirm to disable Iris",
-      "disableSubtitle": "Disabling Iris decreases security. You can re-enable it in Settings."
+      "signInTitle": "Confirm to proceed"
     }
   },
   "balancesList": {
     "title": "Tokens",
     "error": "Error loading balances",
-    "empty": "No balances found",
     "unfundedAccount": {
       "message": "To start using this account, fund it with at least 1 XLM.",
       "learnMore": "Learn more",
@@ -466,11 +369,9 @@
     "enterDetails": "Enter details",
     "invalidAddress": "Invalid address",
     "addressNoSpaces": "Address cannot contain spaces",
-    "invalidTokenId": "Invalid token ID",
     "tokenIdNoSpaces": "Token ID cannot contain spaces",
     "description": "If a collectible is missing from your wallet, you can manually add it here.",
     "toastSuccess": "Successfully added collectible",
-    "toastError": "Error adding collectible. {{errorMessage}}",
     "alreadyInWallet": "This collectible is already in your wallet"
   },
   "collectibles": {
@@ -482,7 +383,6 @@
       "invalidAddressOrTokenId": "Please make sure the collection address and token ID are correct."
     },
     "fallbacks": {
-      "tokenName": "Token #{{tokenId}}",
       "unknownTrait": "Unknown",
       "descriptionUnavailable": "Description unavailable"
     }
@@ -492,27 +392,12 @@
   },
   "manageTokensScreen": {
     "title": "Manage tokens",
-    "hiddenTokens": "Hidden tokens",
     "addTokenButton": "Add a token",
-    "removeTokenButton": "Approve",
-    "tokenAddressCopied": "Token address copied!",
     "moreInfo": {
       "title": "Manage Tokens",
       "block1": "When you manage tokens on the Stellar blockchain, you're creating and controlling digital representations of value, such as currencies or tokens.",
       "block2": "This involves setting up token approvals, which allow users to hold and trade your tokens, and configuring flags to control access and usage. By leveraging these features, you can securely issue, distribute, and manage your tokens while maintaining compliance and flexibility."
     },
-    "actions": {
-      "copyAddress": "Copy address",
-      "removeToken": "Remove token"
-    },
-    "removeTokenAlert": {
-      "title": "Remove token",
-      "message": "Are you sure you want to remove this token?",
-      "cancel": "Cancel",
-      "remove": "Remove"
-    },
-    "removeTokenError": "Error removing token {{tokenCode}}",
-    "removeTokenSuccess": "{{tokenCode}} successfully removed",
     "cantRemoveXlm": {
       "title": "Can’t remove XLM",
       "description": "XLM is the native asset of the Stellar network and cannot be removed. It’s required to maintain your account and pay for transaction fees."
@@ -528,13 +413,8 @@
     "removeTokenButton": "Approve",
     "searchPlaceholder": "Search token name or address",
     "pasteFromClipboard": "Paste from clipboard",
-    "tokenAddressCopied": "Token address copied!",
-    "popular": "Popular",
-    "native": "Native",
-    "onYourList": "On your list",
     "addToken": "Add token",
     "removeToken": "Remove token",
-    "approveTrustline": "Approve Trustline",
     "disclaimer": "Allow token to be displayed in your wallet. This does not add the token to your account.",
     "removeDisclaimer": "Remove token from being displayed and used with this wallet address",
     "confirmTrust": "Only confirm if you trust this token",
@@ -542,8 +422,6 @@
     "suspiciousToken": "This token was flagged as suspicious",
     "tokenAddress": "Token Address",
     "approveAnyway": "Approve anyway",
-    "toastSuccess": "{{tokenCode}} successfully added as a token",
-    "toastError": "Error adding token {{tokenCode}}",
     "emptyState": "No tokens found",
     "somethingWentWrong": "Something went wrong, please try again later"
   },
@@ -552,33 +430,11 @@
     "suspiciousRequest": "Suspicious request",
     "unsafeTransaction": "This transaction does not appear safe for the following reasons.",
     "token": "This token does not appear safe for the following reasons.",
-    "cancel": "Cancel",
-    "connectAnyway": "Connect anyway",
     "poweredBy": "Powered by",
-    "feedback": "Feedback?",
-    "maliciousToken": "This token is a scam",
-    "lowLiquidity": "This token has low liquidity",
-    "maliciousSite": "This site is a malicious app"
-  },
-  "security": {
-    "notOnYourLists": "This token is not on one of your lists",
-    "relativelyNewToken": "This is a relatively new token",
-    "tokenIsScam": "This token is a scam",
-    "suspiciousToken": "This token may be suspicious",
-    "lowLiquidity": "This token has low liquidity",
-    "poweredByBlockaid": "Powered by",
-    "learnMore": "Learn more",
-    "addAnyway": "Add anyway"
+    "feedback": "Feedback?"
   },
   "manageTokenRightContent": {
-    "copyAddress": "Copy address",
-    "hideToken": "Hide token",
-    "unhideToken": "Unhide token",
-    "tokenAddressCopied": "Token address copied!",
-    "removeTokenModal": {
-      "title": "Remove {{tokenCode}}?",
-      "message": "Are you sure you want to remove this token?\nOnce you remove a token, you will have to add it again later."
-    }
+    "copyAddress": "Copy address"
   },
   "sendPaymentScreen": {
     "title": "Send to",
@@ -594,32 +450,23 @@
     "swapTo": "Swap to",
     "title": "Swap",
     "searchTokenInputPlaceholder": "Search token name or address",
-    "setMax": "Set max",
     "receive": "Receive",
     "chooseToken": "Choose token",
     "selectToken": "Select a token",
     "swapScreenTokenListTitle": "Your tokens",
     "copyContractAddress": "Copy contract address",
     "viewOnStellarExpert": "View on stellar.expert",
-    "menu": {
-      "fee": "Fee: {{fee}} XLM",
-      "timeout": "Timeout: {{timeout}}(s)",
-      "slippage": "Slippage: {{slippage}}%"
-    },
     "review": {
       "title": "You are swapping",
       "wallet": "Wallet",
       "minimum": "Minimum",
       "rate": "Rate",
       "fee": "Fee",
-      "xdr": "XDR",
-      "warning": "Make sure to review the transaction above, once you confirm it's irreversible"
+      "xdr": "XDR"
     },
     "errors": {
       "failedToSetupTransaction": "Failed to setup swap transaction",
       "swapTransactionFailed": "Swap transaction failed",
-      "insufficientBalance": "Insufficient balance. Maximum spendable: {{amount}} {{symbol}}",
-      "insufficientXlmForFees": "Insufficient XLM for transaction fees. You need at least {{fee}} XLM to pay the transaction fee.",
       "noPathFound": "No path found between these tokens"
     }
   },
@@ -634,15 +481,12 @@
     "closeMessage": "You can close this screen, your transaction should be complete in less than a minute"
   },
   "swapTransactionDetails": {
-    "swapped": "Swapped",
-    "conversionRate": "Conversion rate",
-    "minimumReceived": "Minimum received"
+    "swapped": "Swapped"
   },
   "transactionTokenScreen": {
     "title": "Sending"
   },
   "transactionSettings": {
-    "title": "Transaction settings",
     "feeTitle": "Transaction fee",
     "memoTitle": "Memo",
     "slippageTitle": "Slippage",
@@ -652,7 +496,6 @@
     "slippagePlaceholder": "Custom %",
     "timeoutPlaceholder": "Enter timeout",
     "seconds": "seconds",
-    "congestion": "{{networkCongestion}} congestion",
     "memoInfo": {
       "title": "Memo",
       "description": "Some destination accounts on the Stellar network require a memo to identify your payment.",
@@ -660,8 +503,7 @@
     },
     "slippageInfo": {
       "title": "Allowed slippage",
-      "description": "The maximum price change (in percentage) you are willing to accept between initiating and confirming your swap. If the market price moves beyond this tolerance, the transaction will not execute.",
-      "additionalInfo": "A higher slippage tolerance means you're willing to accept a larger price difference, which can help ensure your trade executes but may result in a less favorable price."
+      "description": "The maximum price change (in percentage) you are willing to accept between initiating and confirming your swap. If the market price moves beyond this tolerance, the transaction will not execute."
     },
     "timeoutInfo": {
       "title": "Transaction timeout",
@@ -675,14 +517,11 @@
     },
     "errors": {
       "memo": {
-        "invalid": "Invalid memo format",
-        "tooLong": "Memo is too long (maximum {{max}} bytes)"
+        "invalid": "Invalid memo format"
       },
       "slippage": {
         "customRequired": "Custom slippage is required",
-        "invalidNumber": "Invalid number",
-        "minSlippage": "Slippage must be at least {{min}}%",
-        "maxSlippage": "Slippage must be below {{max}}%"
+        "invalidNumber": "Invalid number"
       },
       "timeout": {
         "required": "Transaction timeout is required",
@@ -691,8 +530,7 @@
       },
       "fee": {
         "required": "Transaction fee is required",
-        "invalid": "Invalid transaction fee",
-        "tooLow": "Fee must be greater than {{min}}"
+        "invalid": "Invalid transaction fee"
       }
     }
   },
@@ -707,27 +545,17 @@
     "chooseRecipient": "Choose recipient",
     "setAmount": "Set amount",
     "reviewButton": "Review",
-    "menu": {
-      "fee": "Fee: {{fee}} XLM",
-      "timeout": "Timeout: {{timeout}}(s)",
-      "editMemo": "Edit memo"
-    },
     "details": {
-      "from": "From",
       "memo": "Memo",
-      "none": "None",
       "fee": "Fee",
       "xdr": "XDR"
     },
     "errors": {
-      "insufficientXlmForFees": "XLM insufficient for transaction fees. You need at least {{fee}} XLM to pay the transaction fee.",
       "amountTooHigh": "The amount entered is greater than the available balance",
       "memoMissing": "This transaction requires a memo",
       "malicious": "This address was flagged as malicious",
       "suspicious": "This address was flagged as suspicious",
-      "maliciousTransaction": "This transaction was flagged as malicious",
       "maliciousAsset": "An asset was flagged as malicious",
-      "suspiciousTransaction": "This transaction was flagged as suspicious",
       "suspiciousAsset": "An asset was flagged as suspicious"
     },
     "confirmAnyway": "Confirm anyway"
@@ -753,14 +581,12 @@
   },
   "verifyPasswordScreen": {
     "title": "Verify Password",
-    "genericError": "Something went wrong. Please try again.",
     "verifyPasswordTemplateTitle": "Enter your password",
     "verifyPasswordTemplateDescription": "Enter your account password to verify your account.",
     "actions": {
       "createNewWallet": "Create New Wallet"
     }
   },
-  "logout": "Log out",
   "clipboard": {
     "failed": "Failed to copy to clipboard"
   },
@@ -776,10 +602,7 @@
   "medium": "Medium",
   "high": "High",
   "transactionReviewScreen": {
-    "title": "You are sending",
-    "previousSend": "1 previous send",
-    "previousSends": "{{count}} previous sends",
-    "reviewMessage": "Make sure to review the transaction above, once you confirm it's irreversible"
+    "title": "You are sending"
   },
   "transactionProcessingScreen": {
     "sending": "Sending",
@@ -793,44 +616,30 @@
     "unsupported": "Not Supported"
   },
   "transactionDetailsBottomSheet": {
-    "sent": "Sent {{tokenCode}}",
-    "firstTimeSend": "First time sent",
     "status": "Status",
     "statusSuccess": "Success",
     "statusFailed": "Failed",
     "statusPending": "Pending",
-    "rate": "Rate",
-    "fee": "Fee",
-    "transactionHash": "Transaction Hash",
-    "couldNotBeSentTo": "could not be sent to",
     "viewOnExpert": "View on stellar.expert"
   },
   "dappRequestBottomSheetContent": {
-    "transactionRequest": "Transaction Request",
     "confirmTransaction": "Confirm transaction",
-    "cancel": "Cancel",
     "confirm": "Confirm",
     "confirmAnyway": "Confirm anyway",
-    "xdrItem": "XDR",
-    "itemCopied": "{{itemName}} copied to clipboard!",
     "transactionDetails": "Transaction details"
   },
   "qrScanner": {
     "cameraNotAvailable": "Camera not permitted\nor not available"
   },
   "walletKit": {
-    "connectionSuccessfull": "{{dappName}} connection successfull!",
     "returnToBrowser": "You can now return to your browser",
     "signingSuccessfull": "Transaction successfully signed!",
     "userRejected": "User rejected the request",
     "errorInitializing": "Error initializing WalletConnect",
     "errorPairing": "Failed to pair with App",
-    "errorNoUriParam": "No URI parameter found in the link",
-    "errorConnecting": "{{dappName}} connection failed",
     "errorSigning": "Failed to sign transaction",
     "errorRespondingRequest": "Failed to respond transaction request",
     "errorWrongNetwork": "Wrong Network",
-    "errorWrongNetworkMessage": "Please switch to {{targetNetworkName}} on Freighter Settings and try again",
     "errorUnsupportedChain": "Unsupported Chain",
     "errorUnsupportedChainMessage": "Please make sure the App you are trying to connect with supports the Stellar chain",
     "notAuthenticated": "Logged out",
@@ -841,7 +650,6 @@
     "pleaseUnlockToSignTransaction": "Please unlock your wallet to sign this transaction",
     "connectionNotFound": "Connection not found",
     "connectionNotFoundMessage": "Please try creating a new connection or switch to another account which has the connection in your Freighter wallet",
-    "walletIsLocked": "Wallet is locked",
     "userNotAuthenticated": "User not authenticated"
   },
   "sendRecipient": {
@@ -876,9 +684,7 @@
     "fingerprint": {
       "title": "Fingerprint authentication",
       "description": "Enable Fingerprint for an added layer of security. Use biometric authentication to unlock your wallet and approve transactions quickly and securely.",
-      "toggleTitle": "Enable Fingerprint",
-      "disableAlertTitle": "Disable Fingerprint?",
-      "disableAlertMessage": "Are you sure you want to disable Fingerprint?"
+      "toggleTitle": "Enable Fingerprint"
     },
     "touchId": {
       "title": "Touch ID authentication",
@@ -890,9 +696,7 @@
     "faceBiometrics": {
       "title": "Face Recognition authentication",
       "description": "Enable Face Recognition for an added layer of security. Use biometric authentication to unlock your wallet and approve transactions quickly and securely.",
-      "toggleTitle": "Enable Face Recognition",
-      "disableAlertTitle": "Disable Face Recognition?",
-      "disableAlertMessage": "Are you sure you want to disable Face Recognition?"
+      "toggleTitle": "Enable Face Recognition"
     },
     "opticId": {
       "title": "Optic ID authentication",
@@ -917,7 +721,6 @@
     "dontShareWithAnyone": "Don't share this phrase with anyone",
     "neverAskForYourPhrase": "Stellar Development Foundation will never ever ask for your phrase",
     "password": "Password",
-    "passwordInputPlaceholder": "Enter your password",
     "showPhrase": "Show recovery phrase"
   },
   "yourRecoveryPhrase": {
@@ -936,14 +739,6 @@
       "cannotSwapSameToken": "Cannot swap to the same token",
       "invalidRecipientAddress": "Invalid recipient address",
       "cannotSendToSelf": "Cannot send to yourself",
-      "publicKeyRequired": "Public key is required",
-      "recipientAddressRequired": "Recipient address is required",
-      "selectedBalanceNotFound": "Selected balance not found",
-      "sourceBalanceNotFound": "Source balance not found",
-      "destinationBalanceNotFound": "Destination balance not found",
-      "transactionFeeRequired": "Transaction fee is required",
-      "transactionTimeoutRequired": "Transaction timeout is required",
-      "networkRequired": "Network is required",
       "minimumXlmForNewAccount": "Minimum of 1 XLM required to create a new account"
     }
   },
@@ -956,7 +751,6 @@
     "addXLM": "Add XLM",
     "doThisLater": "Do this later"
   },
-  "tokenIconAlt": "{{code}} token icon",
   "recoverySkipModal": {
     "title": "Are you sure you want to skip?",
     "description1": "Your recovery phrase gives you access to your account and is the only way to access it.",
@@ -978,37 +772,23 @@
       "notSending": "📝 Logging only (not sending)",
       "apiKeyMissing": "⚠️ API Key Missing",
       "apiKeyMissingWarning": "Events are being logged for development but NOT sent to Amplitude because the API key is not configured.",
-      "userId": "User ID: {{userId}}",
       "userIdNotSet": "User ID: Not set",
-      "environment": "Environment: {{environment}}",
-      "apiKey": "API Key: {{apiKey}}",
-      "recentEvents": "Recent Events ({{count}})",
       "clear": "Clear",
       "noRecentEvents": "No recent events",
       "actions": "Actions",
       "refresh": "🔄 Refresh",
-      "clearEvents": "Clear Events",
       "simulateSessionExpiry": "⏰ Simulate Session Expiry"
     }
   },
   "blockaid": {
     "brand": "Blockaid",
     "security": {
-      "token": {
-        "malicious": "This token was flagged as malicious",
-        "suspicious": "This token was flagged as suspicious",
-        "warning": "This token was flagged as warning",
-        "spam": "This token was flagged as spam"
-      },
       "site": {
         "malicious": "This site was flagged as malicious",
         "suspicious": "Unable to scan site for malicious behavior",
         "confirmTrust": "Only confirm if you trust this site"
       },
       "transaction": {
-        "simulationFailed": "Transaction simulation failed",
-        "malicious": "This transaction was flagged as malicious",
-        "warning": "This transaction was flagged as warning",
         "unableToSimulate": "Unable to simulate transaction",
         "noBalanceChanges": "No balance changes detected"
       }
@@ -1029,11 +809,9 @@
       "contractCreation": "Contract creation",
       "contractId": "Contract ID",
       "functionName": "Function name",
-      "parameters": "Parameters",
-      "contractAddress": "Contract address"
+      "parameters": "Parameters"
     },
     "operations": {
-      "destinationWithNumber": "Destination #{{number}}",
       "destination": "Destination",
       "startingBalance": "Starting Balance",
       "tokenCode": "Token Code",
@@ -1077,7 +855,6 @@
       "from": "From",
       "flags": {
         "authorized": "Authorized",
-        "authorizedToMaintainLiabilities": "Authorized To Maintain Liabilities",
         "clawbackEnabled": "Clawback Enabled"
       },
       "liquidityPoolId": "Liquidity Pool ID",
@@ -1089,7 +866,6 @@
       "minAmountB": "Min Amount B",
       "extendTo": "Extend To",
       "functionName": "Function Name",
-      "createContract": "Create Contract",
       "uploadContractWasm": "Upload Contract Wasm",
       "signerKey": "Signer Key",
       "signerSha256Hash": "Signer Sha256 Hash",
@@ -1100,18 +876,12 @@
       "wasm": "WASM",
       "parameters": "Parameters",
       "source": "Source",
-      "executableType": "Executable Type",
-      "accountId": "Account ID",
       "salt": "Salt"
     },
     "claimPredicates": {
-      "unconditional": "Unconditional",
-      "conditional": "Conditional",
       "and": "And",
       "or": "Or",
-      "not": "Not",
-      "beforeRelativeTime": "Before Relative Time",
-      "beforeAbsoluteTime": "Before Absolute Time"
+      "not": "Not"
     }
   }
 }

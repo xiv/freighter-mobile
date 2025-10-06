@@ -1,3 +1,11 @@
+# Clean up unused translations before commit
+echo "🧹 Cleaning up unused translations..."
+node scripts/clean-translations.js
+
+# Add the cleaned translation files to the commit
+git add src/i18n/locales/en/translations.json src/i18n/locales/pt/translations.json
+
+# Run existing pre-commit checks
 yarn lint-staged
 yarn test
 yarn lint:ts
