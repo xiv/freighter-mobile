@@ -99,11 +99,13 @@ export const TokensCollectiblesTabs: React.FC<Props> = React.memo(
 
     const [activeTab, setActiveTab] = useState<TabType>(defaultTab);
 
+    // DEBUG SET TO TESTNET
     const shouldHideCollectibles = useMemo(
-      () => hideCollectibles || network !== NETWORKS.PUBLIC,
+      () => hideCollectibles || network !== NETWORKS.TESTNET,
       [hideCollectibles, network],
     );
 
+    console.log("SHOULD HIDE", shouldHideCollectibles);
     /**
      * Handles tab switching and triggers the optional onTabChange callback
      * @param {TabType} tab - The tab type to switch to

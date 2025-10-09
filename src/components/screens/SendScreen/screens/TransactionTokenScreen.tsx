@@ -21,8 +21,11 @@ type TransactionTokenScreenProps = NativeStackScreenProps<
 const TransactionTokenScreen: React.FC<TransactionTokenScreenProps> = ({
   navigation,
 }) => {
-  const { recipientAddress, saveSelectedTokenId } =
-    useTransactionSettingsStore();
+  const {
+    recipientAddress,
+    saveSelectedTokenId,
+    saveSelectedCollectibleDetails,
+  } = useTransactionSettingsStore();
   const { account } = useGetActiveAccount();
   const { network } = useAuthenticationStore();
   const publicKey = account?.publicKey;
@@ -31,6 +34,15 @@ const TransactionTokenScreen: React.FC<TransactionTokenScreenProps> = ({
     saveSelectedTokenId(tokenId);
 
     navigation.goBack();
+  };
+
+  const handleCollectiblePress = (collectibleDetails: {
+    collectionAddress: string;
+    tokenId: string;
+  }) => {
+    saveSelectedCollectibleDetails(collectibleDetails);
+
+    // nav to send to, setup collectible review
   };
 
   const navigateToSelectContactScreen = () => {
@@ -57,11 +69,11 @@ const TransactionTokenScreen: React.FC<TransactionTokenScreenProps> = ({
         </View>
         <View className="flex-1 mt-[16px]">
           <TokensCollectiblesTabs
-            hideCollectibles
             showTokensSettings={false}
             publicKey={publicKey ?? ""}
             network={network}
             onTokenPress={handleTokenPress}
+            onCollectiblePress={handleCollectiblePress}
           />
         </View>
       </View>

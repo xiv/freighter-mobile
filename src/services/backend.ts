@@ -39,7 +39,7 @@ export const freighterBackend = createApiService({
   baseURL: EnvConfig.FREIGHTER_BACKEND_URL,
 });
 export const freighterBackendV2 = createApiService({
-  baseURL: EnvConfig.FREIGHTER_BACKEND_V2_URL,
+  baseURL: "http://localhost:8080/api/v1", // EnvConfig.FREIGHTER_BACKEND_V2_URL,
 });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -786,7 +786,7 @@ export const simulateTransaction = async (
   params: SimulateTransactionParams,
 ) => {
   const { data } = await freighterBackend.post<SimulateTransactionResponse>(
-    "/simulate-transaction",
+    "/simulate-tx",
     params,
   );
 
@@ -843,7 +843,7 @@ export interface SubmitTransactionBody {
 export const submitTransaction = async (body: SubmitTransactionBody) => {
   const { data } =
     await freighterBackend.post<Horizon.HorizonApi.SubmitTransactionResponse>(
-      "/submit-transaction",
+      "/submit-tx",
       body,
     );
 
@@ -1042,6 +1042,7 @@ export const fetchCollectibles = async ({
   (BackendCollection | BackendCollectionError)[]
 > => {
   try {
+    console.log(owner, contracts);
     const { data } = await freighterBackendV2.post<CollectiblesResponse>(
       "/collectibles",
       {

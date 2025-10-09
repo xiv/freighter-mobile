@@ -292,10 +292,7 @@ describe("Backend Service - Transaction Operations", () => {
 
       const result = await simulateTransaction(mockParams);
 
-      expect(mockPost).toHaveBeenCalledWith(
-        "/simulate-transaction",
-        mockParams,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/simulate-tx", mockParams);
       expect(result).toHaveProperty("simulationResponse");
       expect(result).toHaveProperty("preparedTransaction");
       expect(result).toHaveProperty("preparedTx");
@@ -316,10 +313,7 @@ describe("Backend Service - Transaction Operations", () => {
 
       const result = await simulateTransaction(paramsWithoutFee);
 
-      expect(mockPost).toHaveBeenCalledWith(
-        "/simulate-transaction",
-        paramsWithoutFee,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/simulate-tx", paramsWithoutFee);
       expect(result).toHaveProperty("preparedTx");
     });
 
@@ -354,10 +348,7 @@ describe("Backend Service - Transaction Operations", () => {
       await expect(simulateTransaction(mockParams)).rejects.toEqual(
         errorResponse,
       );
-      expect(mockPost).toHaveBeenCalledWith(
-        "/simulate-transaction",
-        mockParams,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/simulate-tx", mockParams);
     });
 
     it("should handle network errors", async () => {
@@ -398,10 +389,7 @@ describe("Backend Service - Transaction Operations", () => {
 
       const result = await submitTransaction(mockSubmitParams);
 
-      expect(mockPost).toHaveBeenCalledWith(
-        "/submit-transaction",
-        mockSubmitParams,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/submit-tx", mockSubmitParams);
       expect(result).toEqual(mockSubmitResponse);
       expect(result.successful).toBe(true);
       expect(result.ledger).toBe(12345);
@@ -416,10 +404,7 @@ describe("Backend Service - Transaction Operations", () => {
 
       await submitTransaction(mockSubmitParams);
 
-      expect(mockPost).toHaveBeenCalledWith(
-        "/submit-transaction",
-        mockSubmitParams,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/submit-tx", mockSubmitParams);
     });
 
     it("should handle submission with mainnet network", async () => {
@@ -437,10 +422,7 @@ describe("Backend Service - Transaction Operations", () => {
 
       const result = await submitTransaction(mainnetParams);
 
-      expect(mockPost).toHaveBeenCalledWith(
-        "/submit-transaction",
-        mainnetParams,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/submit-tx", mainnetParams);
       expect(result).toEqual(mockSubmitResponse);
     });
 
@@ -457,10 +439,7 @@ describe("Backend Service - Transaction Operations", () => {
       await expect(submitTransaction(mockSubmitParams)).rejects.toEqual(
         errorResponse,
       );
-      expect(mockPost).toHaveBeenCalledWith(
-        "/submit-transaction",
-        mockSubmitParams,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/submit-tx", mockSubmitParams);
     });
 
     it("should handle transaction timeout errors", async () => {
@@ -543,10 +522,7 @@ describe("Backend Service - Transaction Operations", () => {
 
       await submitTransaction(differentXdrParams);
 
-      expect(mockPost).toHaveBeenCalledWith(
-        "/submit-transaction",
-        differentXdrParams,
-      );
+      expect(mockPost).toHaveBeenCalledWith("/submit-tx", differentXdrParams);
     });
 
     it("should handle server errors (5xx)", async () => {
