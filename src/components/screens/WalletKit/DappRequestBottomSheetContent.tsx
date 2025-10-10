@@ -9,10 +9,11 @@ import { Button } from "components/sds/Button";
 import Icon from "components/sds/Icon";
 import { TextButton } from "components/sds/TextButton";
 import { Text } from "components/sds/Typography";
+import { AnalyticsEvent } from "config/analyticsConfig";
 import { NATIVE_TOKEN_CODE } from "config/constants";
 import { ActiveAccount } from "ducks/auth";
 import { WalletKitSessionRequest } from "ducks/walletKit";
-import { formatTokenAmount } from "helpers/formatAmount";
+import { formatTokenForDisplay } from "helpers/formatAmount";
 import { useTransactionBalanceListItems } from "hooks/blockaid/useTransactionBalanceListItems";
 import useAppTranslation from "hooks/useAppTranslation";
 import useColors from "hooks/useColors";
@@ -89,7 +90,7 @@ const DappRequestBottomSheetContent: React.FC<
   const formatFeeAmount = (feeXlm?: string | number) => {
     if (!feeXlm) return "--";
 
-    return formatTokenAmount(String(feeXlm), NATIVE_TOKEN_CODE);
+    return formatTokenForDisplay(String(feeXlm), NATIVE_TOKEN_CODE);
   };
 
   const accountDetailList = useMemo(
@@ -235,7 +236,10 @@ const DappRequestBottomSheetContent: React.FC<
         <List variant="secondary" items={transactionBalanceListItems} />
         <List variant="secondary" items={accountDetailList} />
         {signTransactionDetails && (
-          <SignTransactionDetails data={signTransactionDetails} />
+          <SignTransactionDetails
+            data={signTransactionDetails}
+            analyticsEvent={AnalyticsEvent.VIEW_SIGN_DAPP_TRANSACTION_DETAILS}
+          />
         )}
       </View>
 

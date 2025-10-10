@@ -94,12 +94,19 @@ jest.mock("ducks/auth", () => ({
   }),
 }));
 
-const mockRoute = {
-  params: {
+jest.mock("ducks/loginData", () => ({
+  useLoginDataStore: jest.fn(() => ({
     password: "test-password",
-    recoveryPhrase:
+    mnemonicPhrase:
       "test phrase one two three four five six seven eight nine ten eleven twelve",
-  },
+    setMnemonicPhrase: jest.fn(),
+    setPassword: jest.fn(),
+    clearLoginData: jest.fn(),
+  })),
+}));
+
+const mockRoute = {
+  params: {},
 };
 
 const user = userEvent.setup();
@@ -143,7 +150,10 @@ const renderScreen = () =>
   );
 
 describe("ValidateRecoveryPhraseScreen", () => {
-  const words = mockRoute.params.recoveryPhrase.split(" ");
+  const words =
+    "test phrase one two three four five six seven eight nine ten eleven twelve".split(
+      " ",
+    );
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -206,7 +216,8 @@ describe("ValidateRecoveryPhraseScreen", () => {
     await waitFor(() => {
       expect(mockSignUp).toHaveBeenCalledWith({
         password: "test-password",
-        mnemonicPhrase: mockRoute.params.recoveryPhrase,
+        mnemonicPhrase:
+          "test phrase one two three four five six seven eight nine ten eleven twelve",
       });
     });
   }, 30000);
@@ -273,8 +284,6 @@ describe("ValidateRecoveryPhraseScreen", () => {
       expect(mockNavigation.navigate).toHaveBeenCalledWith(
         AUTH_STACK_ROUTES.BIOMETRICS_ENABLE_SCREEN,
         {
-          password: "test-password",
-          mnemonicPhrase: mockRoute.params.recoveryPhrase,
           source: BiometricsSource.ONBOARDING,
         },
       );

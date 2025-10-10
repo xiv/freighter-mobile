@@ -8,6 +8,8 @@ PODS:
     - DGSwiftUtilities (~> 0.29)
   - DGSwiftUtilities (0.47.0)
   - DoubleConversion (1.1.6)
+  - experiment-react-native-client (1.5.3):
+    - React-Core
   - fast_float (8.0.0)
   - FastOpenCV-iOS (1.0.4)
   - FBLazyVector (0.81.4)
@@ -2829,6 +2831,34 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - RNLocalize (3.5.2):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - RNPermissions (5.4.2):
     - boost
     - DoubleConversion
@@ -3202,6 +3232,7 @@ DEPENDENCIES:
   - "amplitude-react-native (from `../node_modules/@amplitude/analytics-react-native`)"
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - "experiment-react-native-client (from `../node_modules/@amplitude/experiment-react-native-client`)"
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
@@ -3296,6 +3327,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -3324,6 +3356,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  experiment-react-native-client:
+    :path: "../node_modules/@amplitude/experiment-react-native-client"
   fast_float:
     :podspec: "../node_modules/react-native/third-party-podspecs/fast_float.podspec"
   FBLazyVector:
@@ -3511,6 +3545,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-inappbrowser-reborn"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNReanimated:
@@ -3539,6 +3575,7 @@ SPEC CHECKSUMS:
   ContextMenuAuxiliaryPreview: 20be0be795b783b68f8792732eed4bed9f202c1c
   DGSwiftUtilities: 567f8d5ee618f0b7afb185b17aa45ff356315a0f
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
+  experiment-react-native-client: 442c8a970a5ec779c006b1342f9297791d7e378f
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FastOpenCV-iOS: 2057f306db3ad068577e6fca38411f1b1920d71e
   FBLazyVector: 941bef1c8eeabd9fe1f501e30a5220beee913886
@@ -3633,6 +3670,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 3a73f098d74712952870e948b3d9cf7b6cae9961
   RNInAppBrowser: 6d3eb68d471b9834335c664704719b8be1bfdb20
   RNKeychain: a2c134ab796272c3d605e035ab727591000b30f3
+  RNLocalize: a0ec66afe0980934cfe13f3bc30f476443388a36
   RNPermissions: a774e9e55b559f85daa96e926d90fda1a0e9b941
   RNReanimated: 3c450abad323c7d57a98d34ab9ff642c18da9021
   RNScreens: 0bbf16c074ae6bb1058a7bf2d1ae017f4306797c
@@ -3646,6 +3684,6 @@ SPEC CHECKSUMS:
   VisionCamera: 891edb31806dd3a239c8a9d6090d6ec78e11ee80
   Yoga: a3ed390a19db0459bd6839823a6ac6d9c6db198d
 
-PODFILE CHECKSUM: 947d6d39ba29bcc0865ea496303737f2da6091fa
+PODFILE CHECKSUM: f25a24a0bea8dd37f52d89cd98a60aaaad58f127
 
 COCOAPODS: 1.15.2

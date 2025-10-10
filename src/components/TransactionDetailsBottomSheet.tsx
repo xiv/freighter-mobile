@@ -14,7 +14,11 @@ import { useAuthenticationStore } from "ducks/auth";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { formatTransactionDate } from "helpers/date";
-import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
+import {
+  formatTokenForDisplay,
+  formatFiatAmount,
+  stroopToXlm,
+} from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import { getStellarExpertUrl } from "helpers/stellarExpert";
 import useAppTranslation from "hooks/useAppTranslation";
@@ -54,7 +58,7 @@ const TransactionDetailsBottomSheet: React.FC<
   const { network } = useAuthenticationStore();
   const { open: openInAppBrowser } = useInAppBrowser();
 
-  const { recipientAddress, selectedTokenId, transactionMemo, transactionFee } =
+  const { recipientAddress, selectedTokenId, transactionMemo } =
     useTransactionSettingsStore();
 
   const {
@@ -86,6 +90,7 @@ const TransactionDetailsBottomSheet: React.FC<
   const slicedAddress = truncateAddress(recipientAddress, 4, 4);
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetail | null>(null);
+  const actualFee = stroopToXlm(transactionDetails?.fee ?? 0).toString();
 
   useEffect(() => {
     if (transactionHash) {
@@ -179,7 +184,10 @@ const TransactionDetailsBottomSheet: React.FC<
         <View className="flex-row items-center justify-between">
           <View>
             <Text xl medium primary>
-              {formatTokenAmount(transactionAmount, selectedBalance?.tokenCode)}
+              {formatTokenForDisplay(
+                transactionAmount,
+                selectedBalance?.tokenCode,
+              )}
             </Text>
             <Text md medium secondary>
               {selectedBalance?.currentPrice
@@ -262,7 +270,7 @@ const TransactionDetailsBottomSheet: React.FC<
               <View className="flex-row items-center gap-[4px]">
                 <StellarLogo width={16} height={16} />
                 <Text md medium>
-                  {formatTokenAmount(transactionFee, NATIVE_TOKEN_CODE)}
+                  {formatTokenForDisplay(actualFee, NATIVE_TOKEN_CODE)}
                 </Text>
               </View>
             ),

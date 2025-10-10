@@ -5,6 +5,7 @@ import BottomSheet from "components/BottomSheet";
 import { IconButton } from "components/IconButton";
 import NumericKeyboard from "components/NumericKeyboard";
 import TransactionSettingsBottomSheet from "components/TransactionSettingsBottomSheet";
+import { SecurityDetailBottomSheet } from "components/blockaid";
 import { BaseLayout } from "components/layout/BaseLayout";
 import {
   SwapReviewBottomSheet,
@@ -20,7 +21,7 @@ import { AnalyticsEvent } from "config/analyticsConfig";
 import {
   DEFAULT_DECIMALS,
   SWAP_SELECTION_TYPES,
-  TransactionSettingsContext,
+  TransactionContext,
 } from "config/constants";
 import { logger } from "config/logger";
 import { SWAP_ROUTES, SwapStackParamList } from "config/routes";
@@ -34,6 +35,10 @@ import {
   hasXLMForFees,
 } from "helpers/balances";
 import { useDeviceSize, DeviceSize } from "helpers/deviceSize";
+import {
+  formatBigNumberForDisplay,
+  parseDisplayNumberToBigNumber,
+} from "helpers/formatAmount";
 import { formatNumericInput } from "helpers/numericInput";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useBalancesList } from "hooks/useBalancesList";
@@ -50,6 +55,12 @@ import React, {
 } from "react";
 import { View, Text as RNText, TouchableOpacity } from "react-native";
 import { analytics } from "services/analytics";
+import { SecurityLevel } from "services/blockaid/constants";
+import {
+  assessTokenSecurity,
+  assessTransactionSecurity,
+  extractSecurityWarnings,
+} from "services/blockaid/helper";
 
 type SwapAmountScreenProps = NativeStackScreenProps<
   SwapStackParamList,
@@ -68,9 +79,11 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
   const { network } = useAuthenticationStore();
   const { swapFee, swapSlippage, resetToDefaults } = useSwapSettingsStore();
   const { isBuilding, resetTransaction } = useTransactionBuilderStore();
-  const { transactionXDR } = useTransactionBuilderStore();
+  const { transactionXDR, transactionHash } = useTransactionBuilderStore();
 
   const swapReviewBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const transactionSecurityWarningBottomSheetModalRef =
+    useRef<BottomSheetModal>(null);
   const transactionSettingsBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [swapError, setSwapError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
@@ -78,7 +91,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
   const deviceSize = useDeviceSize();
   const isSmallScreen = deviceSize === DeviceSize.XS;
 
-  const { balanceItems } = useBalancesList({
+  const { balanceItems, scanResults } = useBalancesList({
     publicKey: account?.publicKey ?? "",
     network,
   });
@@ -88,6 +101,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     destinationTokenId,
     sourceTokenSymbol,
     sourceAmount,
+    sourceAmountDisplay,
     destinationAmount,
     pathResult,
     isLoadingPath,
@@ -95,6 +109,8 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     setSourceToken,
     setDestinationToken,
     setSourceAmount,
+    setSourceAmountDisplay,
+
     resetSwap,
   } = useSwapStore();
 
@@ -146,17 +162,26 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
         balance: sourceBalance,
         subentryCount: account?.subentryCount,
         transactionFee: swapFee,
-      })
+      }) &&
+      !transactionHash
     ) {
       const errorMessage = t("swapScreen.errors.insufficientBalance", {
-        amount: spendableAmount?.toFixed() || "0",
+        amount: spendableAmount
+          ? formatBigNumberForDisplay(spendableAmount, {
+              decimalPlaces: DEFAULT_DECIMALS,
+            })
+          : "0",
         symbol: sourceTokenSymbol,
       });
       setAmountError(errorMessage);
       showToast({
         variant: "error",
         title: t("swapScreen.errors.insufficientBalance", {
-          amount: spendableAmount?.toFixed() || "0",
+          amount: spendableAmount
+            ? formatBigNumberForDisplay(spendableAmount, {
+                decimalPlaces: DEFAULT_DECIMALS,
+              })
+            : "0",
           symbol: sourceTokenSymbol,
         }),
         toastId: "insufficient-balance",
@@ -172,6 +197,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     t,
     account?.subentryCount,
     swapFee,
+    transactionHash,
     sourceBalance,
     balanceItems,
     showToast,
@@ -194,6 +220,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     handleProcessingScreenClose,
     sourceToken,
     destinationToken,
+    transactionScanResult,
   } = useSwapTransaction({
     sourceAmount,
     sourceBalance,
@@ -253,12 +280,21 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     });
   }, [navigation]);
 
-  const handleAmountChange = useCallback(
+  const handleDisplayAmountChange = useCallback(
     (key: string) => {
-      const newAmount = formatNumericInput(sourceAmount, key, DEFAULT_DECIMALS);
-      setSourceAmount(newAmount);
+      const newAmount = formatNumericInput(
+        sourceAmountDisplay,
+        key,
+        DEFAULT_DECIMALS,
+      );
+      // Update display value immediately to preserve formatting
+      setSourceAmountDisplay(newAmount);
+      // Convert locale-formatted input to internal dot notation
+      const internalAmount = parseDisplayNumberToBigNumber(newAmount);
+      // Update internal value for calculations, preserving display value
+      setSourceAmount(internalAmount.toString(), true);
     },
-    [sourceAmount, setSourceAmount],
+    [setSourceAmount, setSourceAmountDisplay, sourceAmountDisplay],
   );
 
   const handlePercentagePress = useCallback(
@@ -364,9 +400,92 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
     [resetSwap, resetTransaction, resetToDefaults],
   );
 
-  const handleCloseModal = useCallback(() => {
-    swapReviewBottomSheetModalRef.current?.dismiss();
-  }, []);
+  const handleCancelSecurityWarning = () => {
+    transactionSecurityWarningBottomSheetModalRef.current?.dismiss();
+  };
+
+  const transactionSecurityAssessment = useMemo(
+    () => assessTransactionSecurity(transactionScanResult),
+    [transactionScanResult],
+  );
+
+  const sourceBalanceSecurityAssessment = useMemo(
+    () =>
+      assessTokenSecurity(
+        sourceBalance
+          ? scanResults[sourceBalance.id.replace(":", "-")]
+          : undefined,
+      ),
+    [sourceBalance, scanResults],
+  );
+
+  const destBalanceSecurityAssessment = useMemo(
+    () =>
+      assessTokenSecurity(
+        destinationBalance
+          ? scanResults[destinationBalance.id.replace(":", "-")]
+          : undefined,
+      ),
+    [destinationBalance, scanResults],
+  );
+
+  const securityWarnings = useMemo(() => {
+    if (
+      transactionSecurityAssessment.isMalicious ||
+      transactionSecurityAssessment.isSuspicious ||
+      sourceBalanceSecurityAssessment.isMalicious ||
+      sourceBalanceSecurityAssessment.isSuspicious ||
+      destBalanceSecurityAssessment.isMalicious ||
+      destBalanceSecurityAssessment.isSuspicious
+    ) {
+      const warnings = [
+        ...extractSecurityWarnings(transactionScanResult),
+        ...Object.values(scanResults).map(extractSecurityWarnings),
+      ].flat();
+
+      if (Array.isArray(warnings) && warnings.length > 0) {
+        return warnings;
+      }
+    }
+
+    return [];
+  }, [
+    transactionSecurityAssessment.isMalicious,
+    transactionSecurityAssessment.isSuspicious,
+    sourceBalanceSecurityAssessment.isMalicious,
+    sourceBalanceSecurityAssessment.isSuspicious,
+    destBalanceSecurityAssessment.isMalicious,
+    destBalanceSecurityAssessment.isSuspicious,
+    transactionScanResult,
+    scanResults,
+  ]);
+
+  const transactionSecuritySeverity = useMemo(() => {
+    if (transactionSecurityAssessment.isMalicious)
+      return SecurityLevel.MALICIOUS;
+    if (transactionSecurityAssessment.isSuspicious)
+      return SecurityLevel.SUSPICIOUS;
+
+    return undefined;
+  }, [
+    transactionSecurityAssessment.isMalicious,
+    transactionSecurityAssessment.isSuspicious,
+  ]);
+
+  const { isMalicious: isTxMalicious, isSuspicious: isTxSuspicious } =
+    transactionSecurityAssessment;
+  const { isMalicious: isSourceMalicious, isSuspicious: isSourceSuspicious } =
+    sourceBalanceSecurityAssessment;
+  const { isMalicious: isDestMalicious, isSuspicious: isDestSuspicious } =
+    destBalanceSecurityAssessment;
+  const isMalicious = isTxMalicious || isSourceMalicious || isDestMalicious;
+  const isSuspicious = isTxSuspicious || isSourceSuspicious || isDestSuspicious;
+
+  const handleConfirmAnyway = () => {
+    transactionSecurityWarningBottomSheetModalRef.current?.dismiss();
+
+    handleConfirmSwap();
+  };
 
   const handleCancelSwap = useCallback(() => {
     swapReviewBottomSheetModalRef.current?.dismiss();
@@ -377,6 +496,8 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
       onCancel: handleCancelSwap,
       onConfirm: handleConfirmSwap,
       isBuilding,
+      isMalicious,
+      isSuspicious,
       transactionXDR: transactionXDR ?? undefined,
       onSettingsPress: handleOpenSettings,
     }),
@@ -384,6 +505,8 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
       handleCancelSwap,
       handleConfirmSwap,
       isBuilding,
+      isMalicious,
+      isSuspicious,
       transactionXDR,
       handleOpenSettings,
     ],
@@ -418,7 +541,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
               numberOfLines={1}
               minimumFontScale={0.6}
             >
-              {sourceAmount}{" "}
+              {sourceAmountDisplay}{" "}
               <RNText style={{ color: themeColors.text.secondary }}>
                 {sourceTokenSymbol}
               </RNText>
@@ -432,7 +555,9 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
               <BalanceRow
                 isSingleRow
                 balance={sourceBalance}
+                scanResult={scanResults[sourceBalance.id.replace(":", "-")]}
                 onPress={navigateToSelectSourceTokenScreen}
+                spendableAmount={spendableAmount || undefined}
                 rightContent={
                   <IconButton
                     Icon={Icon.ChevronRight}
@@ -449,6 +574,9 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
               <BalanceRow
                 isSingleRow
                 balance={destinationBalance}
+                scanResult={
+                  scanResults[destinationBalance.id.replace(":", "-")]
+                }
                 onPress={navigateToSelectDestinationTokenScreen}
                 rightContent={
                   <IconButton
@@ -510,7 +638,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
             </View>
           </View>
           <View className="w-full">
-            <NumericKeyboard onPress={handleAmountChange} />
+            <NumericKeyboard onPress={handleDisplayAmountChange} />
           </View>
           <View className="w-full mt-auto mb-4">
             <Button
@@ -529,11 +657,45 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
 
       <BottomSheet
         modalRef={swapReviewBottomSheetModalRef}
-        handleCloseModal={handleCloseModal}
+        handleCloseModal={() =>
+          swapReviewBottomSheetModalRef.current?.dismiss()
+        }
+        snapPoints={["80%"]}
         scrollable
         analyticsEvent={AnalyticsEvent.VIEW_SWAP_CONFIRM}
-        customContent={<SwapReviewBottomSheet />}
+        customContent={
+          <SwapReviewBottomSheet
+            transactionScanResult={transactionScanResult}
+            sourceTokenScanResult={
+              sourceBalance
+                ? scanResults[sourceBalance.id.replace(":", "-")]
+                : undefined
+            }
+            destTokenScanResult={
+              destinationBalance
+                ? scanResults[destinationBalance.id.replace(":", "-")]
+                : undefined
+            }
+            onBannerPress={() =>
+              transactionSecurityWarningBottomSheetModalRef.current?.present()
+            }
+          />
+        }
         renderFooterComponent={renderFooterComponent}
+      />
+      <BottomSheet
+        modalRef={transactionSecurityWarningBottomSheetModalRef}
+        handleCloseModal={handleCancelSecurityWarning}
+        customContent={
+          <SecurityDetailBottomSheet
+            warnings={securityWarnings}
+            onCancel={handleCancelSecurityWarning}
+            onProceedAnyway={handleConfirmAnyway}
+            onClose={handleCancelSecurityWarning}
+            severity={transactionSecuritySeverity}
+            proceedAnywayText={t("transactionAmountScreen.confirmAnyway")}
+          />
+        }
       />
       <BottomSheet
         modalRef={transactionSettingsBottomSheetModalRef}
@@ -542,7 +704,7 @@ const SwapAmountScreen: React.FC<SwapAmountScreenProps> = ({
         }
         customContent={
           <TransactionSettingsBottomSheet
-            context={TransactionSettingsContext.Swap}
+            context={TransactionContext.Swap}
             onCancel={handleCancelTransactionSettings}
             onConfirm={handleConfirmTransactionSettings}
             onSettingsChange={handleSettingsChange}

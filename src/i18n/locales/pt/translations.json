@@ -31,14 +31,14 @@
     "hash": "Hash",
     "salt": "Salt",
     "addMemo": "Add. memo",
-    "wallet": "Carteira"
+    "wallet": "Carteira",
+    "copy": "Copiar"
   },
   "home": {
     "title": "Início",
     "buy": "Adicionar",
     "send": "Enviar",
     "swap": "Trocar",
-    "copy": "Copiar",
     "actions": {
       "settings": "Configurações",
       "manageTokens": "Gerenciar tokens",
@@ -123,7 +123,13 @@
   "changeNetworkScreen": {
     "title": "Mudar Rede",
     "currentNetwork": "Rede atual",
-    "networkSettings": "Configurações de Rede"
+    "networkSettings": "Configurações de Rede",
+    "developerSettings": {
+      "title": "Configurações do Desenvolvedor",
+      "warning": "As alterações de backend entrarão em vigor após reiniciar o aplicativo.",
+      "backendV1Environment": "Ambiente do Backend V1",
+      "backendV2Environment": "Ambiente do Backend V2"
+    }
   },
   "networkSettingsScreen": {
     "title": "Configurações de Rede",
@@ -688,7 +694,11 @@
       "amountTooHigh": "O valor digitado é maior que o saldo disponível",
       "memoMissing": "Esta transação requer um memo",
       "malicious": "Este endereço foi marcado como malicioso",
-      "suspicious": "Este endereço foi marcado como suspeito"
+      "suspicious": "Este endereço foi marcado como suspeito",
+      "maliciousTransaction": "Esta transação foi marcada como maliciosa",
+      "maliciousAsset": "Um ativo foi marcado como malicioso",
+      "suspiciousTransaction": "Esta transação foi marcada como suspeita",
+      "suspiciousAsset": "Um ativo foi marcado como suspeito"
     },
     "confirmAnyway": "Confirmar mesmo assim"
   },
@@ -1034,6 +1044,7 @@
       "destination": "Destino",
       "startingBalance": "Saldo inicial",
       "tokenCode": "Código do token",
+      "token": "Token",
       "amount": "Valor",
       "sendMax": "Enviar máximo",
       "destinationToken": "Token de destino",

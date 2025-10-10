@@ -1,11 +1,13 @@
+import { EnvConfig } from "config/envConfig";
 import { Platform } from "react-native";
-import Config from "react-native-config";
 
 // -----------------------------------------------------------------------------
 // API CONFIGURATION
 // -----------------------------------------------------------------------------
 
-export const AMPLITUDE_API_KEY = Config.AMPLITUDE_API_KEY ?? "";
+export const AMPLITUDE_API_KEY = EnvConfig.AMPLITUDE_API_KEY ?? "";
+export const AMPLITUDE_EXPERIMENT_DEPLOYMENT_KEY =
+  EnvConfig.AMPLITUDE_EXPERIMENT_DEPLOYMENT_KEY ?? "";
 
 // -----------------------------------------------------------------------------
 // STORAGE KEYS

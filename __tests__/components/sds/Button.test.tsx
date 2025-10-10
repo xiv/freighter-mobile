@@ -5,12 +5,15 @@ import { pxValue } from "helpers/dimensions";
 import { renderWithProviders } from "helpers/testUtils";
 import React from "react";
 
+const mockVerifyActionWithBiometrics = jest.fn((callback) => callback());
+const mockGetBiometricButtonIcon = jest.fn(() => null);
+
 // Mock the auth module to provide getLoginType function
 jest.mock("ducks/auth", () => ({
   useAuthenticationStore: jest.fn(() => ({
     network: "testnet",
     setSignInMethod: jest.fn(),
-    verifyActionWithBiometrics: jest.fn((callback) => callback()),
+    verifyActionWithBiometrics: mockVerifyActionWithBiometrics,
   })),
   getLoginType: jest.fn((biometryType) => {
     if (!biometryType) return "password";
@@ -21,6 +24,24 @@ jest.mock("ducks/auth", () => ({
   }),
 }));
 
+// Mock the useBiometrics hook
+jest.mock("hooks/useBiometrics", () => ({
+  useBiometrics: () => ({
+    biometryType: null,
+    setIsBiometricsEnabled: jest.fn(),
+    isBiometricsEnabled: false,
+    enableBiometrics: jest.fn(() => Promise.resolve(true)),
+    disableBiometrics: jest.fn(() => Promise.resolve(true)),
+    checkBiometrics: jest.fn(() => Promise.resolve(null)),
+    handleEnableBiometrics: jest.fn(() => Promise.resolve(true)),
+    handleDisableBiometrics: jest.fn(() => Promise.resolve(true)),
+    verifyBiometrics: jest.fn(() => Promise.resolve(true)),
+    getButtonIcon: jest.fn(() => null),
+    getButtonText: jest.fn(() => ""),
+    getButtonColor: jest.fn(() => "#000000"),
+    getBiometricButtonIcon: mockGetBiometricButtonIcon,
+  }),
+}));
 describe("Button", () => {
   const onPressMock = jest.fn();
 
@@ -366,6 +387,58 @@ describe("Button", () => {
       const button = getByTestId("test-button");
       fireEvent.press(button);
 
+      expect(onPressMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("Higher-Order Component (HOC) behavior", () => {
+    beforeEach(() => {
+      mockVerifyActionWithBiometrics.mockClear();
+      mockGetBiometricButtonIcon.mockClear();
+    });
+
+    it("uses ButtonWithBiometrics (HOC) when biometric is true", () => {
+      const { getByTestId } = renderWithProviders(
+        <Button biometric onPress={onPressMock} testID="test-button">
+          Biometric HOC Button
+        </Button>,
+      );
+
+      const button = getByTestId("test-button");
+      fireEvent.press(button);
+
+      expect(mockVerifyActionWithBiometrics).toHaveBeenCalledTimes(1);
+      expect(mockGetBiometricButtonIcon).toHaveBeenCalled();
+      expect(onPressMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("uses ButtonBase (no HOC) when biometric is false", () => {
+      const { getByTestId } = renderWithProviders(
+        <Button biometric={false} onPress={onPressMock} testID="test-button">
+          Base Button
+        </Button>,
+      );
+
+      const button = getByTestId("test-button");
+      fireEvent.press(button);
+
+      expect(mockVerifyActionWithBiometrics).not.toHaveBeenCalled();
+      expect(mockGetBiometricButtonIcon).not.toHaveBeenCalled();
+      expect(onPressMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("uses ButtonBase (no HOC) when biometric is not provided", () => {
+      const { getByTestId } = renderWithProviders(
+        <Button onPress={onPressMock} testID="test-button">
+          Default Button
+        </Button>,
+      );
+
+      const button = getByTestId("test-button");
+      fireEvent.press(button);
+
+      expect(mockVerifyActionWithBiometrics).not.toHaveBeenCalled();
+      expect(mockGetBiometricButtonIcon).not.toHaveBeenCalled();
       expect(onPressMock).toHaveBeenCalledTimes(1);
     });
   });

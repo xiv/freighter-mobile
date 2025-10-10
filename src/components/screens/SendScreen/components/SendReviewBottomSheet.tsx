@@ -9,13 +9,14 @@ import { Button } from "components/sds/Button";
 import Icon from "components/sds/Icon";
 import { TextButton } from "components/sds/TextButton";
 import { Text } from "components/sds/Typography";
+import { AnalyticsEvent } from "config/analyticsConfig";
 import { DEFAULT_PADDING, NATIVE_TOKEN_CODE } from "config/constants";
 import { PricedBalance } from "config/types";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { isLiquidityPool } from "helpers/balances";
 import { pxValue } from "helpers/dimensions";
-import { formatTokenAmount, formatFiatAmount } from "helpers/formatAmount";
+import { formatTokenForDisplay, formatFiatAmount } from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useClipboard } from "hooks/useClipboard";
@@ -220,7 +221,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
         titleColor: themeColors.text.secondary,
         trailingContent: (
           <Text md primary>
-            {formatTokenAmount(transactionFee, NATIVE_TOKEN_CODE)}
+            {formatTokenForDisplay(transactionFee, NATIVE_TOKEN_CODE)}
           </Text>
         ),
       },
@@ -270,7 +271,10 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
               <TokenIcon token={selectedBalance} />
               <View className="flex-1">
                 <Text xl medium>
-                  {formatTokenAmount(tokenAmount, selectedBalance.tokenCode)}
+                  {formatTokenForDisplay(
+                    tokenAmount,
+                    selectedBalance.tokenCode,
+                  )}
                 </Text>
                 <Text md medium secondary>
                   {selectedBalance.currentPrice
@@ -307,7 +311,10 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
       {renderBanner()}
       <List variant="secondary" items={transactionDetailsList} />
       {signTransactionDetails && (
-        <SignTransactionDetails data={signTransactionDetails} />
+        <SignTransactionDetails
+          data={signTransactionDetails}
+          analyticsEvent={AnalyticsEvent.VIEW_SEND_TRANSACTION_DETAILS}
+        />
       )}
     </View>
   );
@@ -339,6 +346,7 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
       onSettingsPress,
     } = props;
 
+    const isTrusted = !isMalicious && !isSuspicious;
     const isLoading = isBuilding;
     const isDisabled = !transactionXDR || isLoading;
 
@@ -375,15 +383,26 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
     ]);
 
     const renderButtons = useCallback(() => {
-      const cancelButton = (
-        <View
-          className={`${!isMalicious && !isSuspicious ? "flex-1" : "w-full"}`}
+      const settingsButton = (
+        <TouchableOpacity
+          onPress={onSettingsPress}
+          className="border border-gray-6 items-center justify-center"
+          style={{
+            height: pxValue(50),
+            borderRadius: pxValue(25),
+            width: pxValue(50),
+          }}
         >
+          <Icon.Settings04 size={24} themeColor="gray" />
+        </TouchableOpacity>
+      );
+
+      const cancelButton = (
+        <View className={`${isTrusted ? "flex-1" : "w-full"}`}>
           <Button
             tertiary={isSuspicious}
-            destructive={isMalicious}
-            secondary={!isMalicious && !isSuspicious}
-            xl
+            destructive={!isTrusted}
+            secondary={isTrusted}
             isFullWidth
             onPress={onCancel}
             disabled={isDisabled}
@@ -393,31 +412,43 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
         </View>
       );
 
-      if (isMalicious || isSuspicious) {
+      const confirmAnywayButton = (
+        <TextButton
+          text={
+            isRequiredMemoMissing
+              ? t("common.addMemo")
+              : t("transactionAmountScreen.confirmAnyway")
+          }
+          onPress={onConfirm}
+          isLoading={isLoading}
+          disabled={isDisabled}
+          variant={isMalicious ? "error" : "secondary"}
+        />
+      );
+
+      if (!isTrusted) {
         return (
           <>
             {cancelButton}
-            <TextButton
-              text={t("transactionAmountScreen.confirmAnyway")}
-              onPress={onConfirm}
-              isLoading={isLoading}
-              disabled={isDisabled}
-              variant={isMalicious ? "error" : "secondary"}
-            />
+            {confirmAnywayButton}
           </>
         );
       }
 
       return (
         <>
+          {onSettingsPress && settingsButton}
           {cancelButton}
           {renderConfirmButton()}
         </>
       );
     }, [
-      isMalicious,
+      onSettingsPress,
+      isTrusted,
       isSuspicious,
+      isMalicious,
       onCancel,
+      isRequiredMemoMissing,
       isDisabled,
       t,
       onConfirm,
@@ -428,21 +459,13 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
     return (
       <View
         className={`${
-          !isMalicious && !isSuspicious ? "flex-row" : "flex-col"
+          isTrusted ? "flex-row" : "flex-col"
         } bg-background-primary w-full gap-[12px] mt-[24px] flex-column px-6 py-6`}
         style={{
           paddingBottom: insets.bottom + pxValue(DEFAULT_PADDING),
           gap: pxValue(12),
         }}
       >
-        {onSettingsPress && (
-          <TouchableOpacity
-            onPress={onSettingsPress}
-            className="w-[46px] h-[46px] rounded-full border border-gray-6 items-center justify-center"
-          >
-            <Icon.Settings04 size={24} themeColor="gray" />
-          </TouchableOpacity>
-        )}
         {renderButtons()}
       </View>
     );

@@ -1,4 +1,5 @@
 import Blockaid from "@blockaid/client";
+import BigNumber from "bignumber.js";
 import { TokenIcon } from "components/TokenIcon";
 import Icon from "components/sds/Icon";
 import { Text } from "components/sds/Typography";
@@ -10,7 +11,7 @@ import { PricedBalance } from "config/types";
 import { isLiquidityPool } from "helpers/balances";
 import { px } from "helpers/dimensions";
 import {
-  formatTokenAmount,
+  formatTokenForDisplay,
   formatFiatAmount,
   formatPercentageAmount,
 } from "helpers/formatAmount";
@@ -61,6 +62,7 @@ interface BalanceRowProps {
   onPress?: () => void;
   isSingleRow?: boolean;
   customTextContent?: string;
+  spendableAmount?: BigNumber;
 }
 
 export const DefaultRightContent: React.FC<{ balance: PricedBalance }> = ({
@@ -127,6 +129,7 @@ export const BalanceRow: React.FC<BalanceRowProps> = ({
   rightSectionWidth,
   onPress,
   isSingleRow = false,
+  spendableAmount,
 }) => {
   const { isMalicious, isSuspicious } = assessTokenSecurity(scanResult);
   return renderContent(
@@ -151,7 +154,10 @@ export const BalanceRow: React.FC<BalanceRowProps> = ({
           </Text>
           <Text sm medium secondary numberOfLines={1}>
             {customTextContent ||
-              formatTokenAmount(balance.total, balance.tokenCode)}
+              formatTokenForDisplay(
+                spendableAmount || balance.total,
+                balance.tokenCode,
+              )}
           </Text>
         </TokenTextContainer>
       </LeftSection>

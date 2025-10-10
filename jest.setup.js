@@ -159,9 +159,11 @@ jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
 
-jest.mock("helpers/getOsLanguage", () =>
-  jest.fn().mockImplementationOnce(() => "en"),
-);
+jest.mock("helpers/localeUtils", () => ({
+  getDeviceLanguage: jest.fn().mockReturnValue("en"),
+  getDeviceLocale: jest.fn().mockReturnValue("en-US"),
+  isSupportedLocale: jest.fn().mockReturnValue(true),
+}));
 
 // Mock stellarExpert service to avoid import issues
 jest.mock("services/stellarExpert", () => ({
@@ -542,4 +544,56 @@ jest.mock("@sentry/react-native", () => ({
   setTag: jest.fn(),
   setExtra: jest.fn(),
   wrap: jest.fn((component) => component), // Return component as-is for testing
+}));
+
+// Mock react-native-localize
+const mockGetNumberFormatSettings = jest.fn(() => ({
+  decimalSeparator: ".",
+  groupingSeparator: ",",
+}));
+
+jest.mock("react-native-localize", () => ({
+  getNumberFormatSettings: mockGetNumberFormatSettings,
+  getLocales: jest.fn(() => [
+    {
+      countryCode: "US",
+      languageTag: "en-US",
+      languageCode: "en",
+      isRTL: false,
+    },
+  ]),
+  getCurrencies: jest.fn(() => ["USD"]),
+  getTimeZone: jest.fn(() => "America/New_York"),
+  uses24HourClock: jest.fn(() => false),
+  usesMetricSystem: jest.fn(() => false),
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+}));
+
+// Export the mock function so tests can modify it
+global.mockGetNumberFormatSettings = mockGetNumberFormatSettings;
+
+// Mock config/envConfig to avoid async initialization issues in tests
+jest.mock("config/envConfig", () => ({
+  EnvConfig: {
+    AMPLITUDE_API_KEY: "mock-amplitude-key",
+    AMPLITUDE_EXPERIMENT_DEPLOYMENT_KEY: "mock-experiment-key",
+    SENTRY_DSN: "mock-sentry-dsn",
+    WALLET_KIT_PROJECT_ID: "mock-wallet-kit-project-id",
+    WALLET_KIT_MT_URL: "https://mock-wallet-kit.example.com",
+    WALLET_KIT_MT_ICON: "https://mock-icon.example.com/icon.png",
+    WALLET_KIT_MT_NAME: "Mock Freighter Wallet",
+    WALLET_KIT_MT_DESCRIPTION: "Mock wallet description",
+    WALLET_KIT_MT_REDIRECT_NATIVE: "mockfreighter://",
+    ANDROID_DEBUG_KEYSTORE_PASSWORD: "mock-debug-password",
+    ANDROID_DEBUG_KEYSTORE_ALIAS: "mock-debug-alias",
+    ANDROID_DEV_KEYSTORE_PASSWORD: "mock-dev-password",
+    ANDROID_DEV_KEYSTORE_ALIAS: "mock-dev-alias",
+    ANDROID_PROD_KEYSTORE_PASSWORD: "mock-prod-password",
+    ANDROID_PROD_KEYSTORE_ALIAS: "mock-prod-alias",
+  },
+  BackendEnvConfig: {
+    FREIGHTER_BACKEND_V1_URL: "https://mock-backend-v1-dev.example.com/api/v1",
+    FREIGHTER_BACKEND_V2_URL: "https://mock-backend-v2-dev.example.com/api/v1",
+  },
 }));
