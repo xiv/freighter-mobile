@@ -42,7 +42,10 @@ const TransactionTokenScreen: React.FC<TransactionTokenScreenProps> = ({
   }) => {
     saveSelectedCollectibleDetails(collectibleDetails);
 
-    // nav to send to, setup collectible review
+    navigation.navigate(
+      SEND_PAYMENT_ROUTES.SEND_COLLECTIBLE_REVIEW,
+      collectibleDetails,
+    );
   };
 
   const navigateToSelectContactScreen = () => {

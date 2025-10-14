@@ -32,7 +32,10 @@
     "hash": "Hash",
     "salt": "Salt",
     "wallet": "Wallet",
-    "copy": "Copy"
+    "copy": "Copy",
+    "name": "Name",
+    "collection": "Collection",
+    "tokenId": "Token ID"
   },
   "home": {
     "title": "Home",

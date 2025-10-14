@@ -32,7 +32,10 @@
     "salt": "Salt",
     "addMemo": "Add. memo",
     "wallet": "Carteira",
-    "copy": "Copiar"
+    "copy": "Copiar",
+    "name": "Nome",
+    "collection": "Coleção",
+    "tokenId": "ID do Token"
   },
   "home": {
     "title": "Início",
