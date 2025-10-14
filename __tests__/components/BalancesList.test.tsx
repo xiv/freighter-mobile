@@ -8,12 +8,7 @@ import React from "react";
 // Mock react-i18next
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string, options?: { code?: string }) => {
-      if (key === "tokenIconAlt" && options?.code) {
-        return `${options.code} token icon`;
-      }
-      return key;
-    },
+    t: (key: string) => key,
   }),
 }));
 
