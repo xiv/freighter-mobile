@@ -10,6 +10,7 @@ import AddCollectibleScreen from "components/screens/AddCollectibleScreen";
 import { BiometricsOnboardingScreen } from "components/screens/BiometricsEnableScreen/BiometricsEnableScreen";
 import CollectibleDetailsScreen from "components/screens/CollectibleDetailsScreen";
 import ConnectedAppsScreen from "components/screens/ConnectedAppsScreen";
+import { ForceUpdateScreen } from "components/screens/ForceUpdateScreen/ForceUpdateScreen";
 import { LoadingScreen } from "components/screens/LoadingScreen";
 import { LockScreen } from "components/screens/LockScreen";
 import ScanQRCodeScreen from "components/screens/ScanQRCodeScreen";
@@ -35,6 +36,7 @@ import {
 } from "helpers/navigationOptions";
 import { useAnalyticsPermissions } from "hooks/useAnalyticsPermissions";
 import useAppTranslation from "hooks/useAppTranslation";
+import { useAppUpdate } from "hooks/useAppUpdate";
 import { useBiometrics } from "hooks/useBiometrics";
 import {
   AuthNavigator,
@@ -69,6 +71,7 @@ export const RootNavigator = () => {
   const [initializing, setInitializing] = useState(true);
   const { t } = useAppTranslation();
   const { checkBiometrics, isBiometricsEnabled } = useBiometrics();
+  const { needsForcedUpdate } = useAppUpdate();
   // Use analytics/permissions hook only after splash is hidden
   useAnalyticsPermissions({
     previousState: initializing ? undefined : "none",
@@ -132,6 +135,11 @@ export const RootNavigator = () => {
 
   if (initializing) {
     return <LoadingScreen />;
+  }
+
+  // Show force update screen if required
+  if (needsForcedUpdate) {
+    return <ForceUpdateScreen />;
   }
 
   return (
