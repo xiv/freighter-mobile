@@ -174,13 +174,13 @@ export const CollectiblesGrid: React.FC<CollectiblesGridProps> = React.memo(
       </View>
     );
 
-    // If scrolling is disabled, render collections directly without FlatList
+    // When inner scrolling is disabled, render collections directly without FlatList
     if (disableInnerScrolling) {
-      if (!collections.length || collections.length === 0) {
-        if (error) {
-          return renderErrorView();
-        }
+      if (error) {
+        return renderErrorView();
+      }
 
+      if (!collections.length) {
         return renderEmptyView();
       }
 

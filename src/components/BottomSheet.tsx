@@ -238,6 +238,12 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           {...bottomSheetViewProps}
         >
           {renderContent()}
+          {/* 
+            Workaround for BottomSheetTextInput layout issues with @gorhom/bottom-sheet.
+            When the keyboard appears, BottomSheetView can shrink unexpectedly, causing
+            text inputs to become unusable. This conditional rendering adds padding
+            to maintain proper layout when keyboard is visible.
+          */}
           {keyboardHeight > 0 && (
             <View style={{ height: keyboardHeight - insets.bottom }} />
           )}
