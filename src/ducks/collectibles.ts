@@ -311,7 +311,6 @@ export const useCollectiblesStore = create<CollectiblesState>((set, get) => ({
         network,
         publicKey,
       });
-      console.log(collectiblesContracts);
 
       // Transform local storage data to API format
       const contracts = collectiblesContracts.map((contract) => ({

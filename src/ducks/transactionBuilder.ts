@@ -270,7 +270,6 @@ export const useTransactionBuilderStore = create<TransactionBuilderState>(
       set({ isBuilding: true, error: null, requestId: newRequestId });
 
       try {
-        // TODO: this should take an optional memo
         const builtTxResult = await buildSendCollectibleTransaction({
           collectionAddress: params.collectionAddress,
           tokenId: params.tokenId,
