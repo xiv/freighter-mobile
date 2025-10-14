@@ -8,7 +8,6 @@ import {
 import { SETTINGS_ROUTES, SettingsStackParamList } from "config/routes";
 import { renderWithProviders } from "helpers/testUtils";
 import React from "react";
-import { Linking } from "react-native";
 
 jest.mock("hooks/useAppTranslation", () => () => ({
   t: (key: string) => {
@@ -18,6 +17,15 @@ jest.mock("hooks/useAppTranslation", () => () => ({
     };
     return translations[key] || key;
   },
+}));
+
+const mockOpenInAppBrowser = jest.fn();
+
+jest.mock("hooks/useInAppBrowser", () => ({
+  useInAppBrowser: () => ({
+    open: mockOpenInAppBrowser,
+    isAvailable: jest.fn().mockResolvedValue(true),
+  }),
 }));
 
 type ShareFeedbackScreenProps = NativeStackScreenProps<
@@ -37,6 +45,10 @@ const mockRoute = {
 } as unknown as ShareFeedbackScreenProps["route"];
 
 describe("ShareFeedbackScreen", () => {
+  beforeEach(() => {
+    mockOpenInAppBrowser.mockClear();
+  });
+
   it("renders correctly with Discord and GitHub options", () => {
     renderWithProviders(
       <ShareFeedbackScreen navigation={mockNavigation} route={mockRoute} />,
@@ -46,7 +58,7 @@ describe("ShareFeedbackScreen", () => {
     expect(screen.getByText("GitHub")).toBeTruthy();
   });
 
-  it("calls Linking.openURL with Discord URL when Discord option is pressed", async () => {
+  it("calls inAppBrowser.open with Discord URL when Discord option is pressed", async () => {
     renderWithProviders(
       <ShareFeedbackScreen navigation={mockNavigation} route={mockRoute} />,
     );
@@ -54,10 +66,11 @@ describe("ShareFeedbackScreen", () => {
     const discordOption = screen.getByText("Discord");
     await userEvent.press(discordOption);
 
-    expect(Linking.openURL).toHaveBeenCalledWith(FREIGHTER_DISCORD_URL);
+    expect(mockOpenInAppBrowser).toHaveBeenCalledTimes(1);
+    expect(mockOpenInAppBrowser).toHaveBeenCalledWith(FREIGHTER_DISCORD_URL);
   }, 10000);
 
-  it("calls Linking.openURL with GitHub URL when GitHub option is pressed", async () => {
+  it("calls inAppBrowser.open with GitHub URL when GitHub option is pressed", async () => {
     renderWithProviders(
       <ShareFeedbackScreen navigation={mockNavigation} route={mockRoute} />,
     );
@@ -65,6 +78,9 @@ describe("ShareFeedbackScreen", () => {
     const githubOption = screen.getByText("GitHub");
     await userEvent.press(githubOption);
 
-    expect(Linking.openURL).toHaveBeenCalledWith(FREIGHTER_GITHUB_ISSUE_URL);
+    expect(mockOpenInAppBrowser).toHaveBeenCalledTimes(1);
+    expect(mockOpenInAppBrowser).toHaveBeenCalledWith(
+      FREIGHTER_GITHUB_ISSUE_URL,
+    );
   }, 10000);
 });
