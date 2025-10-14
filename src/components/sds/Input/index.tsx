@@ -1,4 +1,3 @@
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { Text } from "components/sds/Typography";
 import { THEME } from "config/theme";
 import { isAndroid } from "helpers/device";
@@ -354,7 +353,6 @@ interface InputProps {
     | "numeric"
     | "email-address"
     | "phone-pad";
-  isBottomSheetInput?: boolean;
   style?: ViewStyle | TextStyle;
   /** Text to display as suffix after the input value (e.g., "XLM") */
   inputSuffixDisplay?: string;
@@ -364,11 +362,10 @@ interface InputProps {
 
 /**
  * Reference type for input components.
- * Can be either a TextInput or BottomSheetTextInput component reference.
  *
- * @typedef {TextInput | React.ComponentRef<typeof BottomSheetTextInput>} InputRef
+ * @typedef {TextInput} InputRef
  */
-type InputRef = TextInput | React.ComponentRef<typeof BottomSheetTextInput>;
+type InputRef = TextInput;
 
 /**
  * Props interface for the TextInputComponent.
@@ -386,7 +383,6 @@ type InputRef = TextInput | React.ComponentRef<typeof BottomSheetTextInput>;
  * @property {boolean} [autoCorrect] - Whether to enable auto-correction
  * @property {boolean} [autoFocus] - Whether to focus the input on mount
  * @property {string} [keyboardType] - Keyboard type for the input
- * @property {boolean} [isBottomSheetInput] - Whether to use BottomSheetTextInput
  * @property {string} [testID] - Test ID for testing
  * @property {ViewStyle | TextStyle} [style] - Custom style to override default styling
  * @property {Function} [onSubmitEditing] - Callback when editing is submitted
@@ -404,7 +400,6 @@ type TextInputComponentProps = Pick<
   | "secureTextEntry"
   | "editable"
   | "autoCorrect"
-  | "isBottomSheetInput"
   | "testID"
   | "style"
   | "onSubmitEditing"
@@ -430,7 +425,6 @@ type TextInputComponentProps = Pick<
  * @param {boolean} [props.secureTextEntry=false] - Whether the input is for password entry
  * @param {boolean} [props.editable=true] - Whether the input is editable
  * @param {boolean} [props.autoCorrect=true] - Whether to enable auto-correction
- * @param {boolean} [props.isBottomSheetInput=false] - Whether to use BottomSheetTextInput
  * @param {string} [props.testID] - Test ID for testing
  * @param {ViewStyle | TextStyle} [props.style] - Custom style to override default styling
  * @param {string} [props.className] - Additional CSS classes
@@ -447,7 +441,6 @@ const TextInputComponent = React.forwardRef<InputRef, TextInputComponentProps>(
       secureTextEntry = false,
       editable = true,
       autoCorrect = true,
-      isBottomSheetInput = false,
       testID,
       style,
       className,
@@ -458,27 +451,6 @@ const TextInputComponent = React.forwardRef<InputRef, TextInputComponentProps>(
     const inputClasses = useMemo(() => getInputClasses(!editable), [editable]);
 
     const inputStyles = useMemo(() => getInputStyles(fieldSize), [fieldSize]);
-
-    if (isBottomSheetInput) {
-      return (
-        <BottomSheetTextInput
-          ref={
-            ref as React.Ref<React.ComponentRef<typeof BottomSheetTextInput>>
-          }
-          testID={testID}
-          placeholder={placeholder}
-          placeholderTextColor={placeholderTextColor}
-          value={value}
-          onChangeText={onChangeText}
-          editable={editable}
-          secureTextEntry={secureTextEntry}
-          autoCorrect={autoCorrect}
-          className={inputClasses}
-          style={[inputStyles, style]}
-          {...props}
-        />
-      );
-    }
 
     return (
       <TextInput
@@ -797,7 +769,6 @@ const SuffixInput = React.forwardRef<InputRef, InputProps>(
  * @param {("none" | "sentences" | "words" | "characters")} [props.autoCapitalize] - Text capitalization behavior
  * @param {("default" | "number-pad" | "decimal-pad" | "numeric" | "email-address" | "phone-pad")} [props.keyboardType] - Keyboard type for the input
  * @param {ViewStyle | TextStyle} [props.style] - Custom style to override default styling
- * @param {boolean} [props.isBottomSheetInput] - Whether the input is a bottom sheet input
  * @param {string} [props.inputSuffixDisplay] - Text to display as suffix after the input value (e.g., "XLM"). When provided, automatically uses SuffixInput component
  * @param {boolean} [props.centered] - Whether to center the text alignment within the input field (only applies when inputSuffixDisplay is provided)
  */
@@ -856,7 +827,6 @@ export const Input = React.forwardRef<InputRef, InputProps>(
       inputSuffixDisplay,
       centered = false,
       style,
-      isBottomSheetInput,
       ...props
     },
     ref,
@@ -943,7 +913,6 @@ export const Input = React.forwardRef<InputRef, InputProps>(
               secureTextEntry={isPassword && !showPassword}
               editable={editable}
               autoCorrect={autoCorrect}
-              isBottomSheetInput={isBottomSheetInput}
               testID={testID}
               style={style}
               selection={!editable && value ? { start: 0, end: 0 } : undefined}
