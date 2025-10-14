@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import BigNumber from "bignumber.js";
+import { CollectibleImage } from "components/CollectibleImage";
 import { TokenIcon } from "components/TokenIcon";
 import TransactionDetailsContent from "components/screens/HistoryScreen/TransactionDetailsContent";
 import { createOperationString } from "components/screens/HistoryScreen/helpers";
@@ -22,6 +23,7 @@ import {
   CustomToken,
 } from "config/types";
 import { isSacContract } from "helpers/balances";
+import { transformBackendCollections } from "helpers/collectibles";
 import { formatTokenForDisplay } from "helpers/formatAmount";
 import {
   SorobanTokenInterface,
@@ -34,7 +36,7 @@ import { t } from "i18next";
 import { capitalize } from "lodash";
 import React from "react";
 import { View } from "react-native";
-import { getTokenDetails } from "services/backend";
+import { fetchCollectibles, getTokenDetails } from "services/backend";
 
 interface SorobanHistoryItemData {
   operation: any;
@@ -63,6 +65,18 @@ interface ProcessSorobanMintData {
 }
 
 interface ProcessSorobanTransferData {
+  operation: any;
+  sorobanAttributes: any;
+  publicKey: string;
+  network: NETWORKS;
+  stellarExpertUrl: string;
+  fee: string;
+  themeColors: ThemeColors;
+  baseHistoryItemData: Partial<HistoryItemData>;
+  operationString: string;
+}
+
+interface ProcessCollectibleTransferData {
   operation: any;
   sorobanAttributes: any;
   publicKey: string;
@@ -468,6 +482,149 @@ const processSorobanTransfer = async ({
 };
 
 /**
+ * Process Collectible transfer operations
+ */
+const processCollectibleTransfer = async ({
+  operation,
+  sorobanAttributes,
+  publicKey,
+  stellarExpertUrl,
+  fee,
+  themeColors,
+  baseHistoryItemData,
+  operationString,
+}: ProcessCollectibleTransferData): Promise<HistoryItemData> => {
+  const { id } = operation;
+  const historyItemData: Partial<HistoryItemData> = { ...baseHistoryItemData };
+  const tokenId = sorobanAttributes.tokenId.toString();
+
+  try {
+    const collections = await fetchCollectibles({
+      owner: publicKey,
+      contracts: [
+        {
+          id: sorobanAttributes.contractId,
+          token_ids: [tokenId],
+        },
+      ],
+    });
+    const backendCollections = collections.filter(
+      (collection) => "collection" in collection,
+    );
+
+    if (!backendCollections) {
+      historyItemData.rowText = operationString;
+      const transactionDetails: TransactionDetails = {
+        operation,
+        transactionTitle: t("history.transactionHistory.contract"),
+        transactionType: TransactionType.CONTRACT_TRANSFER,
+        status: TransactionStatus.SUCCESS,
+        fee,
+        IconComponent: historyItemData.IconComponent,
+        ActionIconComponent: historyItemData.ActionIconComponent,
+        externalUrl: `${stellarExpertUrl}/op/${id}`,
+        contractDetails: {
+          contractAddress: sorobanAttributes.contractId,
+          sorobanTokenInterface: SorobanTokenInterface.transfer,
+          transferDetails: {
+            from: sorobanAttributes.from,
+            to: sorobanAttributes.to,
+            tokenId: sorobanAttributes.tokenId,
+          },
+        },
+      };
+
+      historyItemData.transactionDetails = transactionDetails;
+      return historyItemData as HistoryItemData;
+    }
+
+    const transformedCollections =
+      await transformBackendCollections(backendCollections);
+
+    const collectionDetails = transformedCollections.find(
+      (collection) =>
+        collection.collectionAddress === sorobanAttributes.contractId,
+    );
+
+    if (!collectionDetails) {
+      throw new Error("Collection not found");
+    }
+
+    const transferedCollectible = collectionDetails.items.find(
+      (collectible) => collectible.tokenId === tokenId,
+    );
+
+    if (!transferedCollectible) {
+      throw new Error("Collectible not found");
+    }
+
+    historyItemData.IconComponent = (
+      <View className="w-[40px] h-[40px] rounded-2xl bg-background-tertiary p-1">
+        <CollectibleImage
+          imageUri={transferedCollectible.image}
+          placeholderIconSize={25}
+        />
+      </View>
+    );
+    historyItemData.ActionIconComponent = (
+      <Icon.ArrowCircleUp size={16} color={themeColors.foreground.primary} />
+    );
+    historyItemData.rowText = transferedCollectible.name;
+    historyItemData.actionText = t("history.transactionHistory.sent");
+
+    const transactionDetails: TransactionDetails = {
+      operation,
+      transactionTitle: t(
+        "history.transactionDetailsBottomSheet.sentCollectible",
+      ),
+      transactionType: TransactionType.CONTRACT_TRANSFER,
+      status: TransactionStatus.SUCCESS,
+      fee,
+      IconComponent: historyItemData.IconComponent,
+      ActionIconComponent: historyItemData.ActionIconComponent,
+      externalUrl: `${stellarExpertUrl}/op/${id}`,
+      contractDetails: {
+        contractAddress: sorobanAttributes.contractId,
+        sorobanTokenInterface: SorobanTokenInterface.transfer,
+        transferDetails: {
+          from: sorobanAttributes.from,
+          to: sorobanAttributes.to,
+          tokenId: sorobanAttributes.tokenId,
+        },
+      },
+    };
+
+    historyItemData.transactionDetails = transactionDetails;
+  } catch (error) {
+    historyItemData.rowText = operationString;
+    const transactionDetails: TransactionDetails = {
+      operation,
+      transactionTitle: t("history.transactionHistory.contract"),
+      transactionType: TransactionType.CONTRACT_TRANSFER,
+      status: TransactionStatus.SUCCESS,
+      fee,
+      IconComponent: historyItemData.IconComponent,
+      ActionIconComponent: historyItemData.ActionIconComponent,
+      externalUrl: `${stellarExpertUrl}/op/${id}`,
+      contractDetails: {
+        contractAddress: sorobanAttributes.contractId,
+        contractDecimals: 0,
+        sorobanTokenInterface: SorobanTokenInterface.transfer,
+        transferDetails: {
+          from: sorobanAttributes.from,
+          to: sorobanAttributes.to,
+          tokenId: sorobanAttributes.tokenId,
+        },
+      },
+    };
+
+    historyItemData.transactionDetails = transactionDetails;
+  }
+
+  return historyItemData as HistoryItemData;
+};
+
+/**
  * Maps Soroban contract operations to history item data
  */
 export const mapSorobanHistoryItem = async ({
@@ -549,7 +706,20 @@ export const mapSorobanHistoryItem = async ({
 
   // Handle token transfer operation
   if (sorobanAttributes.fnName === SorobanTokenInterface.transfer) {
-    return processSorobanTransfer({
+    if (sorobanAttributes.amount) {
+      return processSorobanTransfer({
+        operation,
+        sorobanAttributes,
+        publicKey,
+        network,
+        stellarExpertUrl,
+        fee,
+        themeColors,
+        baseHistoryItemData,
+        operationString,
+      });
+    }
+    return processCollectibleTransfer({
       operation,
       sorobanAttributes,
       publicKey,

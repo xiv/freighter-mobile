@@ -47,7 +47,8 @@ export interface PaymentDetailsType {
 export interface TokenTransferDetailsType {
   from: string;
   to: string;
-  amount: string;
+  amount?: string;
+  tokenId?: number;
 }
 
 export interface TokenMintDetailsType {
