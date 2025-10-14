@@ -1,7 +1,6 @@
 import Blockaid from "@blockaid/client";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { BigNumber } from "bignumber.js";
 import BottomSheet from "components/BottomSheet";
 import { CollectibleImage } from "components/CollectibleImage";
 import { IconButton } from "components/IconButton";
@@ -35,16 +34,12 @@ import { useHistoryStore } from "ducks/history";
 import { useSendRecipientStore } from "ducks/sendRecipient";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
-import { calculateSpendableAmount, hasXLMForFees } from "helpers/balances";
 import { useBlockaidTransaction } from "hooks/blockaid/useBlockaidTransaction";
 import useAppTranslation from "hooks/useAppTranslation";
-import { useBalancesList } from "hooks/useBalancesList";
 import useColors from "hooks/useColors";
 import useGetActiveAccount from "hooks/useGetActiveAccount";
 import { useRightHeaderButton } from "hooks/useRightHeader";
-import { useTokenFiatConverter } from "hooks/useTokenFiatConverter";
 import { useValidateTransactionMemo } from "hooks/useValidateTransactionMemo";
-import { useToast } from "providers/ToastProvider";
 import React, {
   useCallback,
   useEffect,
@@ -81,13 +76,8 @@ const SendCollectibleReviewScreen: React.FC<
   const { themeColors } = useColors();
   const { account } = useGetActiveAccount();
   const { network } = useAuthenticationStore();
-  const {
-    transactionFee,
-    recipientAddress,
-    selectedTokenId,
-    saveSelectedCollectibleDetails,
-    resetSettings,
-  } = useTransactionSettingsStore();
+  const { recipientAddress, saveSelectedCollectibleDetails, resetSettings } =
+    useTransactionSettingsStore();
   const { collections } = useCollectiblesStore();
 
   const { resetSendRecipient } = useSendRecipientStore();
@@ -100,13 +90,12 @@ const SendCollectibleReviewScreen: React.FC<
   }, [tokenId, collectionAddress, saveSelectedCollectibleDetails]);
 
   const {
-    buildTransaction,
+    buildSendCollectibleTransaction,
     signTransaction,
     submitTransaction,
     resetTransaction,
     isBuilding,
     transactionXDR,
-    transactionHash,
   } = useTransactionBuilderStore();
 
   // Reset everything on unmount
@@ -125,16 +114,13 @@ const SendCollectibleReviewScreen: React.FC<
     ],
   );
 
-  const { isValidatingMemo, isMemoMissing } =
-    useValidateTransactionMemo(transactionXDR);
+  const { isValidatingMemo } = useValidateTransactionMemo(transactionXDR);
 
   const { scanTransaction } = useBlockaidTransaction();
 
   const publicKey = account?.publicKey;
   const reviewBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [amountError, setAmountError] = useState<string | null>(null);
-  const { showToast } = useToast();
   const addMemoExplanationBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const transactionSettingsBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [transactionScanResult, setTransactionScanResult] = useState<
@@ -179,17 +165,6 @@ const SendCollectibleReviewScreen: React.FC<
     navigation.navigate(SEND_PAYMENT_ROUTES.SEND_SEARCH_CONTACTS_SCREEN);
   };
 
-  const { balanceItems } = useBalancesList({
-    publicKey: publicKey ?? "",
-    network,
-  });
-
-  const selectedBalance = balanceItems.find(
-    (item) => item.id === selectedTokenId,
-  );
-
-  const isRequiredMemoMissing = isMemoMissing && !isValidatingMemo;
-
   const transactionSecurityAssessment = useMemo(
     () => assessTransactionSecurity(transactionScanResult),
     [transactionScanResult],
@@ -207,78 +182,10 @@ const SendCollectibleReviewScreen: React.FC<
     return undefined;
   }, [collections, collectionAddress, tokenId]);
 
-  const { tokenAmount } = useTokenFiatConverter({ selectedBalance });
-
-  const spendableBalance = useMemo(() => {
-    if (!selectedBalance || !account) {
-      return BigNumber(0);
-    }
-
-    const result = calculateSpendableAmount({
-      balance: selectedBalance,
-      subentryCount: account.subentryCount,
-      transactionFee,
-    });
-
-    return result;
-  }, [selectedBalance, account, transactionFee]);
-
-  useEffect(() => {
-    const currentTokenAmount = BigNumber(tokenAmount);
-
-    if (!hasXLMForFees(balanceItems, transactionFee)) {
-      const errorMessage = t(
-        "transactionAmountScreen.errors.insufficientXlmForFees",
-        {
-          fee: transactionFee,
-        },
-      );
-      setAmountError(errorMessage);
-      showToast({
-        variant: "error",
-        title: t("transactionAmountScreen.errors.insufficientXlmForFees", {
-          fee: transactionFee,
-        }),
-        toastId: "insufficient-xlm-for-fees",
-        duration: 3000,
-      });
-      return;
-    }
-
-    if (
-      spendableBalance &&
-      currentTokenAmount.isGreaterThan(spendableBalance) &&
-      !transactionHash
-    ) {
-      const errorMessage = t("transactionAmountScreen.errors.amountTooHigh");
-      setAmountError(errorMessage);
-      showToast({
-        variant: "error",
-        title: t("transactionAmountScreen.errors.amountTooHigh"),
-        toastId: "amount-too-high",
-        duration: 3000,
-      });
-    } else {
-      setAmountError(null);
-    }
-  }, [
-    tokenAmount,
-    spendableBalance,
-    balanceItems,
-    transactionFee,
-    transactionHash,
-    t,
-    showToast,
-  ]);
-
   const prepareTransaction = useCallback(
     async (shouldOpenReview = false) => {
-      const numberTokenAmount = new BigNumber(tokenAmount);
-
       const hasRequiredParams =
-        recipientAddress &&
-        selectedBalance &&
-        numberTokenAmount.isGreaterThan(0);
+        publicKey && recipientAddress && selectedCollectible;
       if (!hasRequiredParams) {
         return;
       }
@@ -292,10 +199,10 @@ const SendCollectibleReviewScreen: React.FC<
           recipientAddress: storeRecipientAddress,
         } = useTransactionSettingsStore.getState();
 
-        const finalXDR = await buildTransaction({
-          tokenAmount,
-          selectedBalance,
-          recipientAddress: storeRecipientAddress,
+        const xdr = await buildSendCollectibleTransaction({
+          collectionAddress: selectedCollectible.collectionAddress,
+          tokenId: Number(selectedCollectible.tokenId),
+          destinationAccount: storeRecipientAddress,
           transactionMemo: freshTransactionMemo,
           transactionFee: freshTransactionFee,
           transactionTimeout: freshTransactionTimeout,
@@ -303,10 +210,10 @@ const SendCollectibleReviewScreen: React.FC<
           senderAddress: publicKey,
         });
 
-        if (!finalXDR) return;
+        if (!xdr) return;
 
         if (shouldOpenReview) {
-          scanTransaction(finalXDR, "internal")
+          scanTransaction(xdr, "internal")
             .then((scanResult) => {
               logger.info("TransactionAmountScreen", "scanResult", scanResult);
               setTransactionScanResult(scanResult);
@@ -327,11 +234,10 @@ const SendCollectibleReviewScreen: React.FC<
       }
     },
     [
-      tokenAmount,
-      selectedBalance,
+      selectedCollectible,
       network,
       publicKey,
-      buildTransaction,
+      buildSendCollectibleTransaction,
       scanTransaction,
       recipientAddress,
     ],
@@ -348,8 +254,8 @@ const SendCollectibleReviewScreen: React.FC<
 
     const processTransaction = async () => {
       try {
-        if (!account?.privateKey || !selectedBalance || !recipientAddress) {
-          throw new Error("Missing account or balance information");
+        if (!account?.privateKey || !selectedCollectible || !recipientAddress) {
+          throw new Error("Missing account or collectible information");
         }
 
         const { privateKey } = account;
@@ -364,13 +270,14 @@ const SendCollectibleReviewScreen: React.FC<
         });
 
         if (success) {
-          analytics.trackSendPaymentSuccess({
-            sourceToken: selectedBalance?.tokenCode || "unknown",
+          analytics.trackSendCollectibleSuccess({
+            collectionAddress: selectedCollectible.collectionAddress,
+            tokenId: selectedCollectible.tokenId,
           });
         } else {
           analytics.trackTransactionError({
             error: "Transaction failed",
-            transactionType: "payment",
+            transactionType: "sendCollectible",
           });
         }
       } catch (error) {
@@ -382,7 +289,7 @@ const SendCollectibleReviewScreen: React.FC<
 
         analytics.trackTransactionError({
           error: error instanceof Error ? error.message : String(error),
-          transactionType: "payment",
+          transactionType: "sendCollectible",
         });
       }
     };
@@ -390,7 +297,7 @@ const SendCollectibleReviewScreen: React.FC<
     processTransaction();
   }, [
     account,
-    selectedBalance,
+    selectedCollectible,
     signTransaction,
     network,
     submitTransaction,
@@ -467,10 +374,8 @@ const SendCollectibleReviewScreen: React.FC<
   const footerProps = useMemo(
     () => ({
       onCancel: handleCancelReview,
-      onConfirm: isRequiredMemoMissing
-        ? onConfirmAddMemo
-        : handleTransactionConfirmation,
-      isRequiredMemoMissing,
+      onConfirm: handleTransactionConfirmation,
+      isRequiredMemoMissing: false,
       isMalicious: transactionSecurityAssessment.isMalicious,
       isSuspicious: transactionSecurityAssessment.isSuspicious,
       isValidatingMemo,
@@ -478,10 +383,8 @@ const SendCollectibleReviewScreen: React.FC<
     }),
     [
       handleCancelReview,
-      isRequiredMemoMissing,
       transactionSecurityAssessment.isMalicious,
       transactionSecurityAssessment.isSuspicious,
-      onConfirmAddMemo,
       handleTransactionConfirmation,
       isValidatingMemo,
     ],
@@ -497,12 +400,8 @@ const SendCollectibleReviewScreen: React.FC<
       return false;
     }
 
-    return (
-      !!amountError ||
-      BigNumber(tokenAmount).isLessThanOrEqualTo(0) ||
-      isBuilding
-    );
-  }, [amountError, tokenAmount, isBuilding, recipientAddress]);
+    return isBuilding;
+  }, [isBuilding, recipientAddress]);
 
   const selectCollectibleDetails: ListItemProps[] = useMemo(
     () => [
@@ -546,10 +445,10 @@ const SendCollectibleReviewScreen: React.FC<
   if (isProcessing) {
     return (
       <TransactionProcessingScreen
-        key={selectedTokenId}
+        type="collectible"
+        key={selectedCollectible?.collectionAddress}
         onClose={handleProcessingScreenClose}
-        transactionAmount={tokenAmount}
-        selectedBalance={selectedBalance}
+        selectedCollectible={selectedCollectible}
       />
     );
   }
@@ -561,11 +460,7 @@ const SendCollectibleReviewScreen: React.FC<
   };
 
   const onBannerPress = () => {
-    if (isRequiredMemoMissing) {
-      addMemoExplanationBottomSheetModalRef.current?.present();
-    } else {
-      transactionSecurityWarningBottomSheetModalRef.current?.present();
-    }
+    transactionSecurityWarningBottomSheetModalRef.current?.present();
   };
 
   const handleContinueButtonPress = () => {
@@ -627,11 +522,11 @@ const SendCollectibleReviewScreen: React.FC<
         scrollable
         customContent={
           <SendReviewBottomSheet
-            selectedBalance={selectedBalance}
-            tokenAmount={tokenAmount}
+            type="collectible"
+            selectedCollectible={selectedCollectible}
             onBannerPress={onBannerPress}
             // is passed here so the entire layout is ready when modal mounts, otherwise leaves a gap at the bottom related to the warning size
-            isRequiredMemoMissing={isRequiredMemoMissing}
+            isRequiredMemoMissing={false}
             isMalicious={transactionSecurityAssessment.isMalicious}
             isSuspicious={transactionSecurityAssessment.isSuspicious}
             signTransactionDetails={signTransactionDetails}

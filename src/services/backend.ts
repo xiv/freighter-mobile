@@ -14,7 +14,7 @@
  * data transformation (e.g., BigNumber conversion via bigize helper).
  */
 /* eslint-disable arrow-body-style */
-import { Horizon, TransactionBuilder, xdr } from "@stellar/stellar-sdk";
+import { Horizon, TransactionBuilder } from "@stellar/stellar-sdk";
 import { AxiosError } from "axios";
 import { NetworkDetails, NETWORKS } from "config/constants";
 import { logger, normalizeError } from "config/logger";
@@ -732,20 +732,12 @@ export const simulateTokenTransfer = async (
 /**
  * Parameters for operation simulation
  * @interface SimulateTransactionParams
- * @property {string} address - Contract address for the token
- * @property {string} pub_key - Public key of the sender
- * @property {string} memo - Transaction memo
- * @property {string} [fee] - Optional fee amount
- * @property {Object} params - operation parameters
+ * @property {string} xdr - prebuilt xdr to simulate on the network
  * @property {string} network_url - Network URL for simulation
  * @property {string} network_passphrase - Network passphrase
  */
 export interface SimulateTransactionParams {
-  address: string;
-  pub_key: string;
-  memo: string;
-  fee?: string;
-  params: xdr.ScVal[];
+  xdr: string;
   network_url: string;
   network_passphrase: string;
 }
@@ -759,7 +751,6 @@ export interface SimulateTransactionParams {
  *
  * @description
  * Simulates an operation:
- * - Validates transaction parameters
  * - Returns simulation response and prepared transaction
  * - Converts XDR to TransactionBuilder for easy manipulation
  *
@@ -767,16 +758,8 @@ export interface SimulateTransactionParams {
  *
  * @example
  * ```ts
- * const _params = [
- *  new Sdk.Address(params.publicKey).toScVal(),
- *  new Sdk.Address(params.destination).toScVal(),
- *  new Sdk.XdrLargeInt("i128", params.amount).toI128(),
- * ];
  * const result = await simulateTransaction({
- *   address: "contract123",
- *   pub_key: "GABC...",
- *   memo: "Transfer",
- *   params,
+ *   xdr: "...",
  *   network_url: "https://horizon.stellar.org",
  *   network_passphrase: "Public Global Stellar Network"
  * });
@@ -1042,7 +1025,6 @@ export const fetchCollectibles = async ({
   (BackendCollection | BackendCollectionError)[]
 > => {
   try {
-    console.log(owner, contracts);
     const { data } = await freighterBackendV2.post<CollectiblesResponse>(
       "/collectibles",
       {

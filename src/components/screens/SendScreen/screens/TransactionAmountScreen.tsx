@@ -543,6 +543,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
   if (isProcessing) {
     return (
       <TransactionProcessingScreen
+        type="token"
         key={selectedTokenId}
         onClose={handleProcessingScreenClose}
         transactionAmount={tokenAmount}
@@ -719,6 +720,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
         scrollable
         customContent={
           <SendReviewBottomSheet
+            type="token"
             selectedBalance={selectedBalance}
             tokenAmount={tokenAmount}
             onBannerPress={onBannerPress}

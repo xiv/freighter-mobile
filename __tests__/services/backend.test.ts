@@ -266,11 +266,7 @@ describe("Backend Service - Transaction Operations", () => {
 
   describe("simulateTransaction", () => {
     const mockParams: SimulateTransactionParams = {
-      address: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-      pub_key: "GBGFQHJ5KRBCQT2LZF3B7PBVJNRRBHW3QJ7VSDFQSRAQGFXHMMNDVNW7",
-      memo: "test transfer",
-      fee: "1000",
-      params: [] as unknown as xdr.ScVal[],
+      xdr: "xdr",
       network_url: NETWORK_URLS.TESTNET,
       network_passphrase: Networks.TESTNET,
     };
@@ -299,22 +295,6 @@ describe("Backend Service - Transaction Operations", () => {
       expect(result.simulationResponse).toEqual(
         mockSimulationResponse.simulationResponse,
       );
-    });
-
-    it("should handle simulation without optional fee", async () => {
-      const paramsWithoutFee = { ...mockParams };
-      delete paramsWithoutFee.fee;
-
-      mockPost.mockResolvedValue({
-        data: mockSimulationResponse,
-        status: 200,
-        statusText: "OK",
-      });
-
-      const result = await simulateTransaction(paramsWithoutFee);
-
-      expect(mockPost).toHaveBeenCalledWith("/simulate-tx", paramsWithoutFee);
-      expect(result).toHaveProperty("preparedTx");
     });
 
     it("should handle simulation with empty params array", async () => {
@@ -544,10 +524,7 @@ describe("Backend Service - Transaction Operations", () => {
   describe("Integration: simulateTransaction -> submitTransaction", () => {
     it("should support full workflow from simulation to submission", async () => {
       const simulateParams: SimulateTransactionParams = {
-        address: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-        pub_key: "GBGFQHJ5KRBCQT2LZF3B7PBVJNRRBHW3QJ7VSDFQSRAQGFXHMMNDVNW7",
-        memo: "test",
-        params: [] as unknown as xdr.ScVal[],
+        xdr: "xdr",
         network_url: "https://horizon-testnet.stellar.org",
         network_passphrase: "Test SDF Network ; September 2015",
       };
