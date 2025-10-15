@@ -1,11 +1,17 @@
 import { useRemoteConfigStore } from "ducks/remoteConfig";
+import { isIOS } from "helpers/device";
 import {
   isVersionBelowLatest,
   isVersionBelowRequired,
 } from "helpers/versionComparison";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useCallback } from "react";
-import { Linking, Platform } from "react-native";
+import { Linking } from "react-native";
+import { getBundleId } from "react-native-device-info";
+
+const IOS_BUNDLE_ID = "id6743947720";
+const IOS_APP_STORE_URL = `https://apps.apple.com/app/freighter/${IOS_BUNDLE_ID}`;
+const ANDROID_APP_STORE_URL = `https://play.google.com/store/apps/details?id=${getBundleId()}`;
 
 /**
  * Hook to manage app update logic and UI state
@@ -52,9 +58,9 @@ export const useAppUpdate = () => {
   // Get app store URLs based on platform
   const getAppStoreUrl = useCallback(
     () =>
-      Platform.OS === "ios"
-        ? "https://apps.apple.com/app/freighter/id1234567890"
-        : "https://play.google.com/store/apps/details?id=com.freighter.mobile",
+      isIOS
+        ? IOS_APP_STORE_URL // iOS is using TestFlight for development builds - not able to generate a programatic link
+        : ANDROID_APP_STORE_URL,
     [],
   );
 
