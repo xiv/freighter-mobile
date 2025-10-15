@@ -600,7 +600,7 @@
     "swapFrom": "Swap from",
     "swapTo": "Swap to",
     "title": "Swap",
-    "searchTokenInputPlaceholder": "Search token name or address",
+    "searchTokenInputPlaceholder": "Token name or address",
     "setMax": "Set max",
     "receive": "Receive",
     "chooseToken": "Choose token",
