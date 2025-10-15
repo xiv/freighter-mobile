@@ -3,15 +3,15 @@ import useColors from "hooks/useColors";
 import React from "react";
 import { View, Text } from "react-native";
 
-interface BannerProps {
+interface NoticeBannerProps {
   text: string;
 }
 
 /**
  * Simple banner component with info icon and text
- * Used for displaying informational messages
+ * Used for displaying informational messages like app update notices
  */
-export const Banner: React.FC<BannerProps> = ({ text }) => {
+export const NoticeBanner: React.FC<NoticeBannerProps> = ({ text }) => {
   const { themeColors } = useColors();
 
   return (

@@ -4,7 +4,7 @@ import {
   CustomHeaderButton,
   DEFAULT_HEADER_BUTTON_SIZE,
 } from "components/layout/CustomHeaderButton";
-import { Banner } from "components/screens/HomeScreen/UpdateBanner";
+import { NoticeBanner } from "components/sds/NoticeBanner";
 import { Text } from "components/sds/Typography";
 import { DEFAULT_PADDING } from "config/constants";
 import { pxValue } from "helpers/dimensions";
@@ -22,7 +22,8 @@ const HomeScreenHeader = (
   const { navigation, options = {} } = props;
   const { themeColors } = useColors();
   const insets = useSafeAreaInsets();
-  const { needsOptionalUpdate, updateMessage } = useAppUpdate();
+  const { needsForcedUpdate, needsOptionalUpdate, updateMessage } =
+    useAppUpdate();
   const baseColor = themeColors.base[1];
 
   // In case insets.top is not available, let's ensure at least 34px of top
@@ -65,8 +66,10 @@ const HomeScreenHeader = (
         )}
       </View>
 
-      {/* Update banner under the header */}
-      {needsOptionalUpdate && <Banner text={updateMessage} />}
+      {/* Update banner under the header - only show for optional updates when no forced update */}
+      {needsOptionalUpdate && !needsForcedUpdate && (
+        <NoticeBanner text={updateMessage} />
+      )}
     </View>
   );
 };
