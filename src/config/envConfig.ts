@@ -60,6 +60,31 @@ type BackendEnvConfigType = {
 };
 
 /**
+ * Get wallet kit configuration based on environment
+ */
+const getWalletKitConfig = (isProduction: boolean) => {
+  const prodConfig = {
+    WALLET_KIT_PROJECT_ID: Config.WALLET_KIT_PROJECT_ID_PROD,
+    WALLET_KIT_MT_URL: Config.WALLET_KIT_MT_URL_PROD,
+    WALLET_KIT_MT_ICON: Config.WALLET_KIT_MT_ICON_PROD,
+    WALLET_KIT_MT_NAME: Config.WALLET_KIT_MT_NAME_PROD,
+    WALLET_KIT_MT_DESCRIPTION: Config.WALLET_KIT_MT_DESCRIPTION_PROD,
+    WALLET_KIT_MT_REDIRECT_NATIVE: Config.WALLET_KIT_MT_REDIRECT_NATIVE_PROD,
+  };
+
+  const devConfig = {
+    WALLET_KIT_PROJECT_ID: Config.WALLET_KIT_PROJECT_ID_DEV,
+    WALLET_KIT_MT_URL: Config.WALLET_KIT_MT_URL_DEV,
+    WALLET_KIT_MT_ICON: Config.WALLET_KIT_MT_ICON_DEV,
+    WALLET_KIT_MT_NAME: Config.WALLET_KIT_MT_NAME_DEV,
+    WALLET_KIT_MT_DESCRIPTION: Config.WALLET_KIT_MT_DESCRIPTION_DEV,
+    WALLET_KIT_MT_REDIRECT_NATIVE: Config.WALLET_KIT_MT_REDIRECT_NATIVE_DEV,
+  };
+
+  return isProduction ? prodConfig : devConfig;
+};
+
+/**
  * Get environment-specific configuration based on bundle ID
  */
 const getEnvConfig = (): EnvConfigType => ({
@@ -70,20 +95,7 @@ const getEnvConfig = (): EnvConfigType => ({
 
   SENTRY_DSN: Config.SENTRY_DSN,
 
-  WALLET_KIT_PROJECT_ID: Config.WALLET_KIT_PROJECT_ID,
-  WALLET_KIT_MT_URL: Config.WALLET_KIT_MT_URL,
-  WALLET_KIT_MT_ICON: Config.WALLET_KIT_MT_ICON,
-
-  // Get wallet kit metadata based on bundle ID
-  WALLET_KIT_MT_NAME: isProd
-    ? Config.WALLET_KIT_MT_NAME_PROD
-    : Config.WALLET_KIT_MT_NAME_DEV,
-  WALLET_KIT_MT_DESCRIPTION: isProd
-    ? Config.WALLET_KIT_MT_DESCRIPTION_PROD
-    : Config.WALLET_KIT_MT_DESCRIPTION_DEV,
-  WALLET_KIT_MT_REDIRECT_NATIVE: isProd
-    ? Config.WALLET_KIT_MT_REDIRECT_NATIVE_PROD
-    : Config.WALLET_KIT_MT_REDIRECT_NATIVE_DEV,
+  ...getWalletKitConfig(isProd),
 
   ANDROID_DEBUG_KEYSTORE_PASSWORD: Config.ANDROID_DEBUG_KEYSTORE_PASSWORD,
   ANDROID_DEBUG_KEYSTORE_ALIAS: Config.ANDROID_DEBUG_KEYSTORE_ALIAS,

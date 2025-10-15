@@ -41,6 +41,14 @@ type SendReviewBottomSheetProps = {
   onBannerPress?: () => void;
   isMalicious?: boolean;
   isSuspicious?: boolean;
+  /**
+   * Text to display in the banner
+   */
+  bannerText?: string;
+  /**
+   * Variant of the banner (error or warning)
+   */
+  bannerVariant?: "error" | "warning";
   signTransactionDetails?: SignTransactionDetailsInterface | null;
 };
 
@@ -67,6 +75,8 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
   onBannerPress,
   isMalicious,
   isSuspicious,
+  bannerText,
+  bannerVariant,
   signTransactionDetails,
 }) => {
   const { t } = useAppTranslation();
@@ -155,22 +165,14 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
       return null;
     }
 
-    const getBannerText = () => {
-      if (isMalicious) {
-        return t("transactionAmountScreen.errors.malicious");
-      }
-
-      if (isSuspicious) {
-        return t("transactionAmountScreen.errors.suspicious");
-      }
-
-      return t("transactionAmountScreen.errors.memoMissing");
-    };
+    if (!bannerText) {
+      return null;
+    }
 
     return (
       <Banner
-        variant={isSuspicious ? "warning" : "error"}
-        text={getBannerText()}
+        variant={bannerVariant || "error"}
+        text={bannerText}
         onPress={onBannerPress}
       />
     );
@@ -352,21 +354,29 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
 
     const renderConfirmButton = useCallback(() => {
       const getButtonText = () => {
-        if (isRequiredMemoMissing || isValidatingMemo) {
-          return t("common.addMemo");
+        if (isLoading || isValidatingMemo) {
+          return t("common.confirm");
+        }
+
+        if (isRequiredMemoMissing) {
+          return isTrusted ? t("common.addMemoShorthand") : t("common.addMemo");
         }
 
         return t("common.confirm");
       };
 
+      const isConfirmDisabled =
+        isBuilding || !transactionXDR || !!error || isValidatingMemo;
+
       return (
         <View className="flex-1">
           <Button
-            biometric
+            biometric={!isRequiredMemoMissing && !isConfirmDisabled}
             onPress={() => onConfirm?.()}
+            isLoading={isLoading || isValidatingMemo}
             tertiary
             xl
-            disabled={isBuilding || !transactionXDR || !!error}
+            disabled={isConfirmDisabled}
           >
             {getButtonText()}
           </Button>
@@ -376,6 +386,8 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
       isRequiredMemoMissing,
       isValidatingMemo,
       onConfirm,
+      isTrusted,
+      isLoading,
       t,
       isBuilding,
       transactionXDR,
