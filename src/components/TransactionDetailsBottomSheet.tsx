@@ -213,8 +213,9 @@ const TransactionDetailsBottomSheet: React.FC<
 
       <View className="bg-background-secondary rounded-[16px] p-[24px] gap-[12px]">
         {type === "token" && transactionAmount && (
-          <View className="flex-row items-center justify-between">
-            <View>
+          <View className="flex-row items-center">
+            {selectedBalance && <TokenIcon token={selectedBalance} size="lg" />}
+            <View className="ml-[16px]">
               <Text xl medium primary>
                 {formatTokenForDisplay(
                   transactionAmount,
@@ -231,7 +232,6 @@ const TransactionDetailsBottomSheet: React.FC<
                   : "--"}
               </Text>
             </View>
-            {selectedBalance && <TokenIcon token={selectedBalance} size="lg" />}
           </View>
         )}
         {type === "collectible" && selectedCollectible && (
@@ -254,7 +254,7 @@ const TransactionDetailsBottomSheet: React.FC<
         )}
 
         <View>
-          <View className="w-[32px] h-[32px] rounded-full bg-tertiary justify-center items-center border border-gray-6">
+          <View className="w-[40px] h-[40px] rounded-full bg-tertiary justify-center items-center">
             <Icon.ChevronDownDouble
               size={20}
               color={themeColors.foreground.primary}
@@ -264,7 +264,7 @@ const TransactionDetailsBottomSheet: React.FC<
 
         <View className="flex-row items-center">
           <Avatar size="lg" publicAddress={recipientAddress} />
-          <View className="ml-4">
+          <View className="ml-[16px]">
             <Text xl medium primary>
               {slicedAddress}
             </Text>

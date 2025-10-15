@@ -781,7 +781,7 @@ export const SorobanTokenTransferTransactionDetailsContent: React.FC<{
         </View>
       </View>
 
-      <View className="p-3">
+      <View className="w-[40px] flex items-center py-1">
         <Icon.ChevronDownDouble
           size={20}
           color={themeColors.foreground.primary}
@@ -831,7 +831,7 @@ export const SorobanCollectibleTransferTransactionDetailsContent: React.FC<{
         </View>
       </View>
 
-      <View className="p-3">
+      <View className="w-[40px] flex items-center py-1">
         <Icon.ChevronDownDouble
           size={20}
           color={themeColors.foreground.primary}

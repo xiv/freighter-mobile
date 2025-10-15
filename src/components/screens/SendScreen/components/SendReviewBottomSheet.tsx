@@ -315,7 +315,7 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
               </View>
             </View>
           )}
-          <View className="w-[40px] flex items-center">
+          <View className="w-[40px] flex items-center py-1">
             <Icon.ChevronDownDouble
               size={16}
               color={themeColors.foreground.secondary}
