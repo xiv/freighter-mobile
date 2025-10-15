@@ -1,5 +1,8 @@
+import { RouteProp } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { fireEvent } from "@testing-library/react-native";
 import { CollectibleDetailsScreen } from "components/screens/CollectibleDetailsScreen";
+import { ROOT_NAVIGATOR_ROUTES, RootStackParamList } from "config/routes";
 import { renderWithProviders } from "helpers/testUtils";
 import React from "react";
 
@@ -138,12 +141,25 @@ jest.mock("@react-navigation/native", () => ({
 }));
 
 describe("CollectibleDetailsScreen", () => {
-  const mockRoute = {
+  type CollectibleDetailsScreenRouteProp = RouteProp<
+    RootStackParamList,
+    typeof ROOT_NAVIGATOR_ROUTES.COLLECTIBLE_DETAILS_SCREEN
+  >;
+  type CollectibleDetailsScreenNavigationProp = NativeStackNavigationProp<
+    RootStackParamList,
+    typeof ROOT_NAVIGATOR_ROUTES.COLLECTIBLE_DETAILS_SCREEN
+  >;
+
+  const mockRoute: CollectibleDetailsScreenRouteProp = {
+    key: "test-key",
+    name: ROOT_NAVIGATOR_ROUTES.COLLECTIBLE_DETAILS_SCREEN,
     params: {
       collectionAddress: "test-collection",
       tokenId: "123",
     },
   };
+
+  const mockNavigation = {} as CollectibleDetailsScreenNavigationProp;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -152,8 +168,8 @@ describe("CollectibleDetailsScreen", () => {
   it("renders collectible details correctly", () => {
     const { getByText } = renderWithProviders(
       <CollectibleDetailsScreen
-        route={mockRoute as any}
-        navigation={{} as any}
+        route={mockRoute}
+        navigation={mockNavigation}
       />,
     );
 
@@ -176,8 +192,8 @@ describe("CollectibleDetailsScreen", () => {
 
     const { getByText } = renderWithProviders(
       <CollectibleDetailsScreen
-        route={mockRoute as any}
-        navigation={{} as any}
+        route={mockRoute}
+        navigation={mockNavigation}
       />,
     );
 
@@ -190,8 +206,8 @@ describe("CollectibleDetailsScreen", () => {
   it("sets navigation title to collectible name", () => {
     renderWithProviders(
       <CollectibleDetailsScreen
-        route={mockRoute as any}
-        navigation={{} as any}
+        route={mockRoute}
+        navigation={mockNavigation}
       />,
     );
 

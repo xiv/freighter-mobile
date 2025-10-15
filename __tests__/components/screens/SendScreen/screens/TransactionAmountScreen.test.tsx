@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Transaction } from "@stellar/stellar-sdk";
 import { act, render } from "@testing-library/react-native";
 import { BigNumber } from "bignumber.js";
 import TransactionAmountScreen from "components/screens/SendScreen/screens/TransactionAmountScreen";
@@ -144,7 +145,7 @@ jest.mock("@gorhom/bottom-sheet", () => ({
   BottomSheetPressable: "Pressable",
 }));
 jest.mock("react-native-css-interop", () => ({
-  styled: (Component: any) => Component,
+  styled: <T,>(Component: T) => Component,
   createInteropElement: jest.fn(),
 }));
 
@@ -163,7 +164,7 @@ jest.mock("hooks/useColors", () => ({
           if (typeof prop === "string") {
             return new Proxy({}, { get: () => "#000000" });
           }
-          return (target as any)[prop];
+          return target[prop as keyof typeof target];
         },
       },
     ),
@@ -277,12 +278,23 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
   const mockSelectedBalance = {
     id: "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
     tokenId: "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-    total: "1000",
-    available: "1000",
+    total: new BigNumber("1000"),
+    available: new BigNumber("1000"),
     token: {
       code: "USDC",
-      issuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+      issuer: {
+        key: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+      },
+      type: "credit_alphanum4",
     },
+    contractId: "CA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+    name: "USD Coin",
+    symbol: "USDC",
+    decimals: 7,
+    tokenType: "token" as const,
+    price: 1.0,
+    fiatValue: 1000.0,
+    tokenCode: "USDC",
   };
 
   const mockXlmBalance = {
@@ -292,12 +304,15 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     available: new BigNumber("10.0000000"),
     token: {
       code: "XLM",
-      issuer: "",
+      issuer: {
+        key: "",
+      },
       type: "native",
     },
-    tokenType: "native",
+    tokenType: "native" as const,
     price: 0.1,
     fiatValue: 1.0,
+    tokenCode: "XLM",
   };
 
   const mockTransactionBuilderState = {
@@ -343,7 +358,7 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     });
     mockBuildTransaction.mockResolvedValue({
       xdr: mockXDR,
-      tx: { sequence: "1" } as any,
+      tx: { sequence: "1" } as unknown as Transaction,
     });
     mockScanTransaction.mockReturnValue({
       scanTransaction: jest.fn().mockResolvedValue(mockScanResult),
@@ -365,7 +380,7 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     });
     mockUseBalancesList.mockReturnValue({
       balanceItems: [mockSelectedBalance as any, mockXlmBalance as any],
-      scanResults: {} as any,
+      scanResults: {},
       isLoading: false,
       error: null,
       noBalances: false,
@@ -437,11 +452,15 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
       .fn()
       .mockResolvedValueOnce({
         xdr: "initialXDR",
-        tx: { sequence: "1" } as any,
+        tx: {
+          sequence: "1",
+        } as unknown as Transaction,
       })
       .mockResolvedValueOnce({
         xdr: "updatedXDR",
-        tx: { sequence: "1" } as any,
+        tx: {
+          sequence: "1",
+        } as unknown as Transaction,
       });
 
     mockUseTransactionBuilderStore.mockReturnValue({
@@ -509,7 +528,9 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
       .fn()
       .mockResolvedValueOnce({
         xdr: "initialXDR",
-        tx: { sequence: "1" } as any,
+        tx: {
+          sequence: "1",
+        } as unknown as Transaction,
       })
       .mockRejectedValueOnce(new Error("Transaction rebuild failed"));
 
@@ -576,11 +597,15 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
       .fn()
       .mockResolvedValueOnce({
         xdr: "initialXDRWithoutMemo",
-        tx: { sequence: "1" } as any,
+        tx: {
+          sequence: "1",
+        } as unknown as Transaction,
       })
       .mockResolvedValueOnce({
         xdr: "updatedXDRWithMemo",
-        tx: { sequence: "1" } as any,
+        tx: {
+          sequence: "1",
+        } as unknown as Transaction,
       });
 
     mockUseTransactionBuilderStore.mockReturnValue({
@@ -708,7 +733,7 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     // Mock buildTransaction to return a transaction XDR
     const mockBuildTransactionFn = jest.fn().mockResolvedValue({
       xdr: "mockTransactionXDR",
-      tx: { sequence: "1" } as any,
+      tx: { sequence: "1" } as unknown as Transaction,
     });
 
     mockUseTransactionBuilderStore.mockReturnValue({
@@ -749,7 +774,7 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     // Mock buildTransaction to return a transaction XDR
     const mockBuildTransactionFn = jest.fn().mockResolvedValue({
       xdr: "mockTransactionXDR",
-      tx: { sequence: "1" } as any,
+      tx: { sequence: "1" } as unknown as Transaction,
     });
 
     mockUseTransactionBuilderStore.mockReturnValue({
@@ -805,7 +830,7 @@ describe("TransactionAmountScreen - Memo Update Flow", () => {
     // Mock buildTransaction to return a transaction XDR
     const mockBuildTransactionFn = jest.fn().mockResolvedValue({
       xdr: "mockTransactionXDR",
-      tx: { sequence: "1" } as any,
+      tx: { sequence: "1" } as unknown as Transaction,
     });
 
     mockUseTransactionBuilderStore.mockReturnValue({
