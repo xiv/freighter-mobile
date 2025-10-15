@@ -1,3 +1,4 @@
+import { FreighterLogo } from "components/FreighterLogo";
 import { Button } from "components/sds/Button";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useAppUpdate } from "hooks/useAppUpdate";
@@ -16,7 +17,7 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
   onDismiss,
 }) => {
   const { t } = useAppTranslation();
-  const { updateMessage, openAppStore } = useAppUpdate();
+  const { openAppStore } = useAppUpdate();
 
   const handleUpdate = async () => {
     try {
@@ -29,30 +30,36 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
   };
 
   const handleLater = () => {
-    Alert.alert(
-      t("appUpdate.forceUpdate.title"),
-      t("appUpdate.forceUpdate.laterWarning"),
-      [
-        {
-          text: t("common.continue"),
-          onPress: () => {
-            onDismiss?.();
-          },
-        },
-      ],
-    );
+    onDismiss?.();
   };
 
   return (
-    <View className="flex-1 justify-center items-center p-5">
-      <Text className="text-base text-center mb-8">{updateMessage}</Text>
-      <View className="w-full gap-4">
-        <Button variant="primary" lg onPress={handleUpdate}>
-          {t("appUpdate.forceUpdate.updateButton")}
-        </Button>
-        <Button variant="secondary" lg onPress={handleLater}>
-          {t("appUpdate.forceUpdate.laterButton")}
-        </Button>
+    <View className="flex-1 justify-center items-center p-6 bg-gray-1">
+      <View className="bg-gray-3 rounded-[24px] p-6 w-full max-w-sm">
+        <View className="mb-6">
+          <FreighterLogo width={56} height={56} />
+        </View>
+
+        <Text className="text-xl font-semibold text-gray-12 text-left mb-4">
+          {t("appUpdate.forceUpdate.title")}
+        </Text>
+
+        <Text className="text-base text-gray-11 text-left mb-6">
+          {t("appUpdate.forceUpdate.description1")}
+        </Text>
+
+        <Text className="text-base text-gray-11 text-left mb-6">
+          {t("appUpdate.forceUpdate.description2")}
+        </Text>
+
+        <View className="gap-4">
+          <Button variant="tertiary" xl onPress={handleUpdate}>
+            {t("appUpdate.forceUpdate.updateButton")}
+          </Button>
+          <Button variant="secondary" xl onPress={handleLater}>
+            {t("appUpdate.forceUpdate.laterButton")}
+          </Button>
+        </View>
       </View>
     </View>
   );

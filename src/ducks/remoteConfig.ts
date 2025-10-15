@@ -34,9 +34,12 @@ type FeatureFlags = BooleanFeatureFlags &
   ComplexFeatureFlags;
 
 interface RemoteConfigState extends FeatureFlags {
+  // State
+  isInitialized: boolean;
   // Actions
   fetchFeatureFlags: () => Promise<void>;
   initFetchFeatureFlagsPoll: () => void;
+  setInitialized: (initialized: boolean) => void;
 }
 
 // Get current app version for default values
@@ -68,6 +71,7 @@ const INITIAL_REMOTE_CONFIG_STATE = __DEV__
         enabled: false,
         payload: undefined,
       },
+      isInitialized: false,
     }
   : {
       swap_enabled: isAndroid,
@@ -79,6 +83,7 @@ const INITIAL_REMOTE_CONFIG_STATE = __DEV__
         enabled: false,
         payload: undefined,
       },
+      isInitialized: false,
     };
 
 let featureFlagsPollInterval: NodeJS.Timeout | null = null;
@@ -96,6 +101,8 @@ export const useRemoteConfigStore = create<RemoteConfigState>()((set, get) => ({
           "remoteConfig.fetchFeatureFlags",
           "Experiment client not initialized yet, skipping fetch",
         );
+        // Mark as initialized even without experiment client to prevent infinite loading
+        set({ isInitialized: true });
         return;
       }
 
@@ -154,12 +161,18 @@ export const useRemoteConfigStore = create<RemoteConfigState>()((set, get) => ({
           updates,
         );
       }
+
+      // Mark as initialized after successful fetch
+      set({ isInitialized: true });
     } catch (error) {
       logger.warn(
         "remoteConfig.fetchFeatureFlags",
         "Failed to fetch feature flags",
         error,
       );
+
+      // Mark as initialized even on error to prevent infinite loading
+      set({ isInitialized: true });
     }
   },
 
@@ -181,4 +194,6 @@ export const useRemoteConfigStore = create<RemoteConfigState>()((set, get) => ({
       get().fetchFeatureFlags();
     }, ONE_HOUR_IN_MS);
   },
+
+  setInitialized: (initialized: boolean) => set({ isInitialized: initialized }),
 }));

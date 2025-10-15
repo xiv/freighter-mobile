@@ -1125,17 +1125,11 @@
   "appUpdate": {
     "defaultMessage": "Por favor atualize seu app para a última versão",
     "forceUpdate": {
-      "title": "Atualização Necessária",
-      "message": "Notamos que você não atualizou seu app. Por favor, atualize para a última versão.",
-      "updateButton": "Atualizar Agora",
-      "laterButton": "Vou atualizar depois",
-      "laterWarning": "Por favor, atualize em breve para evitar falhas nas transações e garantir a melhor experiência.",
-      "criticalWarning": "Esta atualização contém correções críticas de bugs que podem afetar seus fundos. Por favor, atualize imediatamente."
-    },
-    "optionalUpdate": {
-      "message": "Uma nova versão está disponível com melhorias e novos recursos.",
-      "updateButton": "Atualizar",
-      "dismissButton": "Agora não"
+      "title": "Atualize seu app",
+      "description1": "Notamos que você não atualizou seu app. Por favor, atualize para a última versão. Seus fundos não são afetados.",
+      "description2": "O Freighter funciona melhor quando você atualizou o aplicativo. Escolher não atualizar o app significa que você assume a responsabilidade por quaisquer erros de transação.",
+      "updateButton": "Atualizar app",
+      "laterButton": "Vou atualizar depois"
     }
   }
 }

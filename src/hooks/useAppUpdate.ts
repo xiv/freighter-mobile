@@ -1,5 +1,8 @@
 import { useRemoteConfigStore } from "ducks/remoteConfig";
-import { isVersionBelowLatest } from "helpers/versionComparison";
+import {
+  isVersionBelowLatest,
+  isVersionBelowRequired,
+} from "helpers/versionComparison";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useCallback } from "react";
 import { Linking, Platform } from "react-native";
@@ -15,7 +18,7 @@ export const useAppUpdate = () => {
     app_update_text: updateText,
   } = useRemoteConfigStore();
 
-  const currentVersion = "1.5.23";
+  const currentVersion = "1.3.23";
 
   // Parse the update text JSON for internationalization
   const updateMessage = (() => {
@@ -35,7 +38,10 @@ export const useAppUpdate = () => {
   })();
 
   // Check if app needs forced update (critical)
-  const needsForcedUpdate = false;
+  const needsForcedUpdate = isVersionBelowRequired(
+    currentVersion,
+    requiredAppVersion,
+  );
 
   // Check if app needs optional update (non-critical)
   const needsOptionalUpdate = isVersionBelowLatest(

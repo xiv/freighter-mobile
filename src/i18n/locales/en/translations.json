@@ -1124,17 +1124,11 @@
   "appUpdate": {
     "defaultMessage": "Please update your app to the latest version",
     "forceUpdate": {
-      "title": "Update Required",
-      "message": "We noticed that you haven't updated your app. Please update to the latest version.",
-      "updateButton": "Update Now",
-      "laterButton": "I'll update later",
-      "laterWarning": "Please update soon to avoid transaction failures and ensure the best experience.",
-      "criticalWarning": "This update contains critical bug fixes that could affect your funds. Please update immediately."
-    },
-    "optionalUpdate": {
-      "message": "A new version is available with improvements and new features.",
-      "updateButton": "Update",
-      "dismissButton": "Not now"
+      "title": "Update your app",
+      "description1": "We noticed that you haven't updated your app. Please update to the latest version. Your funds are not affected.",
+      "description2": "Freighter works best when you've updated the application. Choosing not to update the app means that you take responsibility for any transaction errors.",
+      "updateButton": "Update app",
+      "laterButton": "I'll update later"
     }
   }
 }
