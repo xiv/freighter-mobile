@@ -42,10 +42,14 @@ const TransactionTokenScreen: React.FC<TransactionTokenScreenProps> = ({
   }) => {
     saveSelectedCollectibleDetails(collectibleDetails);
 
-    navigation.navigate(
-      SEND_PAYMENT_ROUTES.SEND_COLLECTIBLE_REVIEW,
-      collectibleDetails,
-    );
+    if (recipientAddress) {
+      navigation.navigate(
+        SEND_PAYMENT_ROUTES.SEND_COLLECTIBLE_REVIEW,
+        collectibleDetails,
+      );
+    } else {
+      navigation.navigate(SEND_PAYMENT_ROUTES.SEND_SEARCH_CONTACTS_SCREEN);
+    }
   };
 
   const navigateToSelectContactScreen = () => {

@@ -24,6 +24,7 @@ import { AnalyticsEvent } from "config/analyticsConfig";
 import {
   DEFAULT_DECIMALS,
   FIAT_DECIMALS,
+  NATIVE_TOKEN_CODE,
   TransactionSettingsContext,
 } from "config/constants";
 import { logger } from "config/logger";
@@ -199,7 +200,7 @@ const TransactionAmountScreen: React.FC<TransactionAmountScreenProps> = ({
   });
 
   const selectedBalance = balanceItems.find(
-    (item) => item.id === selectedTokenId,
+    (item) => item.id === selectedTokenId || NATIVE_TOKEN_CODE,
   );
 
   const isRequiredMemoMissing = isMemoMissing && !isValidatingMemo;
