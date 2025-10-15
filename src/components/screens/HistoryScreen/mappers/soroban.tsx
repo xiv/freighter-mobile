@@ -78,7 +78,7 @@ interface ProcessSorobanTransferData {
 
 interface ProcessCollectibleTransferData {
   operation: any;
-  sorobanAttributes: any;
+  sorobanAttributes: Record<string, string>;
   publicKey: string;
   network: NETWORKS;
   stellarExpertUrl: string;
