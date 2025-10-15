@@ -1,4 +1,4 @@
-import { AppVersionDifference } from "config/constants";
+import { Comparison } from "config/constants";
 
 /**
  * Version comparison utilities for app update checking
@@ -8,12 +8,12 @@ import { AppVersionDifference } from "config/constants";
  * Compares two semantic version strings
  * @param version1 - First version to compare (e.g., "1.2.3")
  * @param version2 - Second version to compare (e.g., "1.2.4")
- * @returns AppVersionDifference.LOWER if version1 < version2, SAME if equal, GREATER if version1 > version2
+ * @returns Comparison.LOWER if version1 < version2, SAME if equal, GREATER if version1 > version2
  */
 export const compareVersions = (
   version1: string,
   version2: string,
-): AppVersionDifference => {
+): Comparison => {
   const v1Parts = version1.split(".").map(Number);
   const v2Parts = version2.split(".").map(Number);
 
@@ -23,11 +23,11 @@ export const compareVersions = (
   while (v2Parts.length < maxLength) v2Parts.push(0);
 
   for (let i = 0; i < maxLength; i++) {
-    if (v1Parts[i] < v2Parts[i]) return AppVersionDifference.LOWER;
-    if (v1Parts[i] > v2Parts[i]) return AppVersionDifference.GREATER;
+    if (v1Parts[i] < v2Parts[i]) return Comparison.LOWER;
+    if (v1Parts[i] > v2Parts[i]) return Comparison.GREATER;
   }
 
-  return AppVersionDifference.SAME;
+  return Comparison.SAME;
 };
 
 /**
@@ -40,8 +40,7 @@ export const isVersionBelowRequired = (
   currentVersion: string,
   requiredVersion: string,
 ): boolean =>
-  compareVersions(currentVersion, requiredVersion) ===
-  AppVersionDifference.LOWER;
+  compareVersions(currentVersion, requiredVersion) === Comparison.LOWER;
 
 /**
  * Checks if the current app version is below the latest version
@@ -53,7 +52,7 @@ export const isVersionBelowLatest = (
   currentVersion: string,
   latestVersion: string,
 ): boolean =>
-  compareVersions(currentVersion, latestVersion) === AppVersionDifference.LOWER;
+  compareVersions(currentVersion, latestVersion) === Comparison.LOWER;
 
 /**
  * Calculates the version difference between two versions

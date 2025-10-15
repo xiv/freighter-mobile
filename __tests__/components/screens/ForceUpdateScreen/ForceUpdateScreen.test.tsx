@@ -7,21 +7,7 @@ import { Alert } from "react-native";
 jest.mock("hooks/useAppTranslation", () => ({
   __esModule: true,
   default: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        "appUpdate.forceUpdate.title": "Update your app",
-        "appUpdate.forceUpdate.description1":
-          "We noticed that you haven't updated your app. Please update to the latest version. Your funds are not affected.",
-        "appUpdate.forceUpdate.description2":
-          "Freighter works best when you've updated the application. Choosing not to update the app means that you take responsibility for any transaction errors.",
-        "appUpdate.forceUpdate.updateButton": "Update app",
-        "appUpdate.forceUpdate.laterButton": "I'll update later",
-        "common.error": "Error",
-        "common.unknownError": "An unknown error occurred",
-        "common.confirm": "Confirm",
-      };
-      return translations[key] || key;
-    },
+    t: (key: string) => key, // Return the key itself for testing
   }),
 }));
 
@@ -65,25 +51,10 @@ describe("ForceUpdateScreen", () => {
   it("renders correctly with all required text elements", () => {
     const { getByText } = renderForceUpdateScreen(defaultProps);
 
-    // Check if all main text elements are present
-    expect(getByText("Update your app")).toBeTruthy();
-    expect(
-      getByText(
-        "We noticed that you haven't updated your app. Please update to the latest version. Your funds are not affected.",
-      ),
-    ).toBeTruthy();
-    expect(
-      getByText(
-        "Freighter works best when you've updated the application. Choosing not to update the app means that you take responsibility for any transaction errors.",
-      ),
-    ).toBeTruthy();
-  });
-
-  it("renders buttons with correct text", () => {
-    const { getByText } = renderForceUpdateScreen(defaultProps);
-
-    // The component should render without errors, which means the buttons are being rendered
-    expect(getByText("Update your app")).toBeTruthy();
+    // Check if all main text elements are present by translation keys
+    expect(getByText("appUpdate.forceUpdate.title")).toBeTruthy();
+    expect(getByText("appUpdate.forceUpdate.description1")).toBeTruthy();
+    expect(getByText("appUpdate.forceUpdate.description2")).toBeTruthy();
   });
 
   it("renders without errors", () => {

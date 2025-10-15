@@ -1,4 +1,4 @@
-import { AppVersionDifference } from "config/constants";
+import { Comparison } from "config/constants";
 import {
   compareVersions,
   isVersionBelowRequired,
@@ -10,76 +10,46 @@ import {
 describe("versionComparison helpers", () => {
   describe("compareVersions", () => {
     it("should return SAME for identical versions", () => {
-      expect(compareVersions("1.0.0", "1.0.0")).toBe(AppVersionDifference.SAME);
-      expect(compareVersions("2.5.3", "2.5.3")).toBe(AppVersionDifference.SAME);
-      expect(compareVersions("0.0.1", "0.0.1")).toBe(AppVersionDifference.SAME);
+      expect(compareVersions("1.0.0", "1.0.0")).toBe(Comparison.SAME);
+      expect(compareVersions("2.5.3", "2.5.3")).toBe(Comparison.SAME);
+      expect(compareVersions("0.0.1", "0.0.1")).toBe(Comparison.SAME);
     });
 
     it("should return LOWER when first version is lower", () => {
-      expect(compareVersions("1.0.0", "1.0.1")).toBe(
-        AppVersionDifference.LOWER,
-      );
-      expect(compareVersions("1.0.0", "1.1.0")).toBe(
-        AppVersionDifference.LOWER,
-      );
-      expect(compareVersions("1.0.0", "2.0.0")).toBe(
-        AppVersionDifference.LOWER,
-      );
-      expect(compareVersions("0.9.9", "1.0.0")).toBe(
-        AppVersionDifference.LOWER,
-      );
+      expect(compareVersions("1.0.0", "1.0.1")).toBe(Comparison.LOWER);
+      expect(compareVersions("1.0.0", "1.1.0")).toBe(Comparison.LOWER);
+      expect(compareVersions("1.0.0", "2.0.0")).toBe(Comparison.LOWER);
+      expect(compareVersions("0.9.9", "1.0.0")).toBe(Comparison.LOWER);
     });
 
     it("should return GREATER when first version is higher", () => {
-      expect(compareVersions("1.0.1", "1.0.0")).toBe(
-        AppVersionDifference.GREATER,
-      );
-      expect(compareVersions("1.1.0", "1.0.0")).toBe(
-        AppVersionDifference.GREATER,
-      );
-      expect(compareVersions("2.0.0", "1.0.0")).toBe(
-        AppVersionDifference.GREATER,
-      );
-      expect(compareVersions("1.0.0", "0.9.9")).toBe(
-        AppVersionDifference.GREATER,
-      );
+      expect(compareVersions("1.0.1", "1.0.0")).toBe(Comparison.GREATER);
+      expect(compareVersions("1.1.0", "1.0.0")).toBe(Comparison.GREATER);
+      expect(compareVersions("2.0.0", "1.0.0")).toBe(Comparison.GREATER);
+      expect(compareVersions("1.0.0", "0.9.9")).toBe(Comparison.GREATER);
     });
 
     it("should handle different length versions by padding with zeros", () => {
-      expect(compareVersions("1.0", "1.0.0")).toBe(AppVersionDifference.SAME);
-      expect(compareVersions("1.0.0", "1.0")).toBe(AppVersionDifference.SAME);
-      expect(compareVersions("1.0", "1.0.1")).toBe(AppVersionDifference.LOWER);
-      expect(compareVersions("1.0.1", "1.0")).toBe(
-        AppVersionDifference.GREATER,
-      );
-      expect(compareVersions("1", "1.0.0")).toBe(AppVersionDifference.SAME);
-      expect(compareVersions("1.0.0", "1")).toBe(AppVersionDifference.SAME);
+      expect(compareVersions("1.0", "1.0.0")).toBe(Comparison.SAME);
+      expect(compareVersions("1.0.0", "1.0")).toBe(Comparison.SAME);
+      expect(compareVersions("1.0", "1.0.1")).toBe(Comparison.LOWER);
+      expect(compareVersions("1.0.1", "1.0")).toBe(Comparison.GREATER);
+      expect(compareVersions("1", "1.0.0")).toBe(Comparison.SAME);
+      expect(compareVersions("1.0.0", "1")).toBe(Comparison.SAME);
     });
 
     it("should handle complex version comparisons", () => {
-      expect(compareVersions("1.2.3", "1.2.4")).toBe(
-        AppVersionDifference.LOWER,
-      );
-      expect(compareVersions("1.2.4", "1.2.3")).toBe(
-        AppVersionDifference.GREATER,
-      );
-      expect(compareVersions("2.0.0", "1.9.9")).toBe(
-        AppVersionDifference.GREATER,
-      );
-      expect(compareVersions("1.9.9", "2.0.0")).toBe(
-        AppVersionDifference.LOWER,
-      );
+      expect(compareVersions("1.2.3", "1.2.4")).toBe(Comparison.LOWER);
+      expect(compareVersions("1.2.4", "1.2.3")).toBe(Comparison.GREATER);
+      expect(compareVersions("2.0.0", "1.9.9")).toBe(Comparison.GREATER);
+      expect(compareVersions("1.9.9", "2.0.0")).toBe(Comparison.LOWER);
     });
 
     it("should handle edge cases", () => {
-      expect(compareVersions("0.0.0", "0.0.1")).toBe(
-        AppVersionDifference.LOWER,
-      );
-      expect(compareVersions("0.0.1", "0.0.0")).toBe(
-        AppVersionDifference.GREATER,
-      );
-      expect(compareVersions("", "1.0.0")).toBe(AppVersionDifference.LOWER);
-      expect(compareVersions("1.0.0", "")).toBe(AppVersionDifference.GREATER);
+      expect(compareVersions("0.0.0", "0.0.1")).toBe(Comparison.LOWER);
+      expect(compareVersions("0.0.1", "0.0.0")).toBe(Comparison.GREATER);
+      expect(compareVersions("", "1.0.0")).toBe(Comparison.LOWER);
+      expect(compareVersions("1.0.0", "")).toBe(Comparison.GREATER);
     });
   });
 

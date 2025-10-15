@@ -9,7 +9,7 @@ export const APP_VERSION = getAppVersion();
 
 export const DEFAULT_PADDING = 24;
 
-export enum AppVersionDifference {
+export enum Comparison {
   SAME = 0,
   LOWER = -1,
   GREATER = 1,

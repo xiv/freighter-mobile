@@ -7,7 +7,7 @@ import {
 import useAppTranslation from "hooks/useAppTranslation";
 import { useCallback } from "react";
 import { Linking } from "react-native";
-import { getBundleId } from "react-native-device-info";
+import { getBundleId, getVersion } from "react-native-device-info";
 
 const IOS_BUNDLE_ID = "id6743947720";
 const IOS_APP_STORE_URL = `https://apps.apple.com/app/freighter/${IOS_BUNDLE_ID}`;
@@ -24,7 +24,7 @@ export const useAppUpdate = () => {
     app_update_text: updateText,
   } = useRemoteConfigStore();
 
-  const currentVersion = "1.3.23";
+  const currentVersion = getVersion();
 
   // Parse the update text JSON for internationalization
   const updateMessage = (() => {
