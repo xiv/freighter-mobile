@@ -526,10 +526,12 @@ const processCollectibleTransfer = async ({
         contractDetails: {
           contractAddress: sorobanAttributes.contractId,
           sorobanTokenInterface: SorobanTokenInterface.transfer,
-          transferDetails: {
+          collectibleTransferDetails: {
             from: sorobanAttributes.from,
             to: sorobanAttributes.to,
             tokenId: sorobanAttributes.tokenId,
+            collectibleName: "",
+            collectionName: "",
           },
         },
       };
@@ -574,9 +576,7 @@ const processCollectibleTransfer = async ({
 
     const transactionDetails: TransactionDetails = {
       operation,
-      transactionTitle: t(
-        "history.transactionDetailsBottomSheet.sentCollectible",
-      ),
+      transactionTitle: t("transactionDetailsBottomSheet.sentCollectible"),
       transactionType: TransactionType.CONTRACT_TRANSFER,
       status: TransactionStatus.SUCCESS,
       fee,
@@ -586,10 +586,12 @@ const processCollectibleTransfer = async ({
       contractDetails: {
         contractAddress: sorobanAttributes.contractId,
         sorobanTokenInterface: SorobanTokenInterface.transfer,
-        transferDetails: {
+        collectibleTransferDetails: {
           from: sorobanAttributes.from,
           to: sorobanAttributes.to,
           tokenId: sorobanAttributes.tokenId,
+          collectibleName: transferedCollectible.name || "",
+          collectionName: transferedCollectible.collectionName,
         },
       },
     };
@@ -610,10 +612,12 @@ const processCollectibleTransfer = async ({
         contractAddress: sorobanAttributes.contractId,
         contractDecimals: 0,
         sorobanTokenInterface: SorobanTokenInterface.transfer,
-        transferDetails: {
+        collectibleTransferDetails: {
           from: sorobanAttributes.from,
           to: sorobanAttributes.to,
           tokenId: sorobanAttributes.tokenId,
+          collectibleName: "",
+          collectionName: "",
         },
       },
     };
@@ -752,53 +756,99 @@ export const mapSorobanHistoryItem = async ({
 };
 
 /**
- * Renders Soroban transfer transaction details
+ * Renders Soroban token transfer transaction details
  */
-export const SorobanTransferTransactionDetailsContent: React.FC<{
+export const SorobanTokenTransferTransactionDetailsContent: React.FC<{
   transactionDetails: TransactionDetails;
 }> = ({ transactionDetails }) => {
   const { themeColors } = useColors();
   const tokenAmount = formatSorobanTokenAmount(
-    new BigNumber(
-      transactionDetails.contractDetails?.transferDetails?.amount ?? "",
-    ),
-    transactionDetails.contractDetails?.contractDecimals ?? 0,
+    new BigNumber(transactionDetails.contractDetails!.transferDetails!.amount),
+    transactionDetails.contractDetails!.contractDecimals!,
   );
 
-  const contractSymbol =
-    transactionDetails.contractDetails?.contractSymbol ?? "";
+  const contractSymbol = transactionDetails.contractDetails!.contractSymbol!;
+  const toAddress = transactionDetails.contractDetails!.transferDetails!.to;
 
   return (
     <TransactionDetailsContent>
-      <View className="flex-row justify-between items-center">
-        <View>
+      <View className="flex-row items-center">
+        {transactionDetails.IconComponent}
+        <View className="ml-[16px]">
           <Text xl primary medium numberOfLines={1}>
             {formatTokenForDisplay(tokenAmount, contractSymbol)}
           </Text>
         </View>
-        {transactionDetails.IconComponent}
       </View>
 
-      <Icon.ChevronDownDouble
-        size={20}
-        color={themeColors.foreground.primary}
-        circle
-        circleBackground={themeColors.background.tertiary}
-      />
+      <View className="p-3">
+        <Icon.ChevronDownDouble
+          size={20}
+          color={themeColors.foreground.primary}
+        />
+      </View>
 
-      <View className="flex-row justify-between items-center">
-        <Text xl primary medium numberOfLines={1}>
-          {truncateAddress(
-            transactionDetails.contractDetails?.transferDetails?.to as string,
-          )}
-        </Text>
+      <View className="flex-row items-center">
         <Avatar
-          publicAddress={
-            transactionDetails.contractDetails?.transferDetails?.to ?? ""
-          }
+          publicAddress={toAddress}
           hasDarkBackground
           size={AvatarSizes.LARGE}
         />
+        <View className="ml-[16px]">
+          <Text xl primary medium numberOfLines={1}>
+            {truncateAddress(toAddress)}
+          </Text>
+        </View>
+      </View>
+    </TransactionDetailsContent>
+  );
+};
+
+/**
+ * Renders Soroban collectible transfer transaction details
+ */
+export const SorobanCollectibleTransferTransactionDetailsContent: React.FC<{
+  transactionDetails: TransactionDetails;
+}> = ({ transactionDetails }) => {
+  const { themeColors } = useColors();
+  const collectibleTransferDetails =
+    transactionDetails.contractDetails!.collectibleTransferDetails!;
+  const toAddress = collectibleTransferDetails.to;
+
+  return (
+    <TransactionDetailsContent>
+      <View className="flex-row items-center">
+        {transactionDetails.IconComponent}
+        <View className="ml-[16px]">
+          <View className="flex-1">
+            <Text xl medium>
+              {collectibleTransferDetails.collectibleName}
+            </Text>
+            <Text md medium secondary>
+              {`${collectibleTransferDetails.collectionName} #${collectibleTransferDetails.tokenId}`}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View className="p-3">
+        <Icon.ChevronDownDouble
+          size={20}
+          color={themeColors.foreground.primary}
+        />
+      </View>
+
+      <View className="flex-row items-center">
+        <Avatar
+          publicAddress={toAddress}
+          hasDarkBackground
+          size={AvatarSizes.LARGE}
+        />
+        <View className="ml-[16px]">
+          <Text xl primary medium numberOfLines={1}>
+            {truncateAddress(toAddress)}
+          </Text>
+        </View>
       </View>
     </TransactionDetailsContent>
   );

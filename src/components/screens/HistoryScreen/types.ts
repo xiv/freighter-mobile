@@ -47,14 +47,21 @@ export interface PaymentDetailsType {
 export interface TokenTransferDetailsType {
   from: string;
   to: string;
-  amount?: string;
-  tokenId?: number;
+  amount: string;
 }
 
 export interface TokenMintDetailsType {
   from: string;
   to: string;
   amount: string;
+}
+
+export interface CollectibleTransferDetailsType {
+  from: string;
+  to: string;
+  tokenId: string;
+  collectibleName: string;
+  collectionName: string;
 }
 
 export interface ContractDetailsType {
@@ -65,6 +72,7 @@ export interface ContractDetailsType {
   contractDecimals?: number;
   transferDetails?: TokenTransferDetailsType;
   mintDetails?: TokenMintDetailsType;
+  collectibleTransferDetails?: CollectibleTransferDetailsType;
 }
 
 export interface TransactionDetails {
