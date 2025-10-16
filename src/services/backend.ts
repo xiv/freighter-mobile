@@ -39,7 +39,7 @@ export const freighterBackend = createApiService({
   baseURL: EnvConfig.FREIGHTER_BACKEND_URL,
 });
 export const freighterBackendV2 = createApiService({
-  baseURL: "http://localhost:8080/api/v1", // EnvConfig.FREIGHTER_BACKEND_V2_URL,
+  baseURL: EnvConfig.FREIGHTER_BACKEND_V2_URL,
 });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

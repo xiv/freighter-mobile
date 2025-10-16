@@ -767,8 +767,10 @@ export const SorobanTokenTransferTransactionDetailsContent: React.FC<{
     transactionDetails.contractDetails!.contractDecimals!,
   );
 
-  const contractSymbol = transactionDetails.contractDetails!.contractSymbol!;
-  const toAddress = transactionDetails.contractDetails!.transferDetails!.to;
+  const contractSymbol =
+    transactionDetails.contractDetails?.contractSymbol ?? "";
+  const toAddress =
+    transactionDetails.contractDetails?.transferDetails?.to ?? "";
 
   return (
     <TransactionDetailsContent>
