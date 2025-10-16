@@ -1,9 +1,12 @@
+import ConfirmationModal from "components/ConfirmationModal";
 import { FreighterLogo } from "components/FreighterLogo";
 import { Button } from "components/sds/Button";
+import { AnalyticsEvent } from "config/analyticsConfig";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useAppUpdate } from "hooks/useAppUpdate";
-import React from "react";
+import React, { useState } from "react";
 import { View, Text } from "react-native";
+import { analytics } from "services/analytics";
 
 interface ForceUpdateScreenProps {
   onDismiss?: () => void;
@@ -18,13 +21,22 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
 }) => {
   const { t } = useAppTranslation();
   const { openAppStore } = useAppUpdate();
+  const [showSkipConfirmation, setShowSkipConfirmation] = useState(false);
 
   const handleLater = () => {
+    setShowSkipConfirmation(true);
+  };
+
+  const handleConfirmSkip = () => {
+    analytics.track(AnalyticsEvent.APP_UPDATE_CONFIRMED_SKIP_ON_SCREEN);
     onDismiss?.();
   };
+
   const handleGoToAppStore = () => {
-    openAppStore();
-    onDismiss?.();
+    openAppStore().then(() => {
+      analytics.track(AnalyticsEvent.APP_UPDATE_OPEN_STORE_FROM_SCREEN);
+      onDismiss?.();
+    });
   };
 
   return (
@@ -55,6 +67,17 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
           </Button>
         </View>
       </View>
+
+      <ConfirmationModal
+        visible={showSkipConfirmation}
+        onClose={() => setShowSkipConfirmation(false)}
+        title={t("appUpdate.forceUpdate.skipTitle")}
+        message={t("appUpdate.forceUpdate.skipMessage")}
+        confirmText={t("common.confirm")}
+        cancelText={t("common.cancel")}
+        onConfirm={handleConfirmSkip}
+        destructive
+      />
     </View>
   );
 };

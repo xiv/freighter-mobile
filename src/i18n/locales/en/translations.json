@@ -1139,7 +1139,9 @@
       "description1": "We noticed that you haven't updated your app. Please update to the latest version. Your funds are not affected.",
       "description2": "Freighter works best when you've updated the application. Choosing not to update the app means that you take responsibility for any transaction errors.",
       "updateButton": "Update app",
-      "laterButton": "I'll update later"
+      "laterButton": "I'll update later",
+      "skipTitle": "Skip Update?",
+      "skipMessage": "You're taking responsibility for any transaction errors. Freighter works best when updated."
     }
   }
 }

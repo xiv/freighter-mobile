@@ -6,6 +6,7 @@ import {
 } from "components/layout/CustomHeaderButton";
 import { NoticeBanner } from "components/sds/NoticeBanner";
 import { Text } from "components/sds/Typography";
+import { AnalyticsEvent } from "config/analyticsConfig";
 import { DEFAULT_PADDING } from "config/constants";
 import { pxValue } from "helpers/dimensions";
 import { useAppUpdate } from "hooks/useAppUpdate";
@@ -13,6 +14,7 @@ import useColors from "hooks/useColors";
 import React from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { analytics } from "services/analytics";
 
 const MIN_INSETS_TOP = 34;
 
@@ -31,7 +33,9 @@ const HomeScreenHeader = (
   const baseColor = themeColors.base[1];
 
   const handleBannerPress = () => {
-    openAppStore();
+    openAppStore().then(() => {
+      analytics.track(AnalyticsEvent.APP_UPDATE_OPEN_STORE_FROM_BANNER);
+    });
   };
 
   // In case insets.top is not available, let's ensure at least 34px of top

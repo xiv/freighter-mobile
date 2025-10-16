@@ -1140,7 +1140,9 @@
       "description1": "Notamos que você não atualizou seu app. Por favor, atualize para a última versão. Seus fundos não são afetados.",
       "description2": "O Freighter funciona melhor quando você atualizou o aplicativo. Escolher não atualizar o app significa que você assume a responsabilidade por quaisquer erros de transação.",
       "updateButton": "Atualizar app",
-      "laterButton": "Vou atualizar depois"
+      "laterButton": "Vou atualizar depois",
+      "skipTitle": "Pular Atualização?",
+      "skipMessage": "Você está assumindo a responsabilidade por quaisquer erros de transação. O Freighter funciona melhor quando atualizado."
     }
   }
 }
