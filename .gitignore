@@ -83,3 +83,11 @@ ios/sentry.properties
 
 # VSCode
 .vscode/
+
+# iOS dSYM files
+*.dSYM
+*.dSYM.zip
+*.dSYM.tar.gz
+
+# App Store Connect API key
+*.p8
