@@ -1,3 +1,4 @@
+import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { Text } from "components/sds/Typography";
 import { THEME } from "config/theme";
 import { isAndroid } from "helpers/device";
@@ -120,7 +121,7 @@ const getInputContainerClasses = (
 };
 
 const getInputClasses = (isDisabled?: boolean) => {
-  const baseClasses = "flex-1";
+  const baseClasses = "flex-1 w-full";
   const textColor = isDisabled ? "text-text-secondary" : "text-text-primary";
   const textAlign = "text-left";
 
@@ -353,19 +354,23 @@ interface InputProps {
     | "numeric"
     | "email-address"
     | "phone-pad";
+  isBottomSheetInput?: boolean;
   style?: ViewStyle | TextStyle;
   /** Text to display as suffix after the input value (e.g., "XLM") */
   inputSuffixDisplay?: string;
   /** Whether to center the text alignment within the input field */
   centered?: boolean;
+  /** Line break mode for iOS */
+  lineBreakModeIOS?: "head" | "middle" | "tail" | "clip";
 }
 
 /**
  * Reference type for input components.
+ * Can be either a TextInput or BottomSheetTextInput component reference.
  *
- * @typedef {TextInput} InputRef
+ * @typedef {TextInput | React.ComponentRef<typeof BottomSheetTextInput>} InputRef
  */
-type InputRef = TextInput;
+type InputRef = TextInput | React.ComponentRef<typeof BottomSheetTextInput>;
 
 /**
  * Props interface for the TextInputComponent.
@@ -383,6 +388,7 @@ type InputRef = TextInput;
  * @property {boolean} [autoCorrect] - Whether to enable auto-correction
  * @property {boolean} [autoFocus] - Whether to focus the input on mount
  * @property {string} [keyboardType] - Keyboard type for the input
+ * @property {boolean} [isBottomSheetInput] - Whether to use BottomSheetTextInput
  * @property {string} [testID] - Test ID for testing
  * @property {ViewStyle | TextStyle} [style] - Custom style to override default styling
  * @property {Function} [onSubmitEditing] - Callback when editing is submitted
@@ -400,12 +406,14 @@ type TextInputComponentProps = Pick<
   | "secureTextEntry"
   | "editable"
   | "autoCorrect"
+  | "isBottomSheetInput"
   | "testID"
   | "style"
   | "onSubmitEditing"
   | "autoCapitalize"
   | "autoFocus"
   | "keyboardType"
+  | "lineBreakModeIOS"
 > & {
   className?: string;
   ref: React.Ref<InputRef>;
@@ -425,6 +433,7 @@ type TextInputComponentProps = Pick<
  * @param {boolean} [props.secureTextEntry=false] - Whether the input is for password entry
  * @param {boolean} [props.editable=true] - Whether the input is editable
  * @param {boolean} [props.autoCorrect=true] - Whether to enable auto-correction
+ * @param {boolean} [props.isBottomSheetInput=false] - Whether to use BottomSheetTextInput
  * @param {string} [props.testID] - Test ID for testing
  * @param {ViewStyle | TextStyle} [props.style] - Custom style to override default styling
  * @param {string} [props.className] - Additional CSS classes
@@ -441,9 +450,11 @@ const TextInputComponent = React.forwardRef<InputRef, TextInputComponentProps>(
       secureTextEntry = false,
       editable = true,
       autoCorrect = true,
+      isBottomSheetInput = false,
       testID,
       style,
       className,
+      lineBreakModeIOS,
       ...props
     },
     ref,
@@ -451,6 +462,28 @@ const TextInputComponent = React.forwardRef<InputRef, TextInputComponentProps>(
     const inputClasses = useMemo(() => getInputClasses(!editable), [editable]);
 
     const inputStyles = useMemo(() => getInputStyles(fieldSize), [fieldSize]);
+
+    if (isBottomSheetInput) {
+      return (
+        <BottomSheetTextInput
+          ref={
+            ref as React.Ref<React.ComponentRef<typeof BottomSheetTextInput>>
+          }
+          testID={testID}
+          placeholder={placeholder}
+          placeholderTextColor={placeholderTextColor}
+          value={value}
+          onChangeText={onChangeText}
+          editable={editable}
+          secureTextEntry={secureTextEntry}
+          autoCorrect={autoCorrect}
+          lineBreakModeIOS={lineBreakModeIOS}
+          className={inputClasses}
+          style={[inputStyles, style]}
+          {...props}
+        />
+      );
+    }
 
     return (
       <TextInput
@@ -463,6 +496,7 @@ const TextInputComponent = React.forwardRef<InputRef, TextInputComponentProps>(
         editable={editable}
         secureTextEntry={secureTextEntry}
         autoCorrect={autoCorrect}
+        lineBreakModeIOS={lineBreakModeIOS}
         className={inputClasses}
         style={[inputStyles, style]}
         {...props}
@@ -604,7 +638,6 @@ const SuffixInput = React.forwardRef<InputRef, InputProps>(
                 fieldSize={fieldSize}
                 style={{
                   position: "absolute",
-                  left: -8,
                   right: 0,
                   top: 0,
                   bottom: 0,
@@ -629,7 +662,7 @@ const SuffixInput = React.forwardRef<InputRef, InputProps>(
               className="flex-shrink-0"
             >
               <View
-                className={`${buttonContainerClasses} ${buttonPaddingClasses} ${heightClasses} mr-[4px]`}
+                className={`${buttonContainerClasses} ${buttonPaddingClasses} ${heightClasses}`}
                 style={{
                   backgroundColor:
                     endButton.backgroundColor ||
@@ -769,6 +802,7 @@ const SuffixInput = React.forwardRef<InputRef, InputProps>(
  * @param {("none" | "sentences" | "words" | "characters")} [props.autoCapitalize] - Text capitalization behavior
  * @param {("default" | "number-pad" | "decimal-pad" | "numeric" | "email-address" | "phone-pad")} [props.keyboardType] - Keyboard type for the input
  * @param {ViewStyle | TextStyle} [props.style] - Custom style to override default styling
+ * @param {boolean} [props.isBottomSheetInput] - Whether the input is a bottom sheet input
  * @param {string} [props.inputSuffixDisplay] - Text to display as suffix after the input value (e.g., "XLM"). When provided, automatically uses SuffixInput component
  * @param {boolean} [props.centered] - Whether to center the text alignment within the input field (only applies when inputSuffixDisplay is provided)
  */
@@ -786,18 +820,13 @@ export const StyledTextInput = React.forwardRef<InputRef, InputProps>(
   (props, ref) => {
     const { fieldSize = "lg", style, ...restProps } = props;
 
-    const containerClasses = `rounded-lg bg-background-default border border-border-primary rounded ${CONTAINER_HEIGHT_MAP[fieldSize]} ${HORIZONTAL_PADDING_MAP[fieldSize]} flex-1`;
-
-    const { testID, ...textInputProps } = restProps;
-
     return (
-      <View testID={testID} className={containerClasses} style={style}>
-        <TextInputComponent
-          ref={ref}
-          fieldSize={fieldSize}
-          {...textInputProps}
-        />
-      </View>
+      <TextInputComponent
+        ref={ref}
+        fieldSize={fieldSize}
+        style={style}
+        {...restProps}
+      />
     );
   },
 );
@@ -824,6 +853,7 @@ export const Input = React.forwardRef<InputRef, InputProps>(
       editable = true,
       testID,
       autoCorrect = true,
+      isBottomSheetInput = false,
       inputSuffixDisplay,
       centered = false,
       style,
@@ -871,6 +901,7 @@ export const Input = React.forwardRef<InputRef, InputProps>(
           editable={editable}
           testID={testID}
           autoCorrect={autoCorrect}
+          isBottomSheetInput={isBottomSheetInput}
           inputSuffixDisplay={inputSuffixDisplay}
           centered={centered}
           style={style}
@@ -913,6 +944,7 @@ export const Input = React.forwardRef<InputRef, InputProps>(
               secureTextEntry={isPassword && !showPassword}
               editable={editable}
               autoCorrect={autoCorrect}
+              isBottomSheetInput={isBottomSheetInput}
               testID={testID}
               style={style}
               selection={!editable && value ? { start: 0, end: 0 } : undefined}
@@ -933,7 +965,7 @@ export const Input = React.forwardRef<InputRef, InputProps>(
               className="flex-shrink-0"
             >
               <View
-                className={`${buttonContainerClasses} ${buttonPaddingClasses} ${heightClasses} mr-[4px]`}
+                className={`${buttonContainerClasses} ${buttonPaddingClasses} ${heightClasses}`}
                 style={{
                   backgroundColor:
                     endButton.backgroundColor ||

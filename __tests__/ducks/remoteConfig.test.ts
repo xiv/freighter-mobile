@@ -1,7 +1,6 @@
 /* eslint-disable @fnando/consistent-import/consistent-import */
 import { act, renderHook } from "@testing-library/react-hooks";
 import { useRemoteConfigStore } from "ducks/remoteConfig";
-import { Platform } from "react-native";
 import { getExperimentClient } from "services/analytics/core";
 
 import { createMockExperimentClient } from "../../__mocks__/experimentClient";
@@ -30,6 +29,10 @@ jest.mock("helpers/device", () => ({
 jest.mock("helpers/version", () => ({
   getAppVersion: jest.fn(() => "1.0.0"),
   getBuildNumber: jest.fn(() => "1"),
+}));
+
+jest.mock("react-native-device-info", () => ({
+  getBundleId: jest.fn(() => "org.bundleid.test"),
 }));
 
 const mockGetExperimentClient = getExperimentClient as jest.MockedFunction<
@@ -90,8 +93,7 @@ describe("remoteConfig duck", () => {
       expect(mockGetExperimentClient).toHaveBeenCalled();
       expect(mockClient.fetch).toHaveBeenCalledWith({
         user_properties: {
-          platform: Platform.OS,
-          version: "1.0.0",
+          "Bundle Id": "org.bundleid.test",
         },
       });
     });
