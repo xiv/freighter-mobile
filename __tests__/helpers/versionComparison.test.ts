@@ -4,7 +4,6 @@ import {
   isVersionBelowRequired,
   isVersionBelowLatest,
   getVersionDifference,
-  isSignificantVersionDifference,
 } from "helpers/versionComparison";
 
 describe("versionComparison helpers", () => {
@@ -137,74 +136,12 @@ describe("versionComparison helpers", () => {
     });
   });
 
-  describe("isSignificantVersionDifference", () => {
-    it("should return true for major version differences", () => {
-      expect(isSignificantVersionDifference("1.0.0", "2.0.0")).toBe(true);
-      expect(isSignificantVersionDifference("1.0.0", "3.0.0")).toBe(true);
-      expect(isSignificantVersionDifference("0.9.9", "1.0.0")).toBe(true);
-    });
-
-    it("should return true for minor version differences >= 2", () => {
-      expect(isSignificantVersionDifference("1.0.0", "1.2.0")).toBe(true);
-      expect(isSignificantVersionDifference("1.0.0", "1.3.0")).toBe(true);
-      expect(isSignificantVersionDifference("1.0.0", "1.5.0")).toBe(true);
-    });
-
-    it("should return false for minor version differences < 2", () => {
-      expect(isSignificantVersionDifference("1.0.0", "1.1.0")).toBe(false);
-      expect(isSignificantVersionDifference("1.0.0", "1.0.5")).toBe(false);
-      expect(isSignificantVersionDifference("1.0.0", "1.0.0")).toBe(false);
-    });
-
-    it("should return false for patch version differences only", () => {
-      expect(isSignificantVersionDifference("1.0.0", "1.0.1")).toBe(false);
-      expect(isSignificantVersionDifference("1.0.0", "1.0.9")).toBe(false);
-    });
-
-    it("should handle edge cases", () => {
-      expect(isSignificantVersionDifference("1.0.0", "1.0.0")).toBe(false);
-      expect(isSignificantVersionDifference("1.0.0", "1.1.9")).toBe(false);
-      expect(isSignificantVersionDifference("1.0.0", "1.2.0")).toBe(true);
-    });
-
-    it("should handle different length versions", () => {
-      expect(isSignificantVersionDifference("1.0", "1.2.0")).toBe(true);
-      expect(isSignificantVersionDifference("1.0", "1.1.0")).toBe(false);
-      expect(isSignificantVersionDifference("1.0.0", "1.2")).toBe(true);
-    });
-  });
-
   describe("real-world scenarios", () => {
     it("should handle typical app version scenarios", () => {
       // Current app version scenarios
       expect(isVersionBelowRequired("0.1.0", "0.2.0")).toBe(true);
       expect(isVersionBelowRequired("0.2.0", "0.2.0")).toBe(false);
       expect(isVersionBelowRequired("0.3.0", "0.2.0")).toBe(false);
-
-      // Significant version differences
-      expect(isSignificantVersionDifference("0.1.0", "0.3.0")).toBe(true);
-      expect(isSignificantVersionDifference("0.1.0", "0.2.0")).toBe(false); // Only 1 minor version difference
-      expect(isSignificantVersionDifference("0.1.0", "0.1.5")).toBe(false);
-    });
-
-    it("should handle version rollover scenarios", () => {
-      // Major version rollover
-      expect(isSignificantVersionDifference("0.9.9", "1.0.0")).toBe(true);
-      expect(isSignificantVersionDifference("1.9.9", "2.0.0")).toBe(true);
-
-      // Minor version rollover
-      expect(isSignificantVersionDifference("1.0.9", "1.2.0")).toBe(true);
-      expect(isSignificantVersionDifference("1.0.9", "1.1.0")).toBe(false);
-    });
-
-    it("should handle critical update scenarios", () => {
-      // Critical bug fix scenarios
-      expect(isVersionBelowRequired("1.0.0", "1.0.1")).toBe(true);
-      expect(isSignificantVersionDifference("1.0.0", "1.0.1")).toBe(false);
-
-      // Major security update
-      expect(isVersionBelowRequired("1.0.0", "2.0.0")).toBe(true);
-      expect(isSignificantVersionDifference("1.0.0", "2.0.0")).toBe(true);
     });
   });
 });

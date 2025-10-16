@@ -78,19 +78,3 @@ export const getVersionDifference = (
     patch: target[2] - current[2],
   };
 };
-
-/**
- * Checks if the version difference is significant (more than 0.2.0)
- * @param currentVersion - Current app version
- * @param targetVersion - Target version to compare against
- * @returns true if the difference is significant
- */
-export const isSignificantVersionDifference = (
-  currentVersion: string,
-  targetVersion: string,
-): boolean => {
-  const diff = getVersionDifference(currentVersion, targetVersion);
-
-  // Check if major version difference is > 0 OR minor version difference is >= 2
-  return diff.major > 0 || diff.minor >= 2;
-};
