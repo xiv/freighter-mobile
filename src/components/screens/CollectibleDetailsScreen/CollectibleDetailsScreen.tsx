@@ -275,7 +275,7 @@ export const CollectibleDetailsScreen: React.FC<CollectibleDetailsScreenProps> =
           )}
         </ScrollView>
 
-        <View className="mb-12 pb-3 gap-7">
+        <View className="pb-3 gap-7">
           <View className={collectible?.externalUrl ? "flex-row gap-3" : ""}>
             {collectible?.externalUrl && (
               <View className="flex-1">
