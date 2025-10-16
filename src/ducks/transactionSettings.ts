@@ -102,7 +102,7 @@ export const useTransactionSettingsStore = create<TransactionSettingsState>(
 
     /**
      * Saves the selected collectible details for the transaction
-     * @param {string} collectibcollectibleDetailsleId - The collectible details
+     * @param {string} collectibleDetails - The collectible details
      */
     saveSelectedCollectibleDetails: (collectibleDetails: {
       collectionAddress: string;
