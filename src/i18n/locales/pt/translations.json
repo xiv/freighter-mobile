@@ -30,7 +30,8 @@
     "token": "Token",
     "hash": "Hash",
     "salt": "Salt",
-    "addMemo": "Add. memo",
+    "addMemoShorthand": "Add. memo",
+    "addMemo": "Adicionar memo",
     "wallet": "Carteira",
     "copy": "Copiar",
     "name": "Nome",
@@ -126,7 +127,13 @@
   "changeNetworkScreen": {
     "title": "Mudar Rede",
     "currentNetwork": "Rede atual",
-    "networkSettings": "Configurações de Rede"
+    "networkSettings": "Configurações de Rede",
+    "developerSettings": {
+      "title": "Configurações do Desenvolvedor",
+      "warning": "As alterações de backend entrarão em vigor após reiniciar o aplicativo.",
+      "backendV1Environment": "Ambiente do Backend V1",
+      "backendV2Environment": "Ambiente do Backend V2"
+    }
   },
   "networkSettingsScreen": {
     "title": "Configurações de Rede",
@@ -493,7 +500,7 @@
     "title": "Adicionar um token",
     "addTokenButton": "Aprovar",
     "removeTokenButton": "Aprovar",
-    "searchPlaceholder": "Pesquisar nome ou endereço do token",
+    "searchPlaceholder": "Nome ou endereço do token",
     "pasteFromClipboard": "Colar da área de transferência",
     "tokenAddressCopied": "Endereço do token copiado!",
     "popular": "Popular",

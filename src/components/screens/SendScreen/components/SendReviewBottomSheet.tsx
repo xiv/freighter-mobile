@@ -45,6 +45,14 @@ type SendReviewBottomSheetProps = {
   onBannerPress?: () => void;
   isMalicious?: boolean;
   isSuspicious?: boolean;
+  /**
+   * Text to display in the banner
+   */
+  bannerText?: string;
+  /**
+   * Variant of the banner (error or warning)
+   */
+  bannerVariant?: "error" | "warning";
   signTransactionDetails?: SignTransactionDetailsInterface | null;
 };
 
@@ -73,6 +81,8 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
   onBannerPress,
   isMalicious,
   isSuspicious,
+  bannerText,
+  bannerVariant,
   signTransactionDetails,
 }) => {
   const { t } = useAppTranslation();
@@ -161,22 +171,14 @@ const SendReviewBottomSheet: React.FC<SendReviewBottomSheetProps> = ({
       return null;
     }
 
-    const getBannerText = () => {
-      if (isMalicious) {
-        return t("transactionAmountScreen.errors.malicious");
-      }
-
-      if (isSuspicious) {
-        return t("transactionAmountScreen.errors.suspicious");
-      }
-
-      return t("transactionAmountScreen.errors.memoMissing");
-    };
+    if (!bannerText) {
+      return null;
+    }
 
     return (
       <Banner
-        variant={isSuspicious ? "warning" : "error"}
-        text={getBannerText()}
+        variant={bannerVariant || "error"}
+        text={bannerText}
         onPress={onBannerPress}
       />
     );
@@ -373,26 +375,35 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
       onSettingsPress,
     } = props;
 
+    const isTrusted = !isMalicious && !isSuspicious;
     const isLoading = isBuilding;
     const isDisabled = !transactionXDR || isLoading;
 
     const renderConfirmButton = useCallback(() => {
       const getButtonText = () => {
-        if (isRequiredMemoMissing || isValidatingMemo) {
-          return t("common.addMemo");
+        if (isLoading || isValidatingMemo) {
+          return t("common.confirm");
+        }
+
+        if (isRequiredMemoMissing) {
+          return isTrusted ? t("common.addMemoShorthand") : t("common.addMemo");
         }
 
         return t("common.confirm");
       };
 
+      const isConfirmDisabled =
+        isBuilding || !transactionXDR || !!error || isValidatingMemo;
+
       return (
         <View className="flex-1">
           <Button
-            biometric
+            biometric={!isRequiredMemoMissing && !isConfirmDisabled}
             onPress={() => onConfirm?.()}
+            isLoading={isLoading || isValidatingMemo}
             tertiary
             xl
-            disabled={isBuilding || !transactionXDR || !!error}
+            disabled={isConfirmDisabled}
           >
             {getButtonText()}
           </Button>
@@ -402,6 +413,8 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
       isRequiredMemoMissing,
       isValidatingMemo,
       onConfirm,
+      isTrusted,
+      isLoading,
       t,
       isBuilding,
       transactionXDR,
@@ -409,15 +422,26 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
     ]);
 
     const renderButtons = useCallback(() => {
-      const cancelButton = (
-        <View
-          className={`${!isMalicious && !isSuspicious ? "flex-1" : "w-full"}`}
+      const settingsButton = (
+        <TouchableOpacity
+          onPress={onSettingsPress}
+          className="border border-gray-6 items-center justify-center"
+          style={{
+            height: pxValue(50),
+            borderRadius: pxValue(25),
+            width: pxValue(50),
+          }}
         >
+          <Icon.Settings04 size={24} themeColor="gray" />
+        </TouchableOpacity>
+      );
+
+      const cancelButton = (
+        <View className={`${isTrusted ? "flex-1" : "w-full"}`}>
           <Button
             tertiary={isSuspicious}
-            destructive={isMalicious}
-            secondary={!isMalicious && !isSuspicious}
-            xl
+            destructive={!isTrusted}
+            secondary={isTrusted}
             isFullWidth
             onPress={onCancel}
             disabled={isDisabled}
@@ -427,31 +451,43 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
         </View>
       );
 
-      if (isMalicious || isSuspicious) {
+      const confirmAnywayButton = (
+        <TextButton
+          text={
+            isRequiredMemoMissing
+              ? t("common.addMemo")
+              : t("transactionAmountScreen.confirmAnyway")
+          }
+          onPress={onConfirm}
+          isLoading={isLoading}
+          disabled={isDisabled}
+          variant={isMalicious ? "error" : "secondary"}
+        />
+      );
+
+      if (!isTrusted) {
         return (
           <>
             {cancelButton}
-            <TextButton
-              text={t("transactionAmountScreen.confirmAnyway")}
-              onPress={onConfirm}
-              isLoading={isLoading}
-              disabled={isDisabled}
-              variant={isMalicious ? "error" : "secondary"}
-            />
+            {confirmAnywayButton}
           </>
         );
       }
 
       return (
         <>
+          {onSettingsPress && settingsButton}
           {cancelButton}
           {renderConfirmButton()}
         </>
       );
     }, [
-      isMalicious,
+      onSettingsPress,
+      isTrusted,
       isSuspicious,
+      isMalicious,
       onCancel,
+      isRequiredMemoMissing,
       isDisabled,
       t,
       onConfirm,
@@ -462,21 +498,13 @@ export const SendReviewFooter: React.FC<SendReviewFooterProps> = React.memo(
     return (
       <View
         className={`${
-          !isMalicious && !isSuspicious ? "flex-row" : "flex-col"
+          isTrusted ? "flex-row" : "flex-col"
         } bg-background-primary w-full gap-[12px] mt-[24px] flex-column px-6 py-6`}
         style={{
           paddingBottom: insets.bottom + pxValue(DEFAULT_PADDING),
           gap: pxValue(12),
         }}
       >
-        {onSettingsPress && (
-          <TouchableOpacity
-            onPress={onSettingsPress}
-            className="w-[50px] h-[50px] rounded-full border border-gray-6 items-center justify-center"
-          >
-            <Icon.Settings04 size={24} themeColor="gray" />
-          </TouchableOpacity>
-        )}
         {renderButtons()}
       </View>
     );

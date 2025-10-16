@@ -1,4 +1,4 @@
-import { EnvConfig } from "helpers/getEnvConfig";
+import { EnvConfig } from "config/envConfig";
 import { Platform } from "react-native";
 
 // -----------------------------------------------------------------------------
@@ -43,4 +43,5 @@ export const ANALYTICS_CONFIG = {
   DEFAULT_ENABLED: Platform.OS !== "ios",
   INCLUDE_COMMON_CONTEXT: true,
   THROTTLE_DUPLICATE_EVENTS: true,
+  BUNDLE_ID_KEY: "Bundle Id",
 } as const;

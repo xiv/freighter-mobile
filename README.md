@@ -77,11 +77,10 @@ tools.
     2. Add the required environment variables:
 
        ```
-       FREIGHTER_BACKEND_URL=your_backend_url_here
-       FREIGHTER_BACKEND_V2_URL=your_backend_v2_url_here
+       FREIGHTER_BACKEND_V1_PROD_URL=your_backend_v1_prod_url_here
+       FREIGHTER_BACKEND_V2_PROD_URL=your_backend_v2_prod_url_here
 
-       WALLET_KIT_PROJECT_ID=your_project_id_here
-       WALLET_KIT_MT_NAME=your_wallet_name_here
+       WALLET_KIT_PROJECT_ID_PROD=your_prod_project_id_here
        other variables...
        ```
 
@@ -89,11 +88,10 @@ tools.
        without values:
 
        ```
-       FREIGHTER_BACKEND_URL=
-       FREIGHTER_BACKEND_V2_URL=
+       FREIGHTER_BACKEND_V1_PROD_URL=
+       FREIGHTER_BACKEND_V2_PROD_URL=
 
-       WALLET_KIT_PROJECT_ID=
-       WALLET_KIT_MT_NAME=
+       WALLET_KIT_PROJECT_ID_PROD=
        other variables...
        ```
 

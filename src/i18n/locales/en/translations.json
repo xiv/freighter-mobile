@@ -23,6 +23,7 @@
     "unknownError": "Unknown error",
     "review": "Review",
     "and": " and ",
+    "addMemoShorthand": "Add memo",
     "addMemo": "Add memo",
     "yes": "Yes",
     "allow": "Allow",
@@ -163,7 +164,13 @@
   "changeNetworkScreen": {
     "title": "Switch Network",
     "currentNetwork": "Current network",
-    "networkSettings": "Network Settings"
+    "networkSettings": "Network Settings",
+    "developerSettings": {
+      "title": "Developer Settings",
+      "warning": "Backend changes will take effect after restarting the app.",
+      "backendV1Environment": "Backend V1 Environment",
+      "backendV2Environment": "Backend V2 Environment"
+    }
   },
   "networkSettingsScreen": {
     "title": "Network Settings",
@@ -596,7 +603,7 @@
     "swapFrom": "Swap from",
     "swapTo": "Swap to",
     "title": "Swap",
-    "searchTokenInputPlaceholder": "Search token name or address",
+    "searchTokenInputPlaceholder": "Token name or address",
     "setMax": "Set max",
     "receive": "Receive",
     "chooseToken": "Choose token",

@@ -16,7 +16,11 @@ import { useCollectiblesStore } from "ducks/collectibles";
 import { useTransactionBuilderStore } from "ducks/transactionBuilder";
 import { useTransactionSettingsStore } from "ducks/transactionSettings";
 import { formatTransactionDate } from "helpers/date";
-import { formatTokenForDisplay, formatFiatAmount } from "helpers/formatAmount";
+import {
+  formatTokenForDisplay,
+  formatFiatAmount,
+  stroopToXlm,
+} from "helpers/formatAmount";
 import { truncateAddress } from "helpers/stellar";
 import { getStellarExpertUrl } from "helpers/stellarExpert";
 import useAppTranslation from "hooks/useAppTranslation";
@@ -61,7 +65,6 @@ const TransactionDetailsBottomSheet: React.FC<
     recipientAddress,
     selectedTokenId,
     transactionMemo,
-    transactionFee,
     selectedCollectibleDetails,
   } = useTransactionSettingsStore();
 
@@ -109,6 +112,7 @@ const TransactionDetailsBottomSheet: React.FC<
   const slicedAddress = truncateAddress(recipientAddress, 4, 4);
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetail | null>(null);
+  const actualFee = stroopToXlm(transactionDetails?.fee ?? 0).toString();
 
   useEffect(() => {
     if (transactionHash) {
@@ -321,7 +325,7 @@ const TransactionDetailsBottomSheet: React.FC<
               <View className="flex-row items-center gap-[4px]">
                 <StellarLogo width={16} height={16} />
                 <Text md medium>
-                  {formatTokenForDisplay(transactionFee, NATIVE_TOKEN_CODE)}
+                  {formatTokenForDisplay(actualFee, NATIVE_TOKEN_CODE)}
                 </Text>
               </View>
             ),

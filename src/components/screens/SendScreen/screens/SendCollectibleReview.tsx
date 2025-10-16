@@ -20,7 +20,7 @@ import { Button } from "components/sds/Button";
 import Icon from "components/sds/Icon";
 import { Text } from "components/sds/Typography";
 import { AnalyticsEvent } from "config/analyticsConfig";
-import { TransactionSettingsContext } from "config/constants";
+import { TransactionContext } from "config/constants";
 import { logger } from "config/logger";
 import {
   SEND_PAYMENT_ROUTES,
@@ -575,7 +575,7 @@ const SendCollectibleReviewScreen: React.FC<
         }
         customContent={
           <TransactionSettingsBottomSheet
-            context={TransactionSettingsContext.Transaction}
+            context={TransactionContext.Send}
             onCancel={handleCancelTransactionSettings}
             onConfirm={handleConfirmTransactionSettings}
             onSettingsChange={handleSettingsChange}
