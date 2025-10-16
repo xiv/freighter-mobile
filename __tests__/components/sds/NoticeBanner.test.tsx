@@ -2,7 +2,6 @@ import { NoticeBanner } from "components/sds/NoticeBanner";
 import { renderWithProviders } from "helpers/testUtils";
 import React from "react";
 
-// Mock the useColors hook
 jest.mock("hooks/useColors", () => ({
   __esModule: true,
   default: () => ({
@@ -17,7 +16,6 @@ jest.mock("hooks/useColors", () => ({
   }),
 }));
 
-// Mock the Icon component
 jest.mock("components/sds/Icon", () => ({
   __esModule: true,
   default: {
@@ -43,7 +41,6 @@ describe("NoticeBanner", () => {
   it("renders with icon component", () => {
     const { getByText } = renderNoticeBanner(defaultProps);
 
-    // The component should render without errors, which means the icon is being rendered
     expect(getByText("Test banner message")).toBeTruthy();
   });
 

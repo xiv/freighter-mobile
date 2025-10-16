@@ -1,11 +1,9 @@
 import { getAppUpdateText } from "helpers/appUpdateText";
 
-// Mock i18n instance
 const mockI18n = {
   language: "en",
 } as any;
 
-// Mock translation function
 const mockT = (key: string) => {
   const translations: Record<string, string> = {
     "appUpdate.defaultMessage": "Please update your app to the latest version",

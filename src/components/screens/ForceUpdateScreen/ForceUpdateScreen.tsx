@@ -3,7 +3,7 @@ import { Button } from "components/sds/Button";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useAppUpdate } from "hooks/useAppUpdate";
 import React from "react";
-import { View, Text, Alert } from "react-native";
+import { View, Text } from "react-native";
 
 interface ForceUpdateScreenProps {
   onDismiss?: () => void;
@@ -18,16 +18,6 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
 }) => {
   const { t } = useAppTranslation();
   const { openAppStore } = useAppUpdate();
-
-  const handleUpdate = async () => {
-    try {
-      await openAppStore();
-    } catch (error) {
-      Alert.alert(t("common.error"), t("common.unknownError"), [
-        { text: t("common.confirm") },
-      ]);
-    }
-  };
 
   const handleLater = () => {
     onDismiss?.();
@@ -53,7 +43,7 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
         </Text>
 
         <View className="gap-4">
-          <Button variant="tertiary" xl onPress={handleUpdate}>
+          <Button variant="tertiary" xl onPress={openAppStore}>
             {t("appUpdate.forceUpdate.updateButton")}
           </Button>
           <Button variant="secondary" xl onPress={handleLater}>

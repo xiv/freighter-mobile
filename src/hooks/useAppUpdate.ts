@@ -1,11 +1,14 @@
+import { logger } from "config/logger";
 import { useDebugStore } from "ducks/debug";
 import { useRemoteConfigStore } from "ducks/remoteConfig";
 import { isIOS } from "helpers/device";
+import { isDev } from "helpers/isEnv";
 import {
   isVersionBelowLatest,
   isVersionBelowRequired,
 } from "helpers/versionComparison";
 import useAppTranslation from "hooks/useAppTranslation";
+import { useToast } from "providers/ToastProvider";
 import { useCallback } from "react";
 import { Linking } from "react-native";
 import { getBundleId, getVersion } from "react-native-device-info";
@@ -19,6 +22,7 @@ const ANDROID_APP_STORE_URL = `https://play.google.com/store/apps/details?id=${g
  */
 export const useAppUpdate = () => {
   const { t, i18n } = useAppTranslation();
+  const { showToast } = useToast();
   const {
     required_app_version: requiredAppVersion,
     latest_app_version: latestAppVersion,
@@ -26,12 +30,11 @@ export const useAppUpdate = () => {
   } = useRemoteConfigStore();
   const { overriddenAppVersion } = useDebugStore();
 
-  // Use overridden version in DEV mode, otherwise use actual version
   const currentVersion =
-    __DEV__ && overriddenAppVersion ? overriddenAppVersion : getVersion();
+    isDev && overriddenAppVersion ? overriddenAppVersion : getVersion();
 
   // Parse the update text JSON for internationalization
-  const updateMessage = (() => {
+  const getUpdateMessage = useCallback(() => {
     if (!updateText.enabled || !updateText.payload) {
       return t("appUpdate.defaultMessage");
     }
@@ -45,21 +48,20 @@ export const useAppUpdate = () => {
     }
 
     return t("appUpdate.defaultMessage");
-  })();
+  }, [updateText.enabled, updateText.payload, i18n.language, t]);
 
-  // Check if app needs forced update (critical)
+  const updateMessage = getUpdateMessage();
+
   const needsForcedUpdate = isVersionBelowRequired(
     currentVersion,
     requiredAppVersion,
   );
 
-  // Check if app needs optional update (non-critical)
   const needsOptionalUpdate = isVersionBelowLatest(
     currentVersion,
     latestAppVersion,
   );
 
-  // Get app store URLs based on platform
   const getAppStoreUrl = useCallback(
     () =>
       isIOS
@@ -68,16 +70,22 @@ export const useAppUpdate = () => {
     [],
   );
 
-  // Open app store for update
   const openAppStore = useCallback(async () => {
     try {
       const url = getAppStoreUrl();
       await Linking.openURL(url);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to open app store:", error);
+      logger.error("useAppUpdate", "Failed to open app store", error);
+      showToast({
+        variant: "error",
+        title: t("common.error", {
+          errorMessage:
+            error instanceof Error ? error.message : t("common.unknownError"),
+        }),
+        duration: 3000,
+      });
     }
-  }, [getAppStoreUrl]);
+  }, [getAppStoreUrl, showToast, t]);
 
   return {
     currentVersion,
