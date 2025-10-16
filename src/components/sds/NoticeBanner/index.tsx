@@ -29,6 +29,11 @@ export const NoticeBanner: React.FC<NoticeBannerProps> = ({
         <Icon.InfoCircle size={16} color={themeColors.lilac[9]} />
       </View>
       <Text className="flex-1 text-sm text-gray-12">{text}</Text>
+      {onPress && (
+        <View className="ml-2">
+          <Icon.ChevronRight size={14} color={themeColors.gray[6]} />
+        </View>
+      )}
     </TouchableOpacity>
   );
 };

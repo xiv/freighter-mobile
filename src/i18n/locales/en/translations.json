@@ -998,6 +998,17 @@
       "simulateSessionExpiry": "⏰ Simulate Session Expiry"
     }
   },
+  "debug": {
+    "title": "Debug",
+    "appVersionOverride": {
+      "title": "App Version Override",
+      "description": "Override app version for testing updates (DEV only)",
+      "placeholder": "Enter version (e.g., 1.0.0)",
+      "currentVersion": "Current version: {{version}}",
+      "overriddenVersion": "Overridden version: {{version}}",
+      "clearOverride": "Clear Override"
+    }
+  },
   "blockaid": {
     "brand": "Blockaid",
     "security": {

@@ -22,9 +22,17 @@ const HomeScreenHeader = (
   const { navigation, options = {} } = props;
   const { themeColors } = useColors();
   const insets = useSafeAreaInsets();
-  const { needsForcedUpdate, needsOptionalUpdate, updateMessage } =
-    useAppUpdate();
+  const {
+    needsForcedUpdate,
+    needsOptionalUpdate,
+    updateMessage,
+    openAppStore,
+  } = useAppUpdate();
   const baseColor = themeColors.base[1];
+
+  const handleBannerPress = () => {
+    openAppStore();
+  };
 
   // In case insets.top is not available, let's ensure at least 34px of top
   // padding to avoid touching issues related to the notch and the status bar
@@ -68,7 +76,7 @@ const HomeScreenHeader = (
 
       {/* Update banner under the header - only show for optional updates when no forced update */}
       {needsOptionalUpdate && !needsForcedUpdate && (
-        <NoticeBanner text={updateMessage} />
+        <NoticeBanner text={updateMessage} onPress={handleBannerPress} />
       )}
     </View>
   );

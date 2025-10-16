@@ -1,3 +1,4 @@
+import { useDebugStore } from "ducks/debug";
 import { useRemoteConfigStore } from "ducks/remoteConfig";
 import { isIOS } from "helpers/device";
 import {
@@ -23,8 +24,11 @@ export const useAppUpdate = () => {
     latest_app_version: latestAppVersion,
     app_update_text: updateText,
   } = useRemoteConfigStore();
+  const { overriddenAppVersion } = useDebugStore();
 
-  const currentVersion = getVersion();
+  // Use overridden version in DEV mode, otherwise use actual version
+  const currentVersion =
+    __DEV__ && overriddenAppVersion ? overriddenAppVersion : getVersion();
 
   // Parse the update text JSON for internationalization
   const updateMessage = (() => {

@@ -999,6 +999,17 @@
       "simulateSessionExpiry": "⏰ Simular Expiração de Sessão"
     }
   },
+  "debug": {
+    "title": "Debug",
+    "appVersionOverride": {
+      "title": "Substituição da Versão do App",
+      "description": "Substituir versão do app para testar atualizações (apenas DEV)",
+      "placeholder": "Digite a versão (ex: 1.0.0)",
+      "currentVersion": "Versão atual: {{version}}",
+      "overriddenVersion": "Versão substituída: {{version}}",
+      "clearOverride": "Limpar Substituição"
+    }
+  },
   "blockaid": {
     "brand": "Blockaid",
     "security": {
