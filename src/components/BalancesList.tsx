@@ -248,6 +248,7 @@ export const BalancesList: React.FC<BalancesListProps> = ({
             rightContent={
               renderRightContent ? renderRightContent(item) : undefined
             }
+            spendableAmount={item.spendableAmount}
           />
         ))}
       </ListWrapper>
