@@ -27,6 +27,7 @@ export const useAppUpdate = () => {
     required_app_version: requiredAppVersion,
     latest_app_version: latestAppVersion,
     app_update_text: updateText,
+    isInitialized,
   } = useRemoteConfigStore();
   const { overriddenAppVersion } = useDebugStore();
 
@@ -52,15 +53,12 @@ export const useAppUpdate = () => {
 
   const updateMessage = getUpdateMessage();
 
-  const needsForcedUpdate = isVersionBelowRequired(
-    currentVersion,
-    requiredAppVersion,
-  );
+  // Only check for updates when remote config is initialized
+  const needsForcedUpdate =
+    isInitialized && isVersionBelowRequired(currentVersion, requiredAppVersion);
 
-  const needsOptionalUpdate = isVersionBelowLatest(
-    currentVersion,
-    latestAppVersion,
-  );
+  const needsOptionalUpdate =
+    isInitialized && isVersionBelowLatest(currentVersion, latestAppVersion);
 
   const getAppStoreUrl = useCallback(
     () =>

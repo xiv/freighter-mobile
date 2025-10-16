@@ -22,6 +22,10 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
   const handleLater = () => {
     onDismiss?.();
   };
+  const handleGoToAppStore = () => {
+    openAppStore();
+    onDismiss?.();
+  };
 
   return (
     <View className="flex-1 justify-center items-center p-6 bg-gray-1">
@@ -43,7 +47,7 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
         </Text>
 
         <View className="gap-4">
-          <Button variant="tertiary" xl onPress={openAppStore}>
+          <Button variant="tertiary" xl onPress={handleGoToAppStore}>
             {t("appUpdate.forceUpdate.updateButton")}
           </Button>
           <Button variant="secondary" xl onPress={handleLater}>
