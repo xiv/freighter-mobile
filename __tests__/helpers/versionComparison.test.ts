@@ -1,5 +1,9 @@
 import { Comparison } from "config/constants";
-import { compareVersions, isVersionBelow } from "helpers/versionComparison";
+import {
+  compareVersions,
+  isVersionBelow,
+  isDifferentProtocol,
+} from "helpers/versionComparison";
 
 describe("versionComparison helpers", () => {
   describe("compareVersions", () => {
@@ -65,6 +69,36 @@ describe("versionComparison helpers", () => {
     it("should handle edge cases", () => {
       expect(isVersionBelow("0.0.0", "0.0.1")).toBe(true);
       expect(isVersionBelow("0.0.1", "0.0.0")).toBe(false);
+    });
+  });
+
+  describe("isDifferentProtocol", () => {
+    it("should return true when protocol versions are different", () => {
+      expect(isDifferentProtocol("1.5.23", "1.6.24")).toBe(true); // 23 vs 24
+      expect(isDifferentProtocol("1.6.23", "1.6.24")).toBe(true); // 23 vs 24
+      expect(isDifferentProtocol("1.0.0", "1.0.1")).toBe(true); // 0 vs 1
+      expect(isDifferentProtocol("2.5.10", "2.5.11")).toBe(true); // 10 vs 11
+    });
+
+    it("should return false when protocol versions are the same", () => {
+      expect(isDifferentProtocol("1.5.23", "1.6.23")).toBe(false); // 23 vs 23
+      expect(isDifferentProtocol("1.6.23", "1.6.23")).toBe(false); // 23 vs 23
+      expect(isDifferentProtocol("1.0.0", "1.0.0")).toBe(false); // 0 vs 0
+      expect(isDifferentProtocol("2.5.10", "2.5.10")).toBe(false); // 10 vs 10
+    });
+
+    it("should handle versions with different lengths", () => {
+      expect(isDifferentProtocol("1.5", "1.6.24")).toBe(true); // 0 vs 24
+      expect(isDifferentProtocol("1.5.23", "1.6")).toBe(true); // 23 vs 0
+      expect(isDifferentProtocol("1.5", "1.6")).toBe(false); // 0 vs 0
+    });
+
+    it("should handle edge cases", () => {
+      expect(isDifferentProtocol("", "1.0.0")).toBe(false); // 0 vs 0 (empty string treated as 0)
+      expect(isDifferentProtocol("1.0.0", "")).toBe(false); // 0 vs 0 (empty string treated as 0)
+      expect(isDifferentProtocol("", "")).toBe(false); // 0 vs 0 (both empty)
+      expect(isDifferentProtocol("1.0.1", "1.0.0")).toBe(true); // 1 vs 0
+      expect(isDifferentProtocol("1.0.0", "1.0.1")).toBe(true); // 0 vs 1
     });
   });
 

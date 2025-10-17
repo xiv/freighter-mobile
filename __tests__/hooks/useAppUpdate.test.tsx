@@ -105,8 +105,8 @@ describe("useAppUpdate", () => {
     expect(result.current.requiredVersion).toBe("1.6.22");
     expect(result.current.latestVersion).toBe("1.6.24");
     expect(result.current.updateMessage).toBe("Update available in English");
-    expect(result.current.needsForcedUpdate).toBe(false); // Current (1.6.23) > Required (1.6.22)
-    expect(result.current.needsOptionalUpdate).toBe(true); // Current (1.6.23) < Latest (1.6.24)
+    expect(result.current.needsForcedUpdate).toBe(true); // Different protocol (23 vs 24)
+    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
     expect(typeof result.current.openAppStore).toBe("function");
   });
 
@@ -181,12 +181,12 @@ describe("useAppUpdate", () => {
     expect(result.current.needsOptionalUpdate).toBe(false);
   });
 
-  it("should trigger forced update for protocol version changes", () => {
-    // Test that protocol version changes trigger forced updates
-    // Current: 1.6.23, Required: 1.6.24, Latest: 1.6.25 - should trigger forced update
+  it("should trigger forced update when protocol versions are different", () => {
+    // Test that protocol differences always trigger forced updates
+    // Current: 1.6.23, Latest: 1.6.24 - different protocol (23 vs 24)
     mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "1.6.24", // Required version above current
-      latest_app_version: "1.6.25",
+      required_app_version: "1.5.0", // Below current - doesn't matter
+      latest_app_version: "1.6.24", // Different protocol (23 vs 24)
       app_update_text: {
         enabled: true,
         payload: {
@@ -196,68 +196,39 @@ describe("useAppUpdate", () => {
       isInitialized: true,
     });
 
-    // Version comparison is handled by the general mock implementation
-
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.requiredVersion).toBe("1.6.24");
-    expect(result.current.latestVersion).toBe("1.6.25");
-    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.6.24)
+    expect(result.current.requiredVersion).toBe("1.5.0");
+    expect(result.current.latestVersion).toBe("1.6.24");
+    expect(result.current.needsForcedUpdate).toBe(true); // Different protocol (23 vs 24)
     expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
     expect(result.current.updateMessage).toBe("Protocol update required");
   });
 
-  it("should trigger forced update for minor version changes", () => {
+  it("should trigger forced update when current version is below required", () => {
+    // Test forced update when current version is below required version
+    // Current: 1.6.23, Required: 1.7.0, Latest: 1.7.24 - should trigger forced update
     mockUseRemoteConfigStore.mockReturnValue({
       required_app_version: "1.7.0", // Required version above current
-      latest_app_version: "1.7.1",
+      latest_app_version: "1.7.24",
       app_update_text: {
         enabled: true,
         payload: {
-          en: "Minor version update required",
+          en: "Required version update",
         },
       },
       isInitialized: true,
     });
-
-    // Version comparison is handled by the general mock implementation
 
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
     expect(result.current.requiredVersion).toBe("1.7.0");
-    expect(result.current.latestVersion).toBe("1.7.1");
+    expect(result.current.latestVersion).toBe("1.7.24");
     expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.7.0)
     expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
-    expect(result.current.updateMessage).toBe("Minor version update required");
-  });
-
-  it("should trigger forced update for major version changes", () => {
-    // Test that major version changes also trigger forced updates
-    // Current: 1.6.23, Required: 2.0.0, Latest: 2.0.1 - should trigger forced update
-    mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "2.0.0", // Required version above current
-      latest_app_version: "2.0.1",
-      app_update_text: {
-        enabled: true,
-        payload: {
-          en: "Major version update required",
-        },
-      },
-      isInitialized: true,
-    });
-
-    // Version comparison is handled by the general mock implementation
-
-    const { result } = renderHook(() => useAppUpdate());
-
-    expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.requiredVersion).toBe("2.0.0");
-    expect(result.current.latestVersion).toBe("2.0.1");
-    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (2.0.0)
-    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
-    expect(result.current.updateMessage).toBe("Major version update required");
+    expect(result.current.updateMessage).toBe("Required version update");
   });
 
   it("should not trigger update when versions are the same", () => {
@@ -275,14 +246,62 @@ describe("useAppUpdate", () => {
       isInitialized: true,
     });
 
-    // Version comparison is handled by the general mock implementation
-
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
     expect(result.current.latestVersion).toBe("1.6.23");
-    expect(result.current.needsForcedUpdate).toBe(false);
-    expect(result.current.needsOptionalUpdate).toBe(false);
+    expect(result.current.needsForcedUpdate).toBe(false); // Same versions - no update needed
+    expect(result.current.needsOptionalUpdate).toBe(false); // No optional updates - all are forced
+  });
+
+  it("should trigger forced update when current version is below required", () => {
+    // Test forced update when current version is below required version
+    // Current: 1.6.23, Required: 1.7.0, Latest: 1.7.24 - should trigger forced update
+    mockUseRemoteConfigStore.mockReturnValue({
+      required_app_version: "1.7.0", // Required version above current
+      latest_app_version: "1.7.24",
+      app_update_text: {
+        enabled: true,
+        payload: {
+          en: "Required version update",
+        },
+      },
+      isInitialized: true,
+    });
+
+    const { result } = renderHook(() => useAppUpdate());
+
+    expect(result.current.currentVersion).toBe("1.6.23");
+    expect(result.current.requiredVersion).toBe("1.7.0");
+    expect(result.current.latestVersion).toBe("1.7.24");
+    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.7.0)
+    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
+    expect(result.current.updateMessage).toBe("Required version update");
+  });
+
+  it("should not trigger any update when current is above required and same protocol as latest", () => {
+    // Test no update when current version is above required and same protocol as latest
+    // Current: 1.6.23, Required: 1.5.0, Latest: 1.6.23 - should not trigger any update
+    mockUseRemoteConfigStore.mockReturnValue({
+      required_app_version: "1.5.0", // Required version below current
+      latest_app_version: "1.6.23", // Same protocol (23 vs 23) - no forced update
+      app_update_text: {
+        enabled: true,
+        payload: {
+          en: "No update needed",
+        },
+      },
+      isInitialized: true,
+    });
+
+    const { result } = renderHook(() => useAppUpdate());
+
+    expect(result.current.currentVersion).toBe("1.6.23");
+    expect(result.current.requiredVersion).toBe("1.5.0");
+    expect(result.current.latestVersion).toBe("1.6.23");
+    expect(result.current.needsForcedUpdate).toBe(false); // Same protocol (23 vs 23), current >= required
+    expect(result.current.needsOptionalUpdate).toBe(false); // Same versions - no update needed
+    expect(result.current.updateMessage).toBe("No update needed");
   });
 
   it("should use overridden version in dev mode", () => {

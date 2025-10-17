@@ -41,3 +41,23 @@ export const isVersionBelow = (
   targetVersion: string,
 ): boolean =>
   compareVersions(currentVersion, targetVersion) === Comparison.LOWER;
+
+/**
+ * Checks if two versions have different protocol versions (third number)
+ * @param currentVersion - Current app version (e.g., "1.5.23")
+ * @param targetVersion - Target version to compare against (e.g., "1.6.24")
+ * @returns true if protocol versions are different
+ */
+export const isDifferentProtocol = (
+  currentVersion: string,
+  targetVersion: string,
+): boolean => {
+  const currentParts = currentVersion.split(".").map(Number);
+  const targetParts = targetVersion.split(".").map(Number);
+
+  // Ensure both have at least 3 parts (major.minor.protocol)
+  const currentProtocol = currentParts[2] || 0;
+  const targetProtocol = targetParts[2] || 0;
+
+  return currentProtocol !== targetProtocol;
+};
