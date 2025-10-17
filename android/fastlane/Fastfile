@@ -1,0 +1,56 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+def increment_version_code_in_gradle(gradle_file_path)
+  file_path = File.join(Dir.pwd, gradle_file_path)
+  contents = File.read(file_path)
+  
+  # Find and increment the versionCode
+  contents.gsub!(/versionCode\s+(\d+)/) do |match|
+    current_version = $1.to_i
+    new_version = current_version + 1
+    UI.success "📱 Incrementing versionCode: #{current_version} → #{new_version}"
+    "versionCode #{new_version}"
+  end
+  
+  File.write(file_path, contents)
+end
+
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Upload a new version to the Google Play"
+  lane :upload_build do
+    # Automatically increment the version code
+    increment_version_code_in_gradle("../app/build.gradle")
+
+    # Deep clean gradle build artifacts
+    UI.message "🧹 Performing deep Gradle clean..."
+    sh("cd .. && rm -rf .gradle && rm -rf app/.cxx && rm -rf app/build && ./gradlew clean") rescue UI.error("Clean failed, continuing anyway...")
+
+    gradle task: "bundle",
+           flavor: "dev",
+           build_type: "Release",
+           print_command: false,
+           project_dir: "."
+
+    upload_to_play_store track: "internal", track_promote_to: "internal"
+  end
+end
