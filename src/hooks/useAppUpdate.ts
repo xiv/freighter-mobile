@@ -1,27 +1,24 @@
 import { logger } from "config/logger";
 import { useDebugStore } from "ducks/debug";
 import { useRemoteConfigStore } from "ducks/remoteConfig";
+import { getAppUpdateText } from "helpers/appUpdateText";
 import { isIOS } from "helpers/device";
 import { isDev } from "helpers/isEnv";
-import {
-  isVersionBelowLatest,
-  isVersionBelowRequired,
-} from "helpers/versionComparison";
+import { isVersionBelowLatest } from "helpers/versionComparison";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useToast } from "providers/ToastProvider";
 import { useCallback } from "react";
 import { Linking } from "react-native";
 import { getBundleId, getVersion } from "react-native-device-info";
 
-const IOS_BUNDLE_ID = "id6743947720";
-const IOS_APP_STORE_URL = `https://apps.apple.com/app/freighter/${IOS_BUNDLE_ID}`;
+const IOS_APP_STORE_URL = "https://apps.apple.com/app/freighter/id6743947720";
 const ANDROID_APP_STORE_URL = `https://play.google.com/store/apps/details?id=${getBundleId()}`;
 
 /**
  * Hook to manage app update logic and UI state
  */
 export const useAppUpdate = () => {
-  const { t, i18n } = useAppTranslation();
+  const { t } = useAppTranslation();
   const { showToast } = useToast();
   const {
     required_app_version: requiredAppVersion,
@@ -35,30 +32,15 @@ export const useAppUpdate = () => {
     isDev && overriddenAppVersion ? overriddenAppVersion : getVersion();
 
   // Parse the update text JSON for internationalization
-  const getUpdateMessage = useCallback(() => {
-    if (!updateText.enabled || !updateText.payload) {
-      return t("appUpdate.defaultMessage");
-    }
-
-    if (typeof updateText.payload === "object" && updateText.payload !== null) {
-      const currentLanguage = i18n.language;
-      const payload = updateText.payload as Record<string, string>;
-      return (
-        payload[currentLanguage] || payload.en || t("appUpdate.defaultMessage")
-      );
-    }
-
-    return t("appUpdate.defaultMessage");
-  }, [updateText.enabled, updateText.payload, i18n.language, t]);
-
-  const updateMessage = getUpdateMessage();
+  const updateMessage = getAppUpdateText(updateText);
 
   // Only check for updates when remote config is initialized
+  // For this app, any version difference (including protocol) requires a forced update
   const needsForcedUpdate =
-    isInitialized && isVersionBelowRequired(currentVersion, requiredAppVersion);
-
-  const needsOptionalUpdate =
     isInitialized && isVersionBelowLatest(currentVersion, latestAppVersion);
+
+  // No optional updates - all updates are forced
+  const needsOptionalUpdate = false;
 
   const getAppStoreUrl = useCallback(
     () =>

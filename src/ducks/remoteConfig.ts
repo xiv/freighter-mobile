@@ -7,24 +7,30 @@ import { create } from "zustand";
 
 const ONE_HOUR_IN_MS = 60 * 60 * 1000;
 
-// Boolean feature flags type
+// Feature flags configuration arrays
+const BOOLEAN_FLAGS = [
+  "swap_enabled",
+  "discover_enabled",
+  "onramp_enabled",
+] as const;
+
+const VERSION_FLAGS = ["required_app_version", "latest_app_version"] as const;
+
+const COMPLEX_FLAGS = ["app_update_text"] as const;
+
+// Derive types from the flag arrays
 type BooleanFeatureFlags = {
-  swap_enabled: boolean;
-  discover_enabled: boolean;
-  onramp_enabled: boolean;
+  [K in (typeof BOOLEAN_FLAGS)[number]]: boolean;
 };
 
-// String feature flags type
 type StringFeatureFlags = {
-  required_app_version: string;
-  latest_app_version: string;
+  [K in (typeof VERSION_FLAGS)[number]]: string;
 };
 
-// Complex feature flags type
 type ComplexFeatureFlags = {
-  app_update_text: {
+  [K in (typeof COMPLEX_FLAGS)[number]]: {
     enabled: boolean;
-    payload: string | undefined;
+    payload: Record<string, string> | undefined;
   };
 };
 
@@ -44,19 +50,6 @@ interface RemoteConfigState extends FeatureFlags {
 
 // Get current app version for default values
 const currentAppVersion = getVersion();
-
-// Boolean feature flags configuration
-const BOOLEAN_FLAGS = [
-  "swap_enabled",
-  "discover_enabled",
-  "onramp_enabled",
-] as const;
-
-// String feature flags configuration (simple string values)
-const STRING_FLAGS = ["required_app_version", "latest_app_version"] as const;
-
-// Complex feature flags configuration (objects, JSON, etc.)
-const COMPLEX_FLAGS = ["app_update_text"] as const;
 
 // While developing locally we don't set the Amplitude API keys which prevents
 // us from fetching feature flags so let's set all "true" by default in __DEV__
@@ -129,9 +122,9 @@ export const useRemoteConfigStore = create<RemoteConfigState>()((set, get) => ({
             (updates as BooleanFeatureFlags)[booleanKey] =
               variant.value === "on";
           }
-          // Handle string flags - use value directly, parse version strings
+          // Handle version flags - use value directly after parsing version strings
           else if (
-            STRING_FLAGS.includes(key as (typeof STRING_FLAGS)[number])
+            VERSION_FLAGS.includes(key as (typeof VERSION_FLAGS)[number])
           ) {
             const stringKey = key as keyof StringFeatureFlags;
             // Parse version strings from underscore format (1_6_23) to dot format (1.6.23)

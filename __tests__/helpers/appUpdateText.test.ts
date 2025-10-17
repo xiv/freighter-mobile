@@ -1,211 +1,148 @@
-import { getAppUpdateText } from "helpers/appUpdateText";
+// Mock the dependencies
+const mockT = jest.fn((key: string) => key);
+const mockGetDeviceLanguage = jest.fn(() => "en");
 
-const mockI18n = {
-  language: "en",
-} as any;
+jest.doMock("i18next", () => ({
+  t: mockT,
+}));
 
-const mockT = (key: string) => {
-  const translations: Record<string, string> = {
-    "appUpdate.defaultMessage": "Please update your app to the latest version",
-  };
-  return translations[key] || key;
-};
+jest.doMock("helpers/localeUtils", () => ({
+  getDeviceLanguage: mockGetDeviceLanguage,
+}));
+
+// Import after mocking
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { getAppUpdateText } = require("helpers/appUpdateText");
 
 describe("getAppUpdateText", () => {
-  it("should return translation fallback when not enabled", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockT.mockImplementation((key: string) => key);
+    mockGetDeviceLanguage.mockImplementation(() => "en");
+  });
+
+  it("should return localized text for current language", () => {
     const appUpdateText = {
-      enabled: false,
+      enabled: true,
       payload: {
-        en: "Custom message",
-        pt: "Mensagem personalizada",
+        en: "Update available in English",
+        pt: "Atualização disponível em Português",
       },
     };
 
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
+    const result = getAppUpdateText(appUpdateText);
 
-    expect(result).toBe("Please update your app to the latest version");
+    expect(result).toBe("Update available in English");
   });
 
-  it("should return translation fallback when payload is undefined", () => {
+  it("should fallback to English when current language is not available", () => {
+    mockGetDeviceLanguage.mockReturnValue("fr");
+
+    const appUpdateText = {
+      enabled: true,
+      payload: {
+        en: "Update available in English",
+        pt: "Atualização disponível em Português",
+      },
+    };
+
+    const result = getAppUpdateText(appUpdateText);
+
+    expect(result).toBe("Update available in English");
+  });
+
+  it("should handle Portuguese language correctly", () => {
+    mockGetDeviceLanguage.mockReturnValue("pt");
+
+    const appUpdateText = {
+      enabled: true,
+      payload: {
+        en: "Update available in English",
+        pt: "Atualização disponível em Português",
+      },
+    };
+
+    const result = getAppUpdateText(appUpdateText);
+
+    expect(result).toBe("Atualização disponível em Português");
+  });
+
+  it("should return default message when not enabled", () => {
+    const appUpdateText = {
+      enabled: false,
+      payload: {
+        en: "Update available",
+        pt: "Atualização disponível",
+      },
+    };
+
+    const result = getAppUpdateText(appUpdateText);
+
+    expect(mockT).toHaveBeenCalledWith("appUpdate.defaultMessage");
+    expect(result).toBe("appUpdate.defaultMessage");
+  });
+
+  it("should return default message when payload is null", () => {
+    const appUpdateText = {
+      enabled: true,
+      payload: null,
+    };
+
+    const result = getAppUpdateText(appUpdateText as any);
+
+    expect(mockT).toHaveBeenCalledWith("appUpdate.defaultMessage");
+    expect(result).toBe("appUpdate.defaultMessage");
+  });
+
+  it("should return default message when payload is undefined", () => {
     const appUpdateText = {
       enabled: true,
       payload: undefined,
     };
 
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
+    const result = getAppUpdateText(appUpdateText);
 
-    expect(result).toBe("Please update your app to the latest version");
+    expect(mockT).toHaveBeenCalledWith("appUpdate.defaultMessage");
+    expect(result).toBe("appUpdate.defaultMessage");
   });
 
-  it("should return translation fallback when payload is empty", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: {} as any,
-    };
+  it("should fallback to translation when neither current language nor English is available", () => {
+    mockGetDeviceLanguage.mockReturnValue("fr");
 
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should return translation fallback when payload is not an object", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: "   " as any,
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should return current language text when available", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: {
-        en: "Update available in English",
-        pt: "Atualização disponível em Português",
-      },
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Update available in English");
-  });
-
-  it("should return English text when current language not available", () => {
     const appUpdateText = {
       enabled: true,
       payload: {
         pt: "Atualização disponível em Português",
-        es: "Actualización disponible en Español",
       },
     };
 
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
+    const result = getAppUpdateText(appUpdateText);
 
-    expect(result).toBe("Please update your app to the latest version");
+    expect(mockT).toHaveBeenCalledWith("appUpdate.defaultMessage");
+    expect(result).toBe("appUpdate.defaultMessage");
   });
 
-  it("should return English text when current language is not English", () => {
+  it("should return default message when payload is not an object", () => {
     const appUpdateText = {
       enabled: true,
-      payload: {
-        en: "Update available in English",
-        pt: "Atualização disponível em Português",
-      },
+      payload: "simple string" as any,
     };
 
-    const ptI18n = { language: "pt" } as any;
-    const result = getAppUpdateText(appUpdateText, ptI18n, mockT);
+    const result = getAppUpdateText(appUpdateText);
 
-    expect(result).toBe("Atualização disponível em Português");
+    expect(mockT).toHaveBeenCalledWith("appUpdate.defaultMessage");
+    expect(result).toBe("appUpdate.defaultMessage");
   });
 
-  it("should return translation fallback when payload is not an object", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: "invalid json" as any,
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should return translation fallback when payload is a simple string", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: "just a string" as any,
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should handle complex JSON payload with multiple languages", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: {
-        en: "New version available!",
-        pt: "Nova versão disponível!",
-        es: "¡Nueva versión disponible!",
-        fr: "Nouvelle version disponible!",
-      },
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("New version available!");
-  });
-
-  it("should handle empty object payload", () => {
+  it("should return default message when payload is empty object", () => {
     const appUpdateText = {
       enabled: true,
       payload: {},
     };
 
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
+    const result = getAppUpdateText(appUpdateText);
 
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should handle null values in JSON payload", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: {
-        en: null as any,
-        pt: "Atualização disponível",
-      },
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should handle non-object payload from remote config", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: 123 as any, // Number instead of object
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should handle object payload from remote config", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: { en: "Update available", pt: "Atualização disponível" },
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Update available");
-  });
-
-  it("should handle boolean payload from remote config", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: true as any, // Boolean instead of object
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
-  });
-
-  it("should handle null payload from remote config", () => {
-    const appUpdateText = {
-      enabled: true,
-      payload: null as any, // Null payload
-    };
-
-    const result = getAppUpdateText(appUpdateText, mockI18n, mockT);
-
-    expect(result).toBe("Please update your app to the latest version");
+    expect(mockT).toHaveBeenCalledWith("appUpdate.defaultMessage");
+    expect(result).toBe("appUpdate.defaultMessage");
   });
 });

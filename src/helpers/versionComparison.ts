@@ -44,6 +44,7 @@ export const isVersionBelowRequired = (
 
 /**
  * Checks if the current app version is below the latest version
+ * For this app, any version difference (including protocol) requires a forced update
  * @param currentVersion - Current app version
  * @param latestVersion - Latest available version
  * @returns true if current version is below latest version
@@ -58,7 +59,7 @@ export const isVersionBelowLatest = (
  * Calculates the version difference between two versions
  * @param currentVersion - Current app version
  * @param targetVersion - Target version to compare against
- * @returns Object with major, minor, and patch differences
+ * @returns Object with major, minor, and protocol differences
  */
 export const getVersionDifference = (
   currentVersion: string,
@@ -75,6 +76,6 @@ export const getVersionDifference = (
   return {
     major: target[0] - current[0],
     minor: target[1] - current[1],
-    patch: target[2] - current[2],
+    protocol: target[2] - current[2],
   };
 };

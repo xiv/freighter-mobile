@@ -14,7 +14,7 @@ interface ForceUpdateScreenProps {
 
 /**
  * Full-screen component that forces users to update their app
- * Used for critical updates that could affect fund security
+ * Used for critical updates or when users are too far behind on app version
  */
 export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
   onDismiss,
