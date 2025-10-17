@@ -51,11 +51,7 @@ export const ForceUpdateScreen: React.FC<ForceUpdateScreenProps> = ({
         </Text>
 
         <Text className="text-base text-gray-11 text-left mb-6">
-          {t("appUpdate.forceUpdate.description1")}
-        </Text>
-
-        <Text className="text-base text-gray-11 text-left mb-6">
-          {t("appUpdate.forceUpdate.description2")}
+          {t("appUpdate.forceUpdate.description")}
         </Text>
 
         <View className="gap-4">

@@ -31,26 +31,13 @@ export const compareVersions = (
 };
 
 /**
- * Checks if the current app version is below the required version
+ * Checks if the current app version is below the target version
  * @param currentVersion - Current app version
- * @param requiredVersion - Required minimum version
- * @returns true if current version is below required version
+ * @param targetVersion - Target version to compare against
+ * @returns true if current version is below target version
  */
-export const isVersionBelowRequired = (
+export const isVersionBelow = (
   currentVersion: string,
-  requiredVersion: string,
+  targetVersion: string,
 ): boolean =>
-  compareVersions(currentVersion, requiredVersion) === Comparison.LOWER;
-
-/**
- * Checks if the current app version is below the latest version
- * For this app, any version difference (including protocol) requires a forced update
- * @param currentVersion - Current app version
- * @param latestVersion - Latest available version
- * @returns true if current version is below latest version
- */
-export const isVersionBelowLatest = (
-  currentVersion: string,
-  latestVersion: string,
-): boolean =>
-  compareVersions(currentVersion, latestVersion) === Comparison.LOWER;
+  compareVersions(currentVersion, targetVersion) === Comparison.LOWER;

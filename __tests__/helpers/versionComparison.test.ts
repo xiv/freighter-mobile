@@ -1,9 +1,5 @@
 import { Comparison } from "config/constants";
-import {
-  compareVersions,
-  isVersionBelowRequired,
-  isVersionBelowLatest,
-} from "helpers/versionComparison";
+import { compareVersions, isVersionBelow } from "helpers/versionComparison";
 
 describe("versionComparison helpers", () => {
   describe("compareVersions", () => {
@@ -51,47 +47,38 @@ describe("versionComparison helpers", () => {
     });
   });
 
-  describe("isVersionBelowRequired", () => {
-    it("should return true when current version is below required", () => {
-      expect(isVersionBelowRequired("1.0.0", "1.0.1")).toBe(true);
-      expect(isVersionBelowRequired("1.0.0", "1.1.0")).toBe(true);
-      expect(isVersionBelowRequired("1.0.0", "2.0.0")).toBe(true);
-      expect(isVersionBelowRequired("0.9.9", "1.0.0")).toBe(true);
+  describe("isVersionBelow", () => {
+    it("should return true when current version is below target", () => {
+      expect(isVersionBelow("1.0.0", "1.0.1")).toBe(true);
+      expect(isVersionBelow("1.0.0", "1.1.0")).toBe(true);
+      expect(isVersionBelow("1.0.0", "2.0.0")).toBe(true);
+      expect(isVersionBelow("0.9.9", "1.0.0")).toBe(true);
     });
 
-    it("should return false when current version meets or exceeds required", () => {
-      expect(isVersionBelowRequired("1.0.0", "1.0.0")).toBe(false);
-      expect(isVersionBelowRequired("1.0.1", "1.0.0")).toBe(false);
-      expect(isVersionBelowRequired("1.1.0", "1.0.0")).toBe(false);
-      expect(isVersionBelowRequired("2.0.0", "1.0.0")).toBe(false);
+    it("should return false when current version is at or above target", () => {
+      expect(isVersionBelow("1.0.0", "1.0.0")).toBe(false);
+      expect(isVersionBelow("1.0.1", "1.0.0")).toBe(false);
+      expect(isVersionBelow("1.1.0", "1.0.0")).toBe(false);
+      expect(isVersionBelow("2.0.0", "1.0.0")).toBe(false);
     });
 
     it("should handle edge cases", () => {
-      expect(isVersionBelowRequired("0.0.0", "0.0.1")).toBe(true);
-      expect(isVersionBelowRequired("0.0.1", "0.0.0")).toBe(false);
-    });
-  });
-
-  describe("isVersionBelowLatest", () => {
-    it("should return true when current version is below latest", () => {
-      expect(isVersionBelowLatest("1.0.0", "1.0.1")).toBe(true);
-      expect(isVersionBelowLatest("1.0.0", "1.1.0")).toBe(true);
-      expect(isVersionBelowLatest("1.0.0", "2.0.0")).toBe(true);
-    });
-
-    it("should return false when current version is at or above latest", () => {
-      expect(isVersionBelowLatest("1.0.0", "1.0.0")).toBe(false);
-      expect(isVersionBelowLatest("1.0.1", "1.0.0")).toBe(false);
-      expect(isVersionBelowLatest("1.1.0", "1.0.0")).toBe(false);
+      expect(isVersionBelow("0.0.0", "0.0.1")).toBe(true);
+      expect(isVersionBelow("0.0.1", "0.0.0")).toBe(false);
     });
   });
 
   describe("real-world scenarios", () => {
     it("should handle typical app version scenarios", () => {
       // Current app version scenarios
-      expect(isVersionBelowRequired("0.1.0", "0.2.0")).toBe(true);
-      expect(isVersionBelowRequired("0.2.0", "0.2.0")).toBe(false);
-      expect(isVersionBelowRequired("0.3.0", "0.2.0")).toBe(false);
+      expect(isVersionBelow("0.1.0", "0.2.0")).toBe(true);
+      expect(isVersionBelow("0.2.0", "0.2.0")).toBe(false);
+      expect(isVersionBelow("0.3.0", "0.2.0")).toBe(false);
+
+      // Protocol version scenarios (1.5.23 vs 1.4.23)
+      expect(isVersionBelow("1.5.23", "1.4.23")).toBe(false); // 1.5.23 is above 1.4.23
+      expect(isVersionBelow("1.4.23", "1.5.23")).toBe(true); // 1.4.23 is below 1.5.23
+      expect(isVersionBelow("1.6.23", "1.6.24")).toBe(true); // 1.6.23 is below 1.6.24
     });
   });
 });

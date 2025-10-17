@@ -2,7 +2,6 @@ import { renderHook } from "@testing-library/react-native";
 import { logger } from "config/logger";
 import { isDev } from "helpers/isEnv";
 import { getDeviceLanguage } from "helpers/localeUtils";
-import { isVersionBelowLatest } from "helpers/versionComparison";
 import { useAppUpdate } from "hooks/useAppUpdate";
 import { Linking } from "react-native";
 
@@ -42,10 +41,6 @@ jest.mock("helpers/isEnv", () => ({
   isDev: jest.fn(() => false),
 }));
 
-jest.mock("helpers/versionComparison", () => ({
-  isVersionBelowLatest: jest.fn(),
-}));
-
 jest.mock("react-native", () => ({
   Linking: {
     openURL: jest.fn(),
@@ -72,7 +67,7 @@ describe("useAppUpdate", () => {
 
     // Set up default mocks
     mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "1.6.23",
+      required_app_version: "1.6.22", // Required version below current
       latest_app_version: "1.6.24",
       app_update_text: {
         enabled: true,
@@ -99,9 +94,6 @@ describe("useAppUpdate", () => {
       showToast: jest.fn(),
     });
 
-    (isVersionBelowLatest as jest.Mock).mockImplementation(
-      (current, latest) => current !== latest,
-    );
     (Linking.openURL as jest.Mock).mockResolvedValue(undefined);
     (logger.error as jest.Mock).mockImplementation(() => {});
   });
@@ -110,11 +102,11 @@ describe("useAppUpdate", () => {
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.requiredVersion).toBe("1.6.23");
+    expect(result.current.requiredVersion).toBe("1.6.22");
     expect(result.current.latestVersion).toBe("1.6.24");
     expect(result.current.updateMessage).toBe("Update available in English");
-    expect(result.current.needsForcedUpdate).toBe(true);
-    expect(result.current.needsOptionalUpdate).toBe(false);
+    expect(result.current.needsForcedUpdate).toBe(false); // Current (1.6.23) > Required (1.6.22)
+    expect(result.current.needsOptionalUpdate).toBe(true); // Current (1.6.23) < Latest (1.6.24)
     expect(typeof result.current.openAppStore).toBe("function");
   });
 
@@ -191,10 +183,10 @@ describe("useAppUpdate", () => {
 
   it("should trigger forced update for protocol version changes", () => {
     // Test that protocol version changes trigger forced updates
-    // Current: 1.6.23, Latest: 1.6.24 - should trigger forced update
+    // Current: 1.6.23, Required: 1.6.24, Latest: 1.6.25 - should trigger forced update
     mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "1.6.23",
-      latest_app_version: "1.6.24",
+      required_app_version: "1.6.24", // Required version above current
+      latest_app_version: "1.6.25",
       app_update_text: {
         enabled: true,
         payload: {
@@ -204,22 +196,22 @@ describe("useAppUpdate", () => {
       isInitialized: true,
     });
 
-    // Mock version comparison to return true for different versions
-    (isVersionBelowLatest as jest.Mock).mockReturnValue(true);
+    // Version comparison is handled by the general mock implementation
 
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.latestVersion).toBe("1.6.24");
-    expect(result.current.needsForcedUpdate).toBe(true);
-    expect(result.current.needsOptionalUpdate).toBe(false);
+    expect(result.current.requiredVersion).toBe("1.6.24");
+    expect(result.current.latestVersion).toBe("1.6.25");
+    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.6.24)
+    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
     expect(result.current.updateMessage).toBe("Protocol update required");
   });
 
   it("should trigger forced update for minor version changes", () => {
     mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "1.6.23",
-      latest_app_version: "1.7.0",
+      required_app_version: "1.7.0", // Required version above current
+      latest_app_version: "1.7.1",
       app_update_text: {
         enabled: true,
         payload: {
@@ -229,24 +221,24 @@ describe("useAppUpdate", () => {
       isInitialized: true,
     });
 
-    // Mock version comparison to return true for different versions
-    (isVersionBelowLatest as jest.Mock).mockReturnValue(true);
+    // Version comparison is handled by the general mock implementation
 
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.latestVersion).toBe("1.7.0");
-    expect(result.current.needsForcedUpdate).toBe(true);
-    expect(result.current.needsOptionalUpdate).toBe(false);
+    expect(result.current.requiredVersion).toBe("1.7.0");
+    expect(result.current.latestVersion).toBe("1.7.1");
+    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.7.0)
+    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
     expect(result.current.updateMessage).toBe("Minor version update required");
   });
 
   it("should trigger forced update for major version changes", () => {
     // Test that major version changes also trigger forced updates
-    // Current: 1.6.23, Latest: 2.0.0 - should trigger forced update
+    // Current: 1.6.23, Required: 2.0.0, Latest: 2.0.1 - should trigger forced update
     mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "1.6.23",
-      latest_app_version: "2.0.0",
+      required_app_version: "2.0.0", // Required version above current
+      latest_app_version: "2.0.1",
       app_update_text: {
         enabled: true,
         payload: {
@@ -256,15 +248,15 @@ describe("useAppUpdate", () => {
       isInitialized: true,
     });
 
-    // Mock version comparison to return true for different versions
-    (isVersionBelowLatest as jest.Mock).mockReturnValue(true);
+    // Version comparison is handled by the general mock implementation
 
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.latestVersion).toBe("2.0.0");
-    expect(result.current.needsForcedUpdate).toBe(true);
-    expect(result.current.needsOptionalUpdate).toBe(false);
+    expect(result.current.requiredVersion).toBe("2.0.0");
+    expect(result.current.latestVersion).toBe("2.0.1");
+    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (2.0.0)
+    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
     expect(result.current.updateMessage).toBe("Major version update required");
   });
 
@@ -283,8 +275,7 @@ describe("useAppUpdate", () => {
       isInitialized: true,
     });
 
-    // Mock version comparison to return false for same versions
-    (isVersionBelowLatest as jest.Mock).mockReturnValue(false);
+    // Version comparison is handled by the general mock implementation
 
     const { result } = renderHook(() => useAppUpdate());
 

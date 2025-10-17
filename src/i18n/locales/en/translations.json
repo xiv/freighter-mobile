@@ -1135,13 +1135,12 @@
   "appUpdate": {
     "defaultMessage": "Please update your app to the latest version",
     "forceUpdate": {
-      "title": "Update your app",
-      "description1": "We noticed that you haven't updated your app. Please update to the latest version. Your funds are not affected.",
-      "description2": "Freighter works best when you've updated the application. Choosing not to update the app means that you take responsibility for any transaction errors.",
+      "title": "Update Required",
+      "description": "A new version of Freighter is available. Please update to ensure your wallet performs correctly and securely. Your funds are not affected.",
       "updateButton": "Update app",
       "laterButton": "I'll update later",
-      "skipTitle": "Skip Update?",
-      "skipMessage": "You're taking responsibility for any transaction errors. Freighter works best when updated."
+      "skipTitle": "Proceed without update?",
+      "skipMessage": "Using an outdated version may cause errors or failed transactions. By continuing, you accept full responsibility for any issues until you update Freighter."
     }
   }
 }

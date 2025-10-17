@@ -44,8 +44,7 @@ describe("ForceUpdateScreen", () => {
     const { getByText } = renderForceUpdateScreen(defaultProps);
 
     expect(getByText("appUpdate.forceUpdate.title")).toBeTruthy();
-    expect(getByText("appUpdate.forceUpdate.description1")).toBeTruthy();
-    expect(getByText("appUpdate.forceUpdate.description2")).toBeTruthy();
+    expect(getByText("appUpdate.forceUpdate.description")).toBeTruthy();
   });
 
   it("renders without errors", () => {
