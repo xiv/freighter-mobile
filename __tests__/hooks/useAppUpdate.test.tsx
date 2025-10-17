@@ -105,8 +105,8 @@ describe("useAppUpdate", () => {
     expect(result.current.requiredVersion).toBe("1.6.22");
     expect(result.current.latestVersion).toBe("1.6.24");
     expect(result.current.updateMessage).toBe("Update available in English");
-    expect(result.current.needsForcedUpdate).toBe(true); // Different protocol (23 vs 24)
-    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
+    expect(result.current.needsForcedUpdate).toBe(false); // Current (1.6.23) > Required (1.6.22)
+    expect(result.current.needsOptionalUpdate).toBe(true); // Current (1.6.23) < Latest (1.6.24)
     expect(typeof result.current.openAppStore).toBe("function");
   });
 
@@ -181,37 +181,12 @@ describe("useAppUpdate", () => {
     expect(result.current.needsOptionalUpdate).toBe(false);
   });
 
-  it("should trigger forced update when protocol versions are different", () => {
-    // Test that protocol differences always trigger forced updates
-    // Current: 1.6.23, Latest: 1.6.24 - different protocol (23 vs 24)
-    mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "1.5.0", // Below current - doesn't matter
-      latest_app_version: "1.6.24", // Different protocol (23 vs 24)
-      app_update_text: {
-        enabled: true,
-        payload: {
-          en: "Protocol update required",
-        },
-      },
-      isInitialized: true,
-    });
-
-    const { result } = renderHook(() => useAppUpdate());
-
-    expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.requiredVersion).toBe("1.5.0");
-    expect(result.current.latestVersion).toBe("1.6.24");
-    expect(result.current.needsForcedUpdate).toBe(true); // Different protocol (23 vs 24)
-    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
-    expect(result.current.updateMessage).toBe("Protocol update required");
-  });
-
   it("should trigger forced update when current version is below required", () => {
     // Test forced update when current version is below required version
-    // Current: 1.6.23, Required: 1.7.0, Latest: 1.7.24 - should trigger forced update
+    // Current: 1.6.23, Required: 1.6.24 - should trigger forced update
     mockUseRemoteConfigStore.mockReturnValue({
-      required_app_version: "1.7.0", // Required version above current
-      latest_app_version: "1.7.24",
+      required_app_version: "1.6.24", // Required version above current
+      latest_app_version: "1.6.25",
       app_update_text: {
         enabled: true,
         payload: {
@@ -224,9 +199,9 @@ describe("useAppUpdate", () => {
     const { result } = renderHook(() => useAppUpdate());
 
     expect(result.current.currentVersion).toBe("1.6.23");
-    expect(result.current.requiredVersion).toBe("1.7.0");
-    expect(result.current.latestVersion).toBe("1.7.24");
-    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.7.0)
+    expect(result.current.requiredVersion).toBe("1.6.24");
+    expect(result.current.latestVersion).toBe("1.6.25");
+    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.6.24)
     expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
     expect(result.current.updateMessage).toBe("Required version update");
   });
@@ -277,6 +252,31 @@ describe("useAppUpdate", () => {
     expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.7.0)
     expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
     expect(result.current.updateMessage).toBe("Required version update");
+  });
+
+  it("should trigger forced update when current is below required and required equals latest", () => {
+    // Test forced update when current version is below required and required equals latest
+    // Current: 1.6.23, Required: 1.6.24, Latest: 1.6.24 - should trigger forced update
+    mockUseRemoteConfigStore.mockReturnValue({
+      required_app_version: "1.6.24", // Required version above current
+      latest_app_version: "1.6.24", // Same as required
+      app_update_text: {
+        enabled: true,
+        payload: {
+          en: "Forced update required",
+        },
+      },
+      isInitialized: true,
+    });
+
+    const { result } = renderHook(() => useAppUpdate());
+
+    expect(result.current.currentVersion).toBe("1.6.23");
+    expect(result.current.requiredVersion).toBe("1.6.24");
+    expect(result.current.latestVersion).toBe("1.6.24");
+    expect(result.current.needsForcedUpdate).toBe(true); // Current (1.6.23) < Required (1.6.24)
+    expect(result.current.needsOptionalUpdate).toBe(false); // Forced update takes precedence
+    expect(result.current.updateMessage).toBe("Forced update required");
   });
 
   it("should not trigger any update when current is above required and same protocol as latest", () => {

@@ -4,7 +4,7 @@ import { useRemoteConfigStore } from "ducks/remoteConfig";
 import { getAppUpdateText } from "helpers/appUpdateText";
 import { isIOS } from "helpers/device";
 import { isDev } from "helpers/isEnv";
-import { isVersionBelow, isDifferentProtocol } from "helpers/versionComparison";
+import { isVersionBelow } from "helpers/versionComparison";
 import useAppTranslation from "hooks/useAppTranslation";
 import { useToast } from "providers/ToastProvider";
 import { useCallback } from "react";
@@ -35,11 +35,9 @@ export const useAppUpdate = () => {
   const updateMessage = getAppUpdateText(updateText);
 
   // Only check for updates when remote config is initialized
-  // Forced update: when current version is below required OR when there's a protocol difference
+  // Forced update: when current version is below required version
   const needsForcedUpdate =
-    isInitialized &&
-    (isVersionBelow(currentVersion, requiredAppVersion) ||
-      isDifferentProtocol(currentVersion, latestAppVersion));
+    isInitialized && isVersionBelow(currentVersion, requiredAppVersion);
 
   // Optional update: when current version is below latest but above required (for banner)
   const needsOptionalUpdate =
