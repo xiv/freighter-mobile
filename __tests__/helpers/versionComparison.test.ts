@@ -3,7 +3,6 @@ import {
   compareVersions,
   isVersionBelowRequired,
   isVersionBelowLatest,
-  getVersionDifference,
 } from "helpers/versionComparison";
 
 describe("versionComparison helpers", () => {
@@ -84,55 +83,6 @@ describe("versionComparison helpers", () => {
       expect(isVersionBelowLatest("1.0.0", "1.0.0")).toBe(false);
       expect(isVersionBelowLatest("1.0.1", "1.0.0")).toBe(false);
       expect(isVersionBelowLatest("1.1.0", "1.0.0")).toBe(false);
-    });
-  });
-
-  describe("getVersionDifference", () => {
-    it("should calculate correct differences for major versions", () => {
-      const diff = getVersionDifference("1.0.0", "2.0.0");
-      expect(diff.major).toBe(1);
-      expect(diff.minor).toBe(0);
-      expect(diff.protocol).toBe(0);
-    });
-
-    it("should calculate correct differences for minor versions", () => {
-      const diff = getVersionDifference("1.0.0", "1.2.0");
-      expect(diff.major).toBe(0);
-      expect(diff.minor).toBe(2);
-      expect(diff.protocol).toBe(0);
-    });
-
-    it("should calculate correct differences for protocol versions", () => {
-      const diff = getVersionDifference("1.0.0", "1.0.3");
-      expect(diff.major).toBe(0);
-      expect(diff.minor).toBe(0);
-      expect(diff.protocol).toBe(3);
-    });
-
-    it("should calculate correct differences for mixed changes", () => {
-      const diff = getVersionDifference("1.2.3", "2.1.4");
-      expect(diff.major).toBe(1);
-      expect(diff.minor).toBe(-1);
-      expect(diff.protocol).toBe(1);
-    });
-
-    it("should handle different length versions", () => {
-      const diff1 = getVersionDifference("1.0", "1.0.3");
-      expect(diff1.major).toBe(0);
-      expect(diff1.minor).toBe(0);
-      expect(diff1.protocol).toBe(3);
-
-      const diff2 = getVersionDifference("1.0.3", "1.0");
-      expect(diff2.major).toBe(0);
-      expect(diff2.minor).toBe(0);
-      expect(diff2.protocol).toBe(-3);
-    });
-
-    it("should handle identical versions", () => {
-      const diff = getVersionDifference("1.2.3", "1.2.3");
-      expect(diff.major).toBe(0);
-      expect(diff.minor).toBe(0);
-      expect(diff.protocol).toBe(0);
     });
   });
 

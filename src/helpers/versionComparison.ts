@@ -54,28 +54,3 @@ export const isVersionBelowLatest = (
   latestVersion: string,
 ): boolean =>
   compareVersions(currentVersion, latestVersion) === Comparison.LOWER;
-
-/**
- * Calculates the version difference between two versions
- * @param currentVersion - Current app version
- * @param targetVersion - Target version to compare against
- * @returns Object with major, minor, and protocol differences
- */
-export const getVersionDifference = (
-  currentVersion: string,
-  targetVersion: string,
-) => {
-  const current = currentVersion.split(".").map(Number);
-  const target = targetVersion.split(".").map(Number);
-
-  // Ensure both arrays have the same length by padding with zeros
-  const maxLength = Math.max(current.length, target.length);
-  while (current.length < maxLength) current.push(0);
-  while (target.length < maxLength) target.push(0);
-
-  return {
-    major: target[0] - current[0],
-    minor: target[1] - current[1],
-    protocol: target[2] - current[2],
-  };
-};
