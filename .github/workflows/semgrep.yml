@@ -32,7 +32,7 @@ jobs:
       # Map finding severity to Critical (9.0) or High (8.0)
       - name: Override SARIF severities for GitHub
         run: |
-          apt-get update && apt-get install -y jq
+          apk add --no-cache jq
           jq '
             .runs[].results |= map(
               if (.level == "error" or (.properties.severity == "Critical")) then
