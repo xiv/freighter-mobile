@@ -1,53 +1,77 @@
-name: Semgrep
+name: Semgrep CE Scan
 
 on:
-  pull_request: {}
-  workflow_dispatch: {}
   push:
-    branches: ["main"]
-  schedule:
-    - cron: '20 17 * * *'
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
-  security-events: write
   contents: read
-  actions: read
+  security-events: write
 
 jobs:
   semgrep:
-    name: semgrep/ci
+    name: Local Scan
     runs-on: ubuntu-latest
     container:
-      image: semgrep/semgrep
-
-    if: (github.actor != 'dependabot[bot]')
+      image: semgrep/semgrep:latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout source
+        uses: actions/checkout@v5
 
-      - run: semgrep ci --sarif > semgrep.sarif
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-
-      # Map finding severity to Critical (9.0) or High (8.0)
-      - name: Override SARIF severities for GitHub
+      - name: Fetch Semgrep CE rules
         run: |
-          apk add --no-cache jq
-          jq '
-            .runs[].results |= map(
-              if (.level == "error" or (.properties.severity == "Critical")) then
-                .properties["security-severity"] = "9.0"
-              elif (.level == "warning" or (.properties.severity == "High")) then
-                .properties["security-severity"] = "8.0"
-              else
-                .properties["security-severity"] = "8.0"
-              end
-            )
-          ' semgrep.sarif > semgrep-override.sarif
-          mv semgrep-override.sarif semgrep.sarif
+          echo "[INFO] Cloning Semgrep Community rule set"
+          git clone --depth 1 https://github.com/stellar/semgrep-rules.git .semgrep-rules
 
-      - name: Upload SARIF file for GitHub Advanced Security Dashboard
+      - name: Create .semgrepignore
+        run: |
+          echo "[INFO] Writing .semgrepignore"
+          cat > .semgrepignore <<'EOF'
+          # Inherit project-level ignore files
+          :include .gitignore
+
+          # Exclude non-rule directories in semgrep-rules repo
+          .semgrep-rules/.github/
+          .semgrep-rules/.circleci/
+          .semgrep-rules/.vscode/
+          .semgrep-rules/docs/
+          .semgrep-rules/stats/
+          .semgrep-rules/tests/
+          .semgrep-rules/development/
+          .semgrep-rules/contrib/
+
+          # Exclude common non-rule file types
+          .semgrep-rules/**/*.md
+          .semgrep-rules/**/*.rst
+          .semgrep-rules/**/*.toml
+          .semgrep-rules/**/*.ini
+          .semgrep-rules/**/*.cfg
+
+          # Keep actual rule sets
+          !*.rule.yml
+
+          # Ignore build artifacts
+          node_modules/
+          dist/
+          build/
+          venv/
+          EOF
+      - name: Filter non‑rule YAMLs
+        run: |
+          find .semgrep-rules -type f -name '*.yml' -o -name '*.yaml' \
+            | while read -r f; do
+                head -n 10 "$f" | grep -q '^[[:space:]]*rules:' || rm -f "$f"
+              done
+
+      - name: Run Semgrep scan
+        run: |
+          semgrep scan --config .semgrep-rules --metrics=off --verbose --sarif-output semgrep-results.sarif
+
+      # Step used during GitHub Actions runs
+      - name: Upload SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: semgrep.sarif
-        if: always()
+          sarif_file: semgrep-results.sarif
